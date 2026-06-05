@@ -43,6 +43,10 @@
       ".write": false
     },
 
+    "teamModRequests": {
+      ".indexOn": ["uid", "status", "submittedAt"]
+    },
+
     "activityLog": {
       ".indexOn": ["timestamp"]
     },

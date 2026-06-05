@@ -427,6 +427,7 @@
       <div class="tabs" id="tabs">
         <button class="tab-btn active" data-tab="tournaments">Tournaments</button>
         <button class="tab-btn" data-tab="applications">📬 Permohonan <span id="appBadge" class="tab-badge" style="display:none"></span></button>
+        <button class="tab-btn" data-tab="modreqs">🔧 Permohonan Pasukan <span id="modReqsBadge" class="tab-badge" style="display:none"></span></button>
         <button class="tab-btn" data-tab="pending">Pending Results</button>
         <button class="tab-btn" data-tab="activity">Activity Log</button>
         <button class="tab-btn" data-tab="squads">👥 Squads</button>
@@ -435,6 +436,7 @@
 
       <section class="panel active" id="panel-tournaments"></section>
       <section class="panel" id="panel-applications"></section>
+      <section class="panel" id="panel-modreqs"></section>
       <section class="panel" id="panel-pending"></section>
       <section class="panel" id="panel-activity"></section>
       <section class="panel" id="panel-squads"></section>
@@ -536,6 +538,40 @@
         <div class="modal-actions">
           <button class="btn btn-secondary" data-close-modal>Batal</button>
           <button class="btn btn-danger" id="btnConfirmDelete">Ya, Hapus</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Approve Mod Request Modal ────────────── -->
+  <div class="modal-backdrop" id="approveModReqModal">
+    <div class="modal">
+      <div class="card-header"><h2 style="color:var(--green)">✓ Lulus Permohonan</h2></div>
+      <div class="card-body">
+        <p class="text-muted" style="margin-bottom:.75rem;font-size:13px">
+          Meluluskan permohonan ini akan membenarkan pengguna membuat perubahan struktur pada pasukan mereka.
+        </p>
+        <label class="form-label" for="approveModReqNote">Nota Admin <span style="color:var(--txt3);font-weight:400">(Pilihan)</span></label>
+        <textarea class="form-textarea" id="approveModReqNote" placeholder="Contoh: Diluluskan. Sila kemas kini roster sebelum 30 Jun."></textarea>
+        <div class="modal-actions" style="margin-top:1rem">
+          <button class="btn btn-secondary" data-close-modal>Batal</button>
+          <button class="btn btn-primary" id="btnConfirmApproveModReq">✓ Lulus</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Reject Mod Request Modal ──────────────── -->
+  <div class="modal-backdrop" id="rejectModReqModal">
+    <div class="modal">
+      <div class="card-header"><h2 style="color:var(--red)">✕ Tolak Permohonan</h2></div>
+      <div class="card-body">
+        <label class="form-label" for="rejectModReqNote">Sebab Penolakan <span style="color:var(--red)">*</span></label>
+        <textarea class="form-textarea" id="rejectModReqNote" placeholder="Contoh: Roster tidak memenuhi syarat minimum tournament."></textarea>
+        <span class="form-error" id="errRejectModReq" style="display:none;color:var(--red);font-size:12px;margin-top:4px">Sebab penolakan diperlukan.</span>
+        <div class="modal-actions" style="margin-top:1rem">
+          <button class="btn btn-secondary" data-close-modal>Batal</button>
+          <button class="btn btn-danger" id="btnConfirmRejectModReq">✕ Tolak</button>
         </div>
       </div>
     </div>
@@ -937,11 +973,17 @@
     }
 
     async function loadData(state) {
-      const [tournamentsSnap, teamsSnap] = await Promise.all([
+      const [tournamentsSnap, teamsSnap, modReqsSnap] = await Promise.all([
         get(ref(db, "tournaments")),
         get(ref(db, "teams")),
+        get(ref(db, "teamModRequests")),
       ]);
       state.teams = teamsSnap.exists() ? teamsSnap.val() : {};
+      state.modRequests = modReqsSnap.exists()
+        ? Object.entries(modReqsSnap.val())
+            .map(([id, r]) => ({ id, ...r }))
+            .sort((a, b) => (b.submittedAt||0) - (a.submittedAt||0))
+        : [];
       state.tournaments = tournamentsSnap.exists()
         ? Object.entries(tournamentsSnap.val())
           .map(([id, tournament]) => ({ id, ...tournament }))
@@ -986,6 +1028,7 @@
     function renderAll(state) {
       renderStats(state);
       renderTournaments(state);
+      renderModRequests(state);
       renderApplications(state);
       renderPending(state);
       renderActivity(state);
@@ -1003,6 +1046,81 @@
     function statusBadge(status) {
       const klass = status === "done" ? "done" : status === "live" ? "live" : "upcoming";
       return `<span class="badge badge-${klass}">${status}</span>`;
+    }
+
+    function renderModRequests(state) {
+      const panel   = document.getElementById("panel-modreqs");
+      const reqs    = state.modRequests || [];
+      const pending = reqs.filter(r => r.status === "pending");
+      const reviewed = reqs.filter(r => r.status !== "pending");
+
+      /* Update badge */
+      const badge = document.getElementById("modReqsBadge");
+      if (pending.length > 0) {
+        badge.textContent = pending.length;
+        badge.style.display = "";
+      } else {
+        badge.style.display = "none";
+      }
+
+      if (!reqs.length) {
+        panel.innerHTML = '<div class="empty-state">Tiada permohonan pasukan.</div>';
+        return;
+      }
+
+      const REQ_LABELS = {
+        roster_change:"Perubahan Roster", team_name:"Tukar Nama Pasukan",
+        captain_change:"Penukaran Kapten", add_remove_reserve:"Tambah/Buang Rizab",
+        region_change:"Tukar Region", new_team:"Pasukan Baru",
+        registration_error:"Pembetulan Kesilapan", other:"Lain-lain"
+      };
+
+      const renderGroup = (group) => group.map(r => {
+        const team    = state.teams[r.uid];
+        const tname   = team ? `[${team.teamTag||"—"}] ${team.teamName||r.teamName}` : (r.teamName || "—");
+        const dateStr = r.submittedAt ? new Date(r.submittedAt).toLocaleString("ms-MY",
+          {timeZone:"Asia/Kuala_Lumpur",day:"2-digit",month:"short",year:"numeric",
+           hour:"2-digit",minute:"2-digit",hour12:true}) : "—";
+        const isPending  = r.status === "pending";
+        const isApproved = r.status === "change_approved";
+        const statusStyle = isPending
+          ? "background:color-mix(in srgb,#3d8ef0 14%,transparent);border:1px solid color-mix(in srgb,#3d8ef0 35%,transparent);color:#3d8ef0"
+          : isApproved
+          ? "background:color-mix(in srgb,var(--green) 14%,transparent);border:1px solid color-mix(in srgb,var(--green) 35%,transparent);color:var(--green)"
+          : "background:color-mix(in srgb,var(--red) 14%,transparent);border:1px solid color-mix(in srgb,var(--red) 35%,transparent);color:var(--red)";
+        const statusLabel = isPending ? "Menunggu" : isApproved ? "Diluluskan" : "Ditolak";
+        return `<article class="row-card" style="margin-bottom:.75rem">
+          <div class="row-main">
+            <div style="flex:1;min-width:0">
+              <div style="font-family:var(--font-head);font-size:15px;font-weight:700;letter-spacing:1px;color:var(--txt);margin-bottom:4px">${tname}</div>
+              <div style="font-family:var(--font-mono);font-size:11px;color:var(--txt3);letter-spacing:.8px">
+                ${REQ_LABELS[r.requestType]||r.requestType} &middot; ${dateStr}
+              </div>
+              <div style="font-family:var(--font-mono);font-size:11px;color:var(--txt2);margin-top:4px;line-height:1.6">
+                Sebab: ${r.reason||"—"}
+              </div>
+              ${r.adminNote ? `<div style="margin-top:4px;font-family:var(--font-mono);font-size:11px;color:var(--txt3)">Nota: ${r.adminNote}</div>` : ""}
+            </div>
+            <div style="display:flex;gap:.5rem;flex-wrap:wrap;align-items:center;flex-shrink:0">
+              <span style="padding:3px 10px;border-radius:20px;font-family:var(--font-mono);font-size:9px;letter-spacing:1.5px;text-transform:uppercase;${statusStyle}">${statusLabel}</span>
+              ${isPending ? `
+                <button class="btn btn-sm btn-primary" data-action="approve-modreq" data-reqid="${r.id}" data-uid="${r.uid}">✓ Lulus</button>
+                <button class="btn btn-sm btn-danger"  data-action="reject-modreq"  data-reqid="${r.id}" data-uid="${r.uid}">✕ Tolak</button>
+              ` : ""}
+            </div>
+          </div>
+        </article>`;
+      }).join("");
+
+      panel.innerHTML = `
+        ${pending.length ? `
+          <h3 style="font-family:var(--font-head);font-size:13px;letter-spacing:2px;text-transform:uppercase;color:var(--txt2);margin-bottom:1rem">
+            Menunggu Semakan (${pending.length})
+          </h3>${renderGroup(pending)}` : ""}
+        ${reviewed.length ? `
+          <h3 style="font-family:var(--font-head);font-size:13px;letter-spacing:2px;text-transform:uppercase;color:var(--txt3);margin:${pending.length?"1.5rem 0 1rem":"0 0 1rem"}">
+            Sejarah (${reviewed.length})
+          </h3>${renderGroup(reviewed)}` : ""}`;
     }
 
     function renderTournaments(state) {
@@ -1403,6 +1521,21 @@
           return;
         }
 
+        if (action === "approve-modreq") {
+          state.currentAction = { ...state.currentAction, modReqId: btn.dataset.reqid, modReqUid: btn.dataset.uid };
+          document.getElementById("approveModReqNote").value = "";
+          openModal("approveModReqModal");
+          return;
+        }
+
+        if (action === "reject-modreq") {
+          state.currentAction = { ...state.currentAction, modReqId: btn.dataset.reqid, modReqUid: btn.dataset.uid };
+          document.getElementById("rejectModReqNote").value = "";
+          document.getElementById("errRejectModReq").style.display = "none";
+          openModal("rejectModReqModal");
+          return;
+        }
+
         if (action === "approve-app") {
           const appUid = btn.dataset.appUid;
           const appTid = btn.dataset.appTid;
@@ -1549,6 +1682,75 @@
           showAlert("Squad berjaya dipadam.", "success");
         } catch (err) {
           showAlert("Ralat memadam squad. Cuba lagi.");
+        } finally {
+          setLoading(btn, false, originalHTML);
+        }
+      });
+
+      /* ── Approve Mod Request ─────────────── */
+      document.getElementById("btnConfirmApproveModReq").addEventListener("click", async () => {
+        const btn = document.getElementById("btnConfirmApproveModReq");
+        const originalHTML = btn.innerHTML;
+        setLoading(btn, true, originalHTML);
+        try {
+          const { modReqId, modReqUid } = state.currentAction;
+          const note = document.getElementById("approveModReqNote").value.trim();
+          const now  = Date.now();
+          await set(ref(db, `teamModRequests/${modReqId}/status`),     "change_approved");
+          await set(ref(db, `teamModRequests/${modReqId}/reviewedAt`),  now);
+          await set(ref(db, `teamModRequests/${modReqId}/adminNote`),   note || null);
+          await set(ref(db, `teams/${modReqUid}/registrationStatus`),   "change_approved");
+          const reqObj = state.modRequests.find(r => r.id === modReqId);
+          if (reqObj) {
+            await set(ref(db, `teams/${modReqUid}/latestModRequest`), {
+              ...reqObj, status:"change_approved", adminNote: note||null, reviewedAt: now
+            });
+          }
+          await set(push(ref(db, `teams/${modReqUid}/auditLog`)), {
+            action:"mod_request_approved", timestamp: now,
+            details: `Diluluskan oleh admin. Nota: ${note||"—"}`
+          });
+          closeModals();
+          await refresh(state);
+          showAlert("Permohonan berjaya diluluskan.", "success");
+        } catch {
+          showAlert("Ralat meluluskan permohonan. Cuba lagi.");
+        } finally {
+          setLoading(btn, false, originalHTML);
+        }
+      });
+
+      /* ── Reject Mod Request ──────────────── */
+      document.getElementById("btnConfirmRejectModReq").addEventListener("click", async () => {
+        const note = document.getElementById("rejectModReqNote").value.trim();
+        const errEl = document.getElementById("errRejectModReq");
+        if (!note) { errEl.style.display = "block"; return; }
+        errEl.style.display = "none";
+        const btn = document.getElementById("btnConfirmRejectModReq");
+        const originalHTML = btn.innerHTML;
+        setLoading(btn, true, originalHTML);
+        try {
+          const { modReqId, modReqUid } = state.currentAction;
+          const now = Date.now();
+          await set(ref(db, `teamModRequests/${modReqId}/status`),     "change_rejected");
+          await set(ref(db, `teamModRequests/${modReqId}/reviewedAt`),  now);
+          await set(ref(db, `teamModRequests/${modReqId}/adminNote`),   note);
+          await set(ref(db, `teams/${modReqUid}/registrationStatus`),   "change_rejected");
+          const reqObj = state.modRequests.find(r => r.id === modReqId);
+          if (reqObj) {
+            await set(ref(db, `teams/${modReqUid}/latestModRequest`), {
+              ...reqObj, status:"change_rejected", adminNote: note, reviewedAt: now
+            });
+          }
+          await set(push(ref(db, `teams/${modReqUid}/auditLog`)), {
+            action:"mod_request_rejected", timestamp: now,
+            details: `Ditolak oleh admin. Sebab: ${note}`
+          });
+          closeModals();
+          await refresh(state);
+          showAlert("Permohonan telah ditolak.", "success");
+        } catch {
+          showAlert("Ralat menolak permohonan. Cuba lagi.");
         } finally {
           setLoading(btn, false, originalHTML);
         }

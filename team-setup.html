@@ -1286,6 +1286,242 @@
       .home-links a   { font-size: 12px; padding: 7px 10px; }
       .home-actions   { width: 100%; }
     }
+
+    /* ── Registration Status Badge ──────────── */
+    .reg-status-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 5px 14px; border-radius: 20px;
+      font-family: var(--font-mono); font-size: 10px;
+      letter-spacing: 2px; text-transform: uppercase; font-weight: 700;
+      flex-shrink: 0;
+    }
+    .reg-status-badge.status-registered {
+      background: color-mix(in srgb, var(--green) 14%, transparent);
+      border: 1px solid color-mix(in srgb, var(--green) 40%, transparent); color: var(--green);
+    }
+    .reg-status-badge.status-active {
+      background: color-mix(in srgb, var(--gold) 14%, transparent);
+      border: 1px solid color-mix(in srgb, var(--gold) 40%, transparent); color: var(--gold);
+    }
+    .reg-status-badge.status-change_requested,
+    .reg-status-badge.status-pending_review {
+      background: color-mix(in srgb, var(--blue2) 14%, transparent);
+      border: 1px solid color-mix(in srgb, var(--blue2) 40%, transparent); color: var(--blue2);
+    }
+    .reg-status-badge.status-change_approved {
+      background: color-mix(in srgb, #22c55e 14%, transparent);
+      border: 1px solid color-mix(in srgb, #22c55e 40%, transparent); color: #22c55e;
+    }
+    .reg-status-badge.status-change_rejected {
+      background: color-mix(in srgb, var(--red) 14%, transparent);
+      border: 1px solid color-mix(in srgb, var(--red) 40%, transparent); color: var(--red);
+    }
+    .reg-status-badge.status-locked {
+      background: color-mix(in srgb, var(--txt3) 14%, transparent);
+      border: 1px solid color-mix(in srgb, var(--txt3) 30%, transparent); color: var(--txt3);
+    }
+    .reg-status-dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; flex-shrink: 0; }
+
+    /* ── Success Modal ───────────────────────── */
+    .success-modal-overlay {
+      position: fixed; inset: 0; z-index: 9999;
+      background: rgba(5,3,14,.88);
+      display: flex; align-items: center; justify-content: center;
+      backdrop-filter: blur(5px);
+      animation: smFadeIn .3s ease;
+    }
+    @keyframes smFadeIn { from { opacity:0; } to { opacity:1; } }
+    .success-modal-box {
+      background: linear-gradient(145deg, #1a1040 0%, #120c2e 100%);
+      border: 1px solid color-mix(in srgb, var(--gold) 42%, transparent);
+      border-radius: 20px; padding: 2.5rem 2rem;
+      max-width: 500px; width: 92%; text-align: center;
+      box-shadow: 0 25px 60px rgba(0,0,0,.65),
+                  0 0 80px color-mix(in srgb, var(--gold) 8%, transparent);
+      animation: smScaleIn .4s cubic-bezier(.34,1.56,.64,1);
+    }
+    @keyframes smScaleIn { from { opacity:0; transform:scale(.85); } to { opacity:1; transform:scale(1); } }
+    .success-modal-icon { font-size: 64px; display: block; margin-bottom: .75rem;
+      animation: smBounce .65s .3s ease both; }
+    @keyframes smBounce { 0%,100% { transform:translateY(0); } 50% { transform:translateY(-14px); } }
+    .success-modal-title {
+      font-family: var(--font-head); font-size: 22px; font-weight: 700;
+      letter-spacing: 2px; text-transform: uppercase; color: var(--gold); margin-bottom: .5rem;
+    }
+    .success-modal-team {
+      font-family: var(--font-head); font-size: 17px; color: var(--txt);
+      margin-bottom: 1rem; padding: .55rem 1.2rem; letter-spacing: 1px;
+      background: color-mix(in srgb, var(--gold) 8%, transparent);
+      border: 1px solid color-mix(in srgb, var(--gold) 22%, transparent);
+      border-radius: 8px; display: inline-block;
+    }
+    .success-modal-msg {
+      font-family: var(--font-mono); font-size: 11.5px; letter-spacing: .8px;
+      color: var(--txt2); line-height: 1.8; margin-bottom: 1.5rem;
+    }
+    .success-modal-btns { display: flex; gap: .75rem; justify-content: center; flex-wrap: wrap; }
+
+    /* ── Management Mode ─────────────────────── */
+    #registrationFormWrap { display: block; }
+    #managementMode { display: none; }
+    #approvedEditBanner {
+      display: none;
+      background: color-mix(in srgb, #22c55e 9%, var(--bg3));
+      border: 1px solid color-mix(in srgb, #22c55e 38%, transparent);
+      border-radius: var(--radius); padding: .85rem 1.2rem; margin-bottom: 1rem;
+      font-family: var(--font-mono); font-size: 11px; letter-spacing: .8px;
+      color: #22c55e; line-height: 1.7;
+    }
+    .mgmt-header-row {
+      display: flex; align-items: center; gap: .75rem; margin-bottom: 1.25rem; flex-wrap: wrap;
+    }
+    .mgmt-team-badge {
+      font-family: var(--font-mono); font-size: 11px; letter-spacing: 2px;
+      color: var(--gold); background: color-mix(in srgb, var(--gold) 12%, transparent);
+      border: 1px solid color-mix(in srgb, var(--gold) 30%, transparent);
+      border-radius: 6px; padding: 4px 10px; flex-shrink: 0;
+    }
+    .mgmt-team-name {
+      font-family: var(--font-head); font-size: 22px; font-weight: 700;
+      letter-spacing: 2px; color: var(--txt); flex: 1; min-width: 0;
+    }
+    .mgmt-stats-row {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(130px,1fr));
+      gap: .6rem; margin: 1rem 0;
+    }
+    .mgmt-stat {
+      background: var(--bg3); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: .7rem .9rem;
+    }
+    .mgmt-stat-lbl {
+      font-family: var(--font-mono); font-size: 9px; letter-spacing: 2px;
+      text-transform: uppercase; color: var(--txt3); margin-bottom: 3px;
+    }
+    .mgmt-stat-val {
+      font-family: var(--font-head); font-size: 13px; font-weight: 700;
+      letter-spacing: 1px; color: var(--txt);
+    }
+    .mgmt-stat-val.gold { color: var(--gold); }
+    .mgmt-roster-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(170px,1fr)); gap: .4rem;
+    }
+    .mgmt-member-chip {
+      background: var(--bg3); border: 1px solid var(--border);
+      border-radius: 8px; padding: .55rem .9rem;
+      display: flex; flex-direction: column; gap: 2px; overflow: hidden;
+    }
+    .mgmt-member-chip.is-captain {
+      border-color: color-mix(in srgb, var(--gold) 35%, transparent);
+      background: color-mix(in srgb, var(--gold) 5%, var(--bg3));
+    }
+    .mgmt-member-chip.is-reserve {
+      border-color: color-mix(in srgb, var(--blue2) 25%, transparent); opacity: .85;
+    }
+    .mgmt-member-name {
+      font-family: var(--font-head); font-size: 13px; font-weight: 600; color: var(--txt);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .mgmt-member-sub {
+      font-family: var(--font-mono); font-size: 10px; color: var(--txt3); letter-spacing: .8px;
+    }
+    .mgmt-section-label {
+      font-family: var(--font-mono); font-size: 10px; letter-spacing: 2px;
+      text-transform: uppercase; color: var(--txt3); margin: 1rem 0 .5rem;
+    }
+
+    /* ── Mgmt Action Cards ───────────────────── */
+    .mgmt-actions-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1.25rem 0; }
+    @media (max-width: 600px) { .mgmt-actions-grid { grid-template-columns: 1fr; } }
+    .mgmt-action-card {
+      background: var(--bg2); border: 1.5px solid var(--border);
+      border-radius: var(--radius-lg); padding: 1.2rem;
+      cursor: pointer; transition: all .2s; text-align: left;
+    }
+    .mgmt-action-card:hover { border-color: var(--border2); transform: translateY(-2px); }
+    .mgmt-action-card.card-active { border-color: var(--gold); background: color-mix(in srgb, var(--gold) 5%, var(--bg2)); }
+    .mgmt-action-card.card-blue.card-active { border-color: var(--blue2); background: color-mix(in srgb, var(--blue2) 5%, var(--bg2)); }
+    .mgmt-action-icon { font-size: 28px; display: block; margin-bottom: .5rem; }
+    .mgmt-action-title {
+      font-family: var(--font-head); font-size: 13px; font-weight: 700;
+      letter-spacing: 1.5px; text-transform: uppercase; color: var(--txt); margin-bottom: .3rem;
+    }
+    .mgmt-action-desc { font-family: var(--font-mono); font-size: 10px; letter-spacing: .8px; color: var(--txt3); line-height: 1.6; }
+    .mgmt-action-tag {
+      display: inline-block; margin-top: .5rem; font-family: var(--font-mono);
+      font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase;
+      padding: 2px 8px; border-radius: 4px;
+    }
+    .tag-free { background: color-mix(in srgb, var(--green) 14%, transparent); color: var(--green); border: 1px solid color-mix(in srgb, var(--green) 30%, transparent); }
+    .tag-admin { background: color-mix(in srgb, var(--blue2) 14%, transparent); color: var(--blue2); border: 1px solid color-mix(in srgb, var(--blue2) 30%, transparent); }
+
+    /* ── Edit Players Panel ──────────────────── */
+    .edit-players-wrap { display: none; }
+    .edit-player-block {
+      background: var(--bg3); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1rem; margin-bottom: .75rem;
+    }
+    .edit-player-hd { display: flex; align-items: center; gap: .6rem; margin-bottom: .85rem; }
+    .edit-player-num {
+      width: 26px; height: 26px; border-radius: 50%; flex-shrink: 0;
+      background: var(--bg2); border: 1px solid var(--border2);
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--font-mono); font-size: 11px; color: var(--txt2);
+    }
+    .edit-player-num.cap { background: color-mix(in srgb, var(--gold) 14%, var(--bg2)); border-color: var(--gold); color: var(--gold); }
+    .edit-player-lbl { font-family: var(--font-head); font-size: 12px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; color: var(--txt2); flex: 1; }
+    .edit-player-badge {
+      font-family: var(--font-mono); font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase;
+      padding: 2px 7px; border-radius: 4px; background: var(--bg2); border: 1px solid var(--border); color: var(--txt3);
+    }
+    .edit-player-grid { display: grid; grid-template-columns: 1fr 1fr; gap: .6rem; }
+    @media (max-width: 600px) { .edit-player-grid { grid-template-columns: 1fr; } }
+
+    /* ── Mod Request Panel ───────────────────── */
+    .mod-request-wrap { display: none; }
+    .mod-notice {
+      background: color-mix(in srgb, var(--blue2) 8%, var(--bg3));
+      border: 1px solid color-mix(in srgb, var(--blue2) 28%, transparent);
+      border-radius: var(--radius); padding: 1rem 1.1rem;
+      font-family: var(--font-mono); font-size: 11px; letter-spacing: .8px;
+      color: var(--txt2); line-height: 1.8; margin-bottom: 1.2rem;
+    }
+    .mod-notice strong { color: var(--blue2); }
+    .pending-request-card {
+      background: color-mix(in srgb, var(--blue2) 7%, var(--bg3));
+      border: 1px solid color-mix(in srgb, var(--blue2) 30%, transparent);
+      border-radius: var(--radius); padding: 1rem 1.2rem; margin-bottom: 1.2rem;
+    }
+    .pending-request-title { font-family: var(--font-head); font-size: 12px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--blue2); margin-bottom: .5rem; }
+    .pending-request-info { font-family: var(--font-mono); font-size: 11px; letter-spacing: .8px; color: var(--txt2); line-height: 1.7; }
+    .approved-banner {
+      background: color-mix(in srgb, #22c55e 8%, var(--bg3));
+      border: 1px solid color-mix(in srgb, #22c55e 35%, transparent);
+      border-radius: var(--radius); padding: .85rem 1rem; margin-bottom: 1.25rem;
+      font-family: var(--font-mono); font-size: 11px; letter-spacing: .8px; color: #22c55e; line-height: 1.7;
+    }
+    .rejected-banner {
+      background: color-mix(in srgb, var(--red) 8%, var(--bg3));
+      border: 1px solid color-mix(in srgb, var(--red) 30%, transparent);
+      border-radius: var(--radius); padding: .85rem 1rem; margin-bottom: 1.25rem;
+      font-family: var(--font-mono); font-size: 11px; letter-spacing: .8px; color: var(--red); line-height: 1.7;
+    }
+    .audit-log-section { margin-top: 1.5rem; }
+    .audit-log-title {
+      font-family: var(--font-mono); font-size: 10px; letter-spacing: 2px;
+      text-transform: uppercase; color: var(--txt3); margin-bottom: .6rem;
+      display: flex; align-items: center; gap: .75rem;
+    }
+    .audit-log-title::before { content: ''; flex: 1; height: 1px; background: var(--border); }
+    .audit-entry { display: flex; gap: .7rem; padding: .5rem 0; border-bottom: 1px solid var(--border); }
+    .audit-entry:last-child { border-bottom: none; }
+    .audit-entry-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--border2); flex-shrink: 0; margin-top: 4px; }
+    .audit-entry-dot.dot-green { background: var(--green); }
+    .audit-entry-dot.dot-gold  { background: var(--gold); }
+    .audit-entry-dot.dot-blue  { background: var(--blue2); }
+    .audit-entry-dot.dot-red   { background: var(--red); }
+    .audit-entry-body { flex: 1; min-width: 0; }
+    .audit-entry-text { font-family: var(--font-mono); font-size: 11px; letter-spacing: .5px; color: var(--txt2); }
+    .audit-entry-time { font-family: var(--font-mono); font-size: 10px; color: var(--txt3); margin-top: 2px; }
   </style>
 </head>
 <body>
@@ -1353,6 +1589,149 @@
 
     <div class="alert alert-error" id="alertError"><span id="errMsg"></span></div>
     <div class="alert alert-success" id="alertSuccess">✓ Profil pasukan berjaya disimpan!</div>
+
+    <!-- ══ MANAGEMENT MODE (shown when team already registered) ════════ -->
+    <div id="managementMode">
+
+      <!-- Team Profile Card -->
+      <div class="card mb-2">
+        <div class="card-body">
+          <div class="mgmt-header-row">
+            <span class="mgmt-team-badge" id="mgmtTeamTag">[ — ]</span>
+            <span class="mgmt-team-name" id="mgmtTeamName">—</span>
+            <span class="reg-status-badge status-registered" id="mgmtStatusBadge">
+              <span class="reg-status-dot"></span>
+              <span id="mgmtStatusText">Team Registered</span>
+            </span>
+          </div>
+          <div class="mgmt-stats-row">
+            <div class="mgmt-stat">
+              <div class="mgmt-stat-lbl">Kapten</div>
+              <div class="mgmt-stat-val" id="mgmtCaptain">—</div>
+            </div>
+            <div class="mgmt-stat">
+              <div class="mgmt-stat-lbl">Rank Kapten</div>
+              <div class="mgmt-stat-val gold" id="mgmtCaptainRank">—</div>
+            </div>
+            <div class="mgmt-stat">
+              <div class="mgmt-stat-lbl">Server</div>
+              <div class="mgmt-stat-val" id="mgmtServer">—</div>
+            </div>
+            <div class="mgmt-stat">
+              <div class="mgmt-stat-lbl">Ahli Aktif</div>
+              <div class="mgmt-stat-val" id="mgmtMemberCount">—</div>
+            </div>
+          </div>
+          <div class="mgmt-section-label">Roster Semasa</div>
+          <div class="mgmt-roster-grid" id="mgmtRoster"></div>
+        </div>
+      </div>
+
+      <!-- Action Selection -->
+      <div class="mgmt-actions-grid">
+        <div class="mgmt-action-card" id="cardEditPlayers" onclick="toggleMgmtSection('edit')">
+          <span class="mgmt-action-icon">✏️</span>
+          <div class="mgmt-action-title">Kemaskini Maklumat Pemain</div>
+          <div class="mgmt-action-desc">
+            Kemas kini nama IGN, peranan, rank atau ML ID pemain tanpa kelulusan admin.
+          </div>
+          <span class="mgmt-action-tag tag-free">Tanpa Kelulusan</span>
+        </div>
+        <div class="mgmt-action-card card-blue" id="cardModRequest" onclick="toggleMgmtSection('mod')">
+          <span class="mgmt-action-icon">📋</span>
+          <div class="mgmt-action-title">Permohonan Perubahan</div>
+          <div class="mgmt-action-desc">
+            Hantar permohonan untuk tukar nama pasukan, susun semula roster atau perubahan struktur lain.
+          </div>
+          <span class="mgmt-action-tag tag-admin">Perlu Kelulusan Admin</span>
+        </div>
+      </div>
+
+      <!-- Edit Players Panel -->
+      <div class="card mb-2 edit-players-wrap" id="editPlayersWrap">
+        <div class="card-body">
+          <div class="esports-section">
+            <div class="esports-section-icon">✏️</div>
+            <div class="esports-section-text">
+              <h3>Kemaskini Maklumat Pemain</h3>
+              <p>Nama IGN, peranan, rank &amp; ML ID boleh diubah tanpa kelulusan</p>
+            </div>
+          </div>
+          <div id="editPlayersList"></div>
+          <div class="alert alert-error" id="editError" style="margin-top:.75rem"><span id="editErrMsg"></span></div>
+          <div class="alert alert-success" id="editSuccess" style="margin-top:.75rem">✓ Maklumat pemain berjaya dikemaskini.</div>
+          <div style="display:flex;gap:.75rem;margin-top:1rem;flex-wrap:wrap">
+            <button class="btn btn-primary" id="btnSavePlayerInfo" onclick="savePlayerInfo()">💾 Simpan Perubahan</button>
+            <button class="btn btn-secondary" onclick="toggleMgmtSection('edit')">Tutup</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mod Request Panel -->
+      <div class="card mb-2 mod-request-wrap" id="modRequestWrap">
+        <div class="card-body">
+          <div class="esports-section">
+            <div class="esports-section-icon">📋</div>
+            <div class="esports-section-text">
+              <h3>Permohonan Perubahan Pasukan</h3>
+              <p>Perubahan struktur memerlukan kelulusan administrator</p>
+            </div>
+          </div>
+
+          <div id="pendingRequestInfo"></div>
+
+          <div id="modRequestForm">
+            <div class="mod-notice">
+              <strong>Perubahan yang memerlukan kelulusan admin:</strong><br>
+              Nama pasukan · Tag pasukan · Penukaran Kapten · Susun semula ahli aktif ·
+              Tambah / buang ahli · Perubahan server region · Daftar pasukan baru
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="modRequestType">Jenis Permohonan</label>
+              <select class="form-select" id="modRequestType">
+                <option value="">— Pilih jenis —</option>
+                <option value="roster_change">Perubahan Roster / Ahli</option>
+                <option value="team_name">Tukar Nama / Tag Pasukan</option>
+                <option value="captain_change">Penukaran Kapten</option>
+                <option value="add_remove_reserve">Tambah / Buang Pemain Rizab</option>
+                <option value="region_change">Tukar Server Region</option>
+                <option value="new_team">Daftar Pasukan Baru</option>
+                <option value="registration_error">Pembetulan Kesilapan Pendaftaran</option>
+                <option value="other">Lain-lain</option>
+              </select>
+            </div>
+            <div class="form-group" style="margin-top:.75rem">
+              <label class="form-label" for="modRequestReason">Sebab Permohonan</label>
+              <textarea class="form-textarea" id="modRequestReason"
+                placeholder="Jelaskan sebab perubahan yang dipohon. Contoh: Pemain M3 telah keluar pasukan, ingin menggantikan dengan pemain baru."
+                style="min-height:100px"></textarea>
+            </div>
+            <div class="alert alert-error" id="modError" style="margin-top:.75rem"><span id="modErrMsg"></span></div>
+            <div class="alert alert-success" id="modSuccess" style="margin-top:.75rem">✓ Permohonan berjaya dihantar. Admin akan menyemak permohonan anda dalam masa terdekat.</div>
+            <div style="display:flex;gap:.75rem;margin-top:1rem;flex-wrap:wrap">
+              <button class="btn btn-primary" id="btnSubmitModRequest" onclick="submitModRequest()">📤 Hantar Permohonan</button>
+              <button class="btn btn-secondary" onclick="toggleMgmtSection('mod')">Tutup</button>
+            </div>
+          </div>
+
+          <div class="audit-log-section" id="auditLogSection" style="display:none">
+            <div class="audit-log-title">Log Aktiviti Pasukan</div>
+            <div id="auditLogEntries"></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <!-- ══ END MANAGEMENT MODE ══════════════════════════════════════════ -->
+
+    <!-- ══ REGISTRATION FORM ════════════════════════════════════════════ -->
+    <div id="registrationFormWrap">
+
+    <!-- Approved-edit banner (shown when admin approved structural change) -->
+    <div id="approvedEditBanner">
+      ✓ Permohonan perubahan anda telah <strong>diluluskan</strong> oleh admin.
+      Lengkapkan perubahan menggunakan borang di bawah dan tekan <strong>Daftar Pasukan</strong> untuk menyimpan.
+    </div>
 
     <!-- ── Step Progress ────────────────────── -->
     <div class="steps-wrap">
@@ -2149,12 +2528,32 @@
       </div>
 
     </div>
+
+    </div><!-- /#registrationFormWrap -->
   </main>
+
+  <!-- ══ SUCCESS MODAL ════════════════════════════════════════════════ -->
+  <div id="regSuccessModal" class="success-modal-overlay" style="display:none">
+    <div class="success-modal-box">
+      <span class="success-modal-icon">🏆</span>
+      <div class="success-modal-title">Pasukan Berjaya Didaftarkan!</div>
+      <div class="success-modal-team" id="successTeamDisplay">—</div>
+      <p class="success-modal-msg">
+        Profil pasukan anda telah disimpan dengan selamat.<br>
+        Layari halaman Jadual untuk menyemak pertandingan yang tersedia<br>
+        dan hantar permohonan penyertaan.
+      </p>
+      <div class="success-modal-btns">
+        <a href="schedule.html" class="btn btn-primary">📅 Lihat Jadual</a>
+        <button class="btn btn-secondary" onclick="closeSuccessModal()">Profil Pasukan</button>
+      </div>
+    </div>
+  </div>
 
   <script type="module">
     import { requirePlayer } from "./js/auth.js";
     import { auth, db } from "./js/firebase-config.js";
-    import { ref, set, get, query, orderByChild, equalTo }
+    import { ref, set, get, push, query, orderByChild, equalTo }
       from "https://www.gstatic.com/firebasejs/12.14.0/firebase-database.js";
     import { signOut }
       from "https://www.gstatic.com/firebasejs/12.14.0/firebase-auth.js";
@@ -2216,6 +2615,11 @@
     let selectedR2Rank = ""; let selectedR2RankStars = 0;
     let existingCreatedAt = null;
 
+    /* ── Management mode state ──────────────── */
+    let currentUser       = null;
+    let loadedTeamData    = null;
+    let currentPendingReq = null;
+
     /* ── Expose goStep globally (called from onclick) ── */
     window.goStep = goStep;
 
@@ -2248,6 +2652,7 @@
     }
 
     requirePlayer(async (user) => {
+      currentUser = user;
 
       /* ── Navbar ─────────────────────────── */
       const navActions = document.getElementById("navActions");
@@ -2264,11 +2669,15 @@
       /* ── Load tournament banner ─────────── */
       loadTournamentBanner();
 
-      /* ── Load existing data ─────────────── */
+      /* ── Load existing data / decide mode ── */
       const snap = await get(ref(db, `teams/${user.uid}`));
       if (snap.exists()) {
         const d = snap.val();
+        loadedTeamData    = d;
         existingCreatedAt = d.createdAt || null;
+        const status = d.registrationStatus || "registered";
+
+        /* Always pre-fill the form (needed for change_approved edits) */
         setValue("teamName",    d.teamName);
         setValue("teamTag",     d.teamTag);
         setValue("displayName", d.displayName);
@@ -2309,7 +2718,6 @@
           setValue(`m${n}name`, m.name);
           setValue(`m${n}id`,   m.mlId);
           setValue(`m${n}role`, m.role);
-          // Restore member rank if previously saved
           if (m.rank) {
             const { setRank, setStars } = memberRankState[n];
             setRank(m.rank);
@@ -2322,7 +2730,6 @@
             }
           }
         });
-        // Restore reserve players
         const reserveRankState = {
           1: { setRank:v=>{selectedR1Rank=v;}, setStars:v=>{selectedR1RankStars=v;} },
           2: { setRank:v=>{selectedR2Rank=v;}, setStars:v=>{selectedR2RankStars=v;} },
@@ -2345,8 +2752,18 @@
             }
           }
         });
+        updateAll();
+
+        /* Route to management mode or approved-edit form */
+        if (status === "change_approved") {
+          document.getElementById("approvedEditBanner").style.display = "block";
+        } else {
+          currentPendingReq = d.latestModRequest || null;
+          showManagementMode(d, currentPendingReq);
+        }
+      } else {
+        updateAll();
       }
-      updateAll();
 
       /* ── Step navigation buttons ────────── */
       document.getElementById("next1").onclick = () => goStep(2);
@@ -2570,7 +2987,9 @@
         })).filter(r => r.name);
 
         try {
-          await set(ref(db, `teams/${user.uid}`), {
+          const isFirstReg = !existingCreatedAt;
+          const wasApprovedEdit = loadedTeamData?.registrationStatus === "change_approved";
+          const savedData = {
             teamName, teamTag, displayName, mlId,
             captainRole:             selectedRole,
             captainRank:             selectedRank,
@@ -2581,12 +3000,32 @@
             members,
             reserves,
             uid: user.uid,
-            createdAt: existingCreatedAt || Date.now()
+            createdAt: existingCreatedAt || Date.now(),
+            registrationStatus: "registered",
+            latestModRequest: loadedTeamData?.latestModRequest || null,
+          };
+          await set(ref(db, `teams/${user.uid}`), savedData);
+          existingCreatedAt = savedData.createdAt;
+          loadedTeamData = savedData;
+
+          /* Write audit log entry */
+          await set(push(ref(db, `teams/${user.uid}/auditLog`)), {
+            action: isFirstReg ? "team_registered" : "structural_edit",
+            timestamp: Date.now(),
+            details: `Pasukan: ${teamName} [${teamTag}]`
           });
-          existingCreatedAt = existingCreatedAt || Date.now();
-          document.getElementById("alertSuccess").classList.add("show");
-          setTimeout(() =>
-            document.getElementById("alertSuccess").classList.remove("show"), 3500);
+
+          if (isFirstReg) {
+            /* First registration — show success modal */
+            const tag = teamTag ? `[ ${teamTag} ] ` : "";
+            document.getElementById("successTeamDisplay").textContent = `${tag}${teamName}`;
+            document.getElementById("regSuccessModal").style.display = "flex";
+          } else {
+            /* Approved structural edit done — return to management mode */
+            document.getElementById("approvedEditBanner").style.display = "none";
+            currentPendingReq = null;
+            showManagementMode(savedData, null);
+          }
         } catch {
           document.getElementById("errMsg").textContent =
             "Ralat menyimpan data. Sila cuba lagi.";
@@ -3017,6 +3456,339 @@
     function escHtml(str) {
       return String(str)
         .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+    }
+
+    /* ══ MANAGEMENT MODE FUNCTIONS ══════════════════════════════════════ */
+
+    const STATUS_LABELS = {
+      registered:       "Team Registered",
+      active:           "Team Active",
+      change_requested: "Change Requested",
+      pending_review:   "Pending Review",
+      change_approved:  "Change Approved",
+      change_rejected:  "Change Rejected",
+      locked:           "Registration Locked",
+    };
+    const MOD_REQ_LABELS = {
+      roster_change:      "Perubahan Roster / Ahli",
+      team_name:          "Tukar Nama / Tag Pasukan",
+      captain_change:     "Penukaran Kapten",
+      add_remove_reserve: "Tambah / Buang Pemain Rizab",
+      region_change:      "Tukar Server Region",
+      new_team:           "Daftar Pasukan Baru",
+      registration_error: "Pembetulan Kesilapan Pendaftaran",
+      other:              "Lain-lain",
+    };
+
+    function showManagementMode(d, pendingReq) {
+      document.getElementById("registrationFormWrap").style.display = "none";
+      document.getElementById("managementMode").style.display       = "block";
+
+      /* Profile card */
+      document.getElementById("mgmtTeamTag").textContent      = d.teamTag ? `[ ${d.teamTag} ]` : "[ — ]";
+      document.getElementById("mgmtTeamName").textContent     = d.teamName || "—";
+      document.getElementById("mgmtCaptain").textContent      = d.displayName || "—";
+      document.getElementById("mgmtCaptainRank").textContent  = d.captainRank || "—";
+      document.getElementById("mgmtServer").textContent       = d.serverRegion || "—";
+
+      const activeMembers = (d.members || []).filter(m => m.name);
+      document.getElementById("mgmtMemberCount").textContent  = `${1 + activeMembers.length} / 5`;
+
+      /* Roster chips */
+      let rHtml = `<div class="mgmt-member-chip is-captain">
+        <div class="mgmt-member-name">${escHtml(d.displayName || "—")}</div>
+        <div class="mgmt-member-sub">Kapten · ${d.captainRank || "—"}</div>
+      </div>`;
+      activeMembers.forEach((m, i) => {
+        rHtml += `<div class="mgmt-member-chip">
+          <div class="mgmt-member-name">${escHtml(m.name)}</div>
+          <div class="mgmt-member-sub">Ahli ${i+2} · ${m.rank || "—"}</div>
+        </div>`;
+      });
+      (d.reserves || []).filter(r => r.name).forEach(r => {
+        rHtml += `<div class="mgmt-member-chip is-reserve">
+          <div class="mgmt-member-name">${escHtml(r.name)}</div>
+          <div class="mgmt-member-sub">Rizab · ${r.rank || "—"}</div>
+        </div>`;
+      });
+      document.getElementById("mgmtRoster").innerHTML = rHtml;
+
+      /* Status badge */
+      const status = d.registrationStatus || "registered";
+      const badge  = document.getElementById("mgmtStatusBadge");
+      badge.className = `reg-status-badge status-${status}`;
+      document.getElementById("mgmtStatusText").textContent = STATUS_LABELS[status] || "Registered";
+
+      /* Pending / approved / rejected notice in mod-request panel */
+      const pendingEl   = document.getElementById("pendingRequestInfo");
+      const modFormEl   = document.getElementById("modRequestForm");
+      pendingEl.innerHTML = "";
+      modFormEl.style.display = "block";
+
+      if (status === "change_requested" || status === "pending_review") {
+        modFormEl.style.display = "none";
+        if (pendingReq) {
+          const dateStr = pendingReq.submittedAt
+            ? new Date(pendingReq.submittedAt).toLocaleString("ms-MY",
+                {timeZone:"Asia/Kuala_Lumpur",day:"2-digit",month:"short",year:"numeric",hour:"2-digit",minute:"2-digit",hour12:true})
+            : "—";
+          pendingEl.innerHTML = `<div class="pending-request-card">
+            <div class="pending-request-title">⏳ Permohonan Dalam Semakan</div>
+            <div class="pending-request-info">
+              <strong>Jenis:</strong> ${MOD_REQ_LABELS[pendingReq.requestType] || pendingReq.requestType || "—"}<br>
+              <strong>Sebab:</strong> ${escHtml(pendingReq.reason || "—")}<br>
+              <strong>Dihantar:</strong> ${dateStr}
+            </div>
+          </div>`;
+        }
+      } else if (status === "change_rejected" && pendingReq) {
+        pendingEl.innerHTML = `<div class="rejected-banner">
+          ✕ Permohonan perubahan anda telah <strong>ditolak</strong>.
+          ${pendingReq.adminNote ? `<br><strong>Nota Admin:</strong> ${escHtml(pendingReq.adminNote)}` : ""}
+        </div>`;
+      } else if (status === "change_approved" && pendingReq) {
+        modFormEl.style.display = "none";
+        pendingEl.innerHTML = `<div class="approved-banner">
+          ✓ Permohonan perubahan anda telah <strong>diluluskan</strong>.
+          ${pendingReq.adminNote ? `<br><strong>Nota Admin:</strong> ${escHtml(pendingReq.adminNote)}` : ""}
+        </div>
+        <div style="margin-top:.75rem">
+          <button class="btn btn-primary" onclick="enterApprovedEdit()">✏️ Buat Perubahan Sekarang</button>
+        </div>`;
+      }
+
+      /* Build edit-players form */
+      buildEditPlayersForm(d);
+
+      /* Load audit log (non-blocking) */
+      loadTeamAuditLog(currentUser.uid);
+    }
+
+    function buildEditPlayersForm(d) {
+      const RANKS = ["","Warrior","Elite","Master","Grandmaster","Epic","Legend",
+                     "Mythic","Mythic Honor","Mythic Glory","Mythic Immortal"];
+      const ROLES = ["","Hyper","Roamer","EXPlaner","Goldlaner","Midlaner"];
+      const rankOpts = RANKS.map(r => `<option value="${r}">${r || "— Pilih —"}</option>`).join("");
+      const roleOpts = ROLES.map(r => `<option value="${r}">${r || "— Pilih —"}</option>`).join("");
+
+      function playerBlock(id, label, badge, data, isCap) {
+        const sel = (opts, val) => opts.replace(`value="${escHtml(val||'')}"`, `value="${escHtml(val||'')}" selected`);
+        return `<div class="edit-player-block">
+          <div class="edit-player-hd">
+            <div class="edit-player-num${isCap?" cap":""}">${isCap?"C":id.replace(/\D/g,"")}</div>
+            <div class="edit-player-lbl">${label}</div>
+            <span class="edit-player-badge">${badge}</span>
+          </div>
+          <div class="edit-player-grid">
+            <div>
+              <label class="form-label" style="font-size:11px">Nama IGN</label>
+              <input class="form-input" id="ep_${id}_name" type="text" maxlength="30"
+                value="${escHtml(data?.displayName||data?.name||"")}" placeholder="Nama In-Game">
+            </div>
+            <div>
+              <label class="form-label" style="font-size:11px">ML ID</label>
+              <input class="form-input" id="ep_${id}_mlid" type="text" maxlength="25"
+                value="${escHtml(data?.mlId||"")}" placeholder="Contoh: 123456789">
+            </div>
+            <div>
+              <label class="form-label" style="font-size:11px">Peranan</label>
+              <select class="form-select" id="ep_${id}_role">${sel(roleOpts, data?.captainRole||data?.role||"")}</select>
+            </div>
+            <div>
+              <label class="form-label" style="font-size:11px">Rank Semasa</label>
+              <select class="form-select" id="ep_${id}_rank">${sel(rankOpts, data?.captainRank||data?.rank||"")}</select>
+            </div>
+          </div>
+        </div>`;
+      }
+
+      let html = playerBlock("cap", "Kapten", "Kapten", d, true);
+      (d.members||[]).forEach((m,i) =>
+        html += playerBlock(`m${i+2}`, `Ahli ${i+2}`, i<2?"Wajib":"Pilihan", m||{}, false));
+      /* Pad to 4 member blocks */
+      for (let i = (d.members||[]).length; i < 4; i++)
+        html += playerBlock(`m${i+2}`, `Ahli ${i+2}`, i<2?"Wajib":"Pilihan", {}, false);
+      (d.reserves||[]).forEach((r,i) =>
+        html += playerBlock(`r${i+1}`, `Rizab ${i+1}`, "Pilihan", r||{}, false));
+      for (let i = (d.reserves||[]).length; i < 2; i++)
+        html += playerBlock(`r${i+1}`, `Rizab ${i+1}`, "Pilihan", {}, false);
+
+      document.getElementById("editPlayersList").innerHTML = html;
+    }
+
+    window.toggleMgmtSection = function(section) {
+      const editWrap = document.getElementById("editPlayersWrap");
+      const modWrap  = document.getElementById("modRequestWrap");
+      const cardEdit = document.getElementById("cardEditPlayers");
+      const cardMod  = document.getElementById("cardModRequest");
+      if (section === "edit") {
+        const open = editWrap.style.display === "block";
+        editWrap.style.display = open ? "none" : "block";
+        cardEdit.classList.toggle("card-active", !open);
+        modWrap.style.display = "none";
+        cardMod.classList.remove("card-active");
+      } else {
+        const open = modWrap.style.display === "block";
+        modWrap.style.display = open ? "none" : "block";
+        cardMod.classList.toggle("card-active", !open);
+        editWrap.style.display = "none";
+        cardEdit.classList.remove("card-active");
+      }
+    };
+
+    window.savePlayerInfo = async function() {
+      const btn = document.getElementById("btnSavePlayerInfo");
+      btn.disabled = true; btn.textContent = "Menyimpan...";
+      document.getElementById("editError").classList.remove("show");
+      document.getElementById("editSuccess").classList.remove("show");
+      try {
+        const d  = loadedTeamData;
+        const gv = id => document.getElementById(id)?.value.trim() || "";
+        const updated = {
+          ...d,
+          displayName:  gv("ep_cap_name"),
+          mlId:         gv("ep_cap_mlid"),
+          captainRole:  gv("ep_cap_role"),
+          captainRank:  gv("ep_cap_rank"),
+          members: [2,3,4,5].map(n => ({
+            ...(d.members?.[n-2]||{}),
+            name: gv(`ep_m${n}_name`),
+            mlId: gv(`ep_m${n}_mlid`),
+            role: gv(`ep_m${n}_role`),
+            rank: gv(`ep_m${n}_rank`),
+          })),
+          reserves: [1,2].map(n => ({
+            ...(d.reserves?.[n-1]||{}),
+            name: gv(`ep_r${n}_name`),
+            mlId: gv(`ep_r${n}_mlid`),
+            role: gv(`ep_r${n}_role`),
+            rank: gv(`ep_r${n}_rank`),
+          })).filter(r => r.name),
+        };
+        await set(ref(db, `teams/${currentUser.uid}`), updated);
+        await set(push(ref(db, `teams/${currentUser.uid}/auditLog`)), {
+          action: "player_info_updated", timestamp: Date.now(),
+          details: "Maklumat pemain dikemaskini oleh pengguna"
+        });
+        loadedTeamData = updated;
+        /* Refresh only the profile card + roster, keep edit panel open */
+        document.getElementById("mgmtTeamName").textContent    = updated.teamName || "—";
+        document.getElementById("mgmtCaptain").textContent     = updated.displayName || "—";
+        document.getElementById("mgmtCaptainRank").textContent = updated.captainRank || "—";
+        const activeMembers = (updated.members||[]).filter(m => m.name);
+        document.getElementById("mgmtMemberCount").textContent = `${1 + activeMembers.length} / 5`;
+        let rHtml = `<div class="mgmt-member-chip is-captain">
+          <div class="mgmt-member-name">${escHtml(updated.displayName||"—")}</div>
+          <div class="mgmt-member-sub">Kapten · ${updated.captainRank||"—"}</div></div>`;
+        activeMembers.forEach((m,i) => {
+          rHtml += `<div class="mgmt-member-chip">
+            <div class="mgmt-member-name">${escHtml(m.name)}</div>
+            <div class="mgmt-member-sub">Ahli ${i+2} · ${m.rank||"—"}</div></div>`;
+        });
+        document.getElementById("mgmtRoster").innerHTML = rHtml;
+        document.getElementById("editSuccess").classList.add("show");
+        setTimeout(() => document.getElementById("editSuccess").classList.remove("show"), 3500);
+      } catch {
+        document.getElementById("editErrMsg").textContent = "Ralat menyimpan. Sila cuba lagi.";
+        document.getElementById("editError").classList.add("show");
+      } finally {
+        btn.disabled = false; btn.textContent = "💾 Simpan Perubahan";
+      }
+    };
+
+    window.submitModRequest = async function() {
+      const btn         = document.getElementById("btnSubmitModRequest");
+      const requestType = document.getElementById("modRequestType").value;
+      const reason      = document.getElementById("modRequestReason").value.trim();
+      document.getElementById("modError").classList.remove("show");
+      document.getElementById("modSuccess").classList.remove("show");
+      if (!requestType) {
+        document.getElementById("modErrMsg").textContent = "Sila pilih jenis permohonan.";
+        document.getElementById("modError").classList.add("show"); return;
+      }
+      if (!reason) {
+        document.getElementById("modErrMsg").textContent = "Sila tulis sebab permohonan.";
+        document.getElementById("modError").classList.add("show"); return;
+      }
+      btn.disabled = true; btn.textContent = "Menghantar...";
+      try {
+        const d   = loadedTeamData;
+        const now = Date.now();
+        const reqRef = push(ref(db, "teamModRequests"));
+        const reqId  = reqRef.key;
+        const reqData = {
+          requestId: reqId, uid: currentUser.uid,
+          teamName: d.teamName, teamTag: d.teamTag,
+          requestType, reason, status: "pending",
+          submittedAt: now, reviewedAt: null, reviewedBy: null, adminNote: null
+        };
+        await set(reqRef, reqData);
+        const updated = { ...d, registrationStatus: "change_requested", latestModRequest: reqData };
+        await set(ref(db, `teams/${currentUser.uid}`), updated);
+        await set(push(ref(db, `teams/${currentUser.uid}/auditLog`)), {
+          action: "mod_request_submitted", timestamp: now,
+          details: `Jenis: ${requestType}. Sebab: ${reason}`
+        });
+        loadedTeamData    = updated;
+        currentPendingReq = reqData;
+        showManagementMode(updated, reqData);
+        /* Re-open mod panel so user sees the pending-request notice */
+        document.getElementById("modRequestWrap").style.display = "block";
+        document.getElementById("cardModRequest").classList.add("card-active");
+        document.getElementById("modSuccess").classList.add("show");
+        setTimeout(() => document.getElementById("modSuccess").classList.remove("show"), 4000);
+      } catch {
+        document.getElementById("modErrMsg").textContent = "Ralat menghantar permohonan. Sila cuba lagi.";
+        document.getElementById("modError").classList.add("show");
+      } finally {
+        btn.disabled = false; btn.textContent = "📤 Hantar Permohonan";
+      }
+    };
+
+    window.enterApprovedEdit = function() {
+      document.getElementById("managementMode").style.display    = "none";
+      document.getElementById("registrationFormWrap").style.display = "block";
+      document.getElementById("approvedEditBanner").style.display = "block";
+    };
+
+    window.closeSuccessModal = function() {
+      document.getElementById("regSuccessModal").style.display = "none";
+      if (loadedTeamData) {
+        currentPendingReq = loadedTeamData.latestModRequest || null;
+        showManagementMode(loadedTeamData, currentPendingReq);
+      }
+    };
+
+    async function loadTeamAuditLog(uid) {
+      try {
+        const snap = await get(ref(db, `teams/${uid}/auditLog`));
+        if (!snap.exists()) return;
+        const entries = Object.values(snap.val())
+          .sort((a, b) => (b.timestamp||0) - (a.timestamp||0))
+          .slice(0, 8);
+        const dotClass = { team_registered:"dot-green", player_info_updated:"dot-gold",
+                           mod_request_submitted:"dot-blue", structural_edit:"dot-green" };
+        const actionLabel = { team_registered:"Pasukan didaftarkan",
+                              player_info_updated:"Maklumat pemain dikemaskini",
+                              mod_request_submitted:"Permohonan perubahan dihantar",
+                              structural_edit:"Perubahan struktur disimpan" };
+        const html = entries.map(e => {
+          const dc  = dotClass[e.action] || "";
+          const lbl = actionLabel[e.action] || e.action;
+          const ts  = e.timestamp ? new Date(e.timestamp).toLocaleString("ms-MY",
+            {timeZone:"Asia/Kuala_Lumpur",day:"2-digit",month:"short",year:"numeric",
+             hour:"2-digit",minute:"2-digit",hour12:true}) : "—";
+          return `<div class="audit-entry">
+            <div class="audit-entry-dot ${dc}"></div>
+            <div class="audit-entry-body">
+              <div class="audit-entry-text">${lbl}</div>
+              <div class="audit-entry-time">${ts}</div>
+            </div>
+          </div>`;
+        }).join("");
+        document.getElementById("auditLogEntries").innerHTML = html;
+        document.getElementById("auditLogSection").style.display = "block";
+      } catch { /* non-critical */ }
     }
 
     /* ── Init UI ────────────────────────────── */

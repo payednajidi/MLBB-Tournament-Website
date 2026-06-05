@@ -1,0 +1,1157 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Home - MLBB OPS</title>
+  <link rel="stylesheet" href="css/global.css">
+  <style>
+    .home-nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: color-mix(in srgb, var(--bg) 94%, transparent);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .home-nav-inner {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 14px 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: nowrap;
+    }
+
+    .home-links {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      flex-wrap: nowrap;
+      list-style: none;
+      flex: 1 1 auto;
+      overflow: hidden;
+    }
+
+    .home-links a {
+      display: inline-flex;
+      align-items: center;
+      min-height: 44px;
+      padding: 9px 10px;
+      border-radius: var(--radius);
+      color: var(--txt2);
+      font-family: var(--font-head);
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      white-space: nowrap;
+      transition: all .2s;
+    }
+
+    .home-links a:hover,
+    .home-links a.active {
+      color: var(--gold);
+      background: color-mix(in srgb, var(--gold) 12%, transparent);
+    }
+
+    .home-actions {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+    .nav-admin-badge {
+      display: inline-flex;
+      align-items: center;
+      min-height: 34px;
+      padding: 4px 10px;
+      border-radius: var(--radius);
+      color: var(--gold);
+      background: color-mix(in srgb, var(--gold) 12%, transparent);
+      border: 1px solid color-mix(in srgb, var(--gold) 30%, transparent);
+      font-family: var(--font-head);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      cursor: default;
+      user-select: none;
+    }
+
+    .hero {
+      min-height: calc(100vh - 74px);
+      display: flex;
+      align-items: center;
+      background-image:
+        linear-gradient(90deg, var(--bg) 0%, color-mix(in srgb, var(--bg) 80%, transparent) 45%, color-mix(in srgb, var(--bg) 22%, transparent) 100%),
+        url("assets/new-home-hero.png");
+      background-size: cover;
+      background-position: center;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .hero-content {
+      max-width: 700px;
+      padding: 4rem 0;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--gold2);
+      font-family: var(--font-mono);
+      font-size: 13px;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      margin-bottom: 1.1rem;
+      text-shadow: 0 0 14px rgba(168,85,247,.55);
+    }
+
+    .hero-logo {
+      max-width: 520px;
+      width: 88%;
+      height: auto;
+      display: block;
+      margin-bottom: 1.5rem;
+      filter: drop-shadow(0 6px 28px rgba(168,85,247,.4))
+              drop-shadow(0 2px 8px rgba(0,0,0,.6));
+    }
+
+    .hero p {
+      color: #d6cef0;
+      max-width: 560px;
+      margin-top: .25rem;
+      font-size: 18px;
+      line-height: 1.75;
+      text-shadow: 0 1px 8px rgba(0,0,0,.6);
+    }
+
+    @media (max-width: 640px) {
+      .hero-logo { max-width: 340px; width: 90%; margin-bottom: 1.1rem; }
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 1.5rem;
+    }
+
+    /* ── Wallpaper Banner ───────────────────── */
+    /* ═══════════════════════════════════════════
+       WALLPAPER BANNER — Full redesign
+    ═══════════════════════════════════════════ */
+    .wallpaper-banner {
+      position: relative;
+      width: 100%;
+      height: 60vh;
+      min-height: 380px;
+      max-height: 640px;
+      overflow: hidden;
+      background: url('assets/wallpaper_background.png') center 22% / cover no-repeat;
+    }
+
+    /* Layer 1 — dark + purple-blue mood overlay */
+    .wallpaper-banner::before {
+      content: '';
+      position: absolute; inset: 0; z-index: 1;
+      background: linear-gradient(
+        135deg,
+        rgba(7, 6, 15, .62) 0%,
+        rgba(168,85,247,.09) 40%,
+        rgba(59,130,246,.06) 60%,
+        rgba(7, 6, 15, .60) 100%
+      );
+    }
+
+    /* Layer 2 — seamless top/bottom edge fades */
+    .wallpaper-banner::after {
+      content: '';
+      position: absolute; inset: 0; z-index: 2;
+      background: linear-gradient(
+        to bottom,
+        var(--bg)    0%,
+        transparent  13%,
+        transparent  75%,
+        var(--bg)    100%
+      );
+    }
+
+    /* ── Floating particles ──────────────────── */
+    .banner-particles {
+      position: absolute; inset: 0; z-index: 3;
+      pointer-events: none;
+    }
+    .particle {
+      position: absolute; border-radius: 50%;
+      box-shadow: 0 0 6px currentColor;
+    }
+    .p1  { width:4px;height:4px; color:var(--gold);   top:28%; left:12%; animation: pFloat 4.0s ease-in-out infinite 0.0s; }
+    .p2  { width:3px;height:3px; color:var(--cyan);   top:42%; left:26%; animation: pFloat 5.5s ease-in-out infinite 0.8s; }
+    .p3  { width:5px;height:5px; color:var(--purple); top:22%; left:44%; animation: pFloat 3.8s ease-in-out infinite 1.2s; }
+    .p4  { width:3px;height:3px; color:var(--gold);   top:62%; left:53%; animation: pFloat 4.5s ease-in-out infinite 0.4s; }
+    .p5  { width:4px;height:4px; color:var(--blue2);  top:33%; left:68%; animation: pFloat 5.0s ease-in-out infinite 1.6s; }
+    .p6  { width:3px;height:3px; color:#fff;          top:58%; left:78%; animation: pFloat 3.5s ease-in-out infinite 0.2s; }
+    .p7  { width:5px;height:5px; color:var(--gold);   top:18%; left:87%; animation: pFloat 4.2s ease-in-out infinite 2.0s; }
+    .p8  { width:3px;height:3px; color:var(--cyan);   top:68%; left:20%; animation: pFloat 6.0s ease-in-out infinite 1.0s; }
+    .p9  { width:4px;height:4px; color:var(--purple); top:15%; left:58%; animation: pFloat 4.8s ease-in-out infinite 0.6s; }
+    .p10 { width:2px;height:2px; color:#fff;          top:74%; left:38%; animation: pFloat 5.2s ease-in-out infinite 1.4s; }
+    .p11 { width:3px;height:3px; color:var(--gold);   top:50%; left:92%; animation: pFloat 4.4s ease-in-out infinite 1.8s; }
+    .p12 { width:4px;height:4px; color:var(--blue2);  top:36%; left: 5%; animation: pFloat 5.8s ease-in-out infinite 0.5s; }
+
+    @keyframes pFloat {
+      0%,100% { transform: translateY(0)     scale(1.0); opacity: .30; }
+      50%      { transform: translateY(-20px) scale(1.35); opacity: .90; }
+    }
+
+    /* ── Light streaks ───────────────────────── */
+    .banner-streaks {
+      position: absolute; inset: 0; z-index: 3;
+      pointer-events: none; overflow: hidden;
+    }
+    .streak {
+      position: absolute; height: 1px; border-radius: 1px;
+      background: linear-gradient(90deg,
+        transparent, rgba(168,85,247,.7), rgba(192,132,252,.9), transparent);
+    }
+    .s1 { width:220px; top:32%; left:8%;  transform:rotate(-10deg); animation:sGlow 7s ease-in-out infinite 0s; }
+    .s2 { width:160px; top:57%; right:12%; transform:rotate(7deg);  animation:sGlow 9s ease-in-out infinite 2.5s; }
+    .s3 { width:130px; top:44%; left:62%; transform:rotate(-6deg);  animation:sGlow 6s ease-in-out infinite 1.2s; }
+    .s4 { width:180px; top:22%; right:30%; transform:rotate(4deg);  animation:sGlow 8s ease-in-out infinite 3.8s; }
+
+    @keyframes sGlow {
+      0%,100% { opacity: 0; }
+      35%, 65% { opacity: .65; }
+    }
+
+    /* ── Main content ────────────────────────── */
+    .wallpaper-center {
+      position: absolute; inset: 0; z-index: 4;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      padding: 0 1.5rem;
+      text-align: center;
+      pointer-events: none;
+    }
+
+    /* Eyebrow */
+    .banner-eyebrow {
+      font-family: var(--font-mono);
+      font-size: 11px; letter-spacing: 3.5px;
+      text-transform: uppercase;
+      color: rgba(200,185,255,.65);
+      margin-bottom: 16px;
+      display: flex; align-items: center; gap: 14px;
+      animation: bFadeUp .8s ease both .2s;
+    }
+    .eyebrow-line {
+      width: clamp(28px, 6vw, 80px); height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(168,85,247,.6));
+      display: block; flex-shrink: 0;
+    }
+    .eyebrow-line + * + .eyebrow-line,
+    .eyebrow-line:last-child {
+      background: linear-gradient(90deg, rgba(168,85,247,.6), transparent);
+    }
+
+    /* Title wrap — clipping context for sweep */
+    .banner-title-wrap {
+      position: relative;
+      overflow: hidden;
+      border-radius: 4px;
+      animation: bScaleUp .95s cubic-bezier(.16,1,.3,1) both .35s;
+    }
+
+    /* Title text */
+    .banner-title {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: clamp(28px, 5.8vw, 72px);
+      font-weight: 700;
+      line-height: 1.0;
+      letter-spacing: clamp(3px, .7vw, 8px);
+      text-transform: uppercase;
+      margin: 0; padding: 0 4px;
+
+      /* Metallic white → silver-purple → gold gradient */
+      background: linear-gradient(
+        158deg,
+        #ffffff  0%,
+        #ede0ff 18%,
+        #c084fc 34%,
+        #f5c842 54%,
+        #ffffff 68%,
+        #e8dcff 84%,
+        #a855f7 100%
+      );
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+
+      filter:
+        drop-shadow(0 0 18px rgba(168,85,247,.55))
+        drop-shadow(0 0 36px rgba(240,165,0,.22))
+        drop-shadow(0 4px 14px rgba(0,0,0,.8));
+    }
+
+    /* The × accent character */
+    .title-x {
+      display: inline-block;
+      background: linear-gradient(135deg, #f0a500 0%, #e879f9 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      letter-spacing: 0;
+      padding: 0 .15em;
+      filter: drop-shadow(0 0 12px rgba(240,165,0,.7));
+    }
+
+    /* Animated spotlight sweep across the title */
+    .banner-sweep {
+      position: absolute; inset: 0;
+      pointer-events: none; overflow: hidden;
+    }
+    .banner-sweep::after {
+      content: '';
+      position: absolute;
+      top: -30%; left: -100%;
+      width: 55%; height: 160%;
+      background: linear-gradient(
+        108deg,
+        transparent  28%,
+        rgba(255,255,255,.20) 50%,
+        transparent  72%
+      );
+      filter: blur(8px);
+      animation: sweepLight 5.5s ease-in-out infinite 1.8s;
+    }
+    @keyframes sweepLight {
+      0%,25%  { left: -100%; opacity: 0; }
+      30%      { opacity: 1; }
+      68%      { opacity: 1; }
+      75%,100% { left: 120%;  opacity: 0; }
+    }
+
+    /* Tagline */
+    .banner-tagline {
+      font-family: var(--font-main);
+      font-size: clamp(13px, 1.7vw, 18px);
+      font-weight: 400;
+      font-style: italic;
+      color: rgba(240,235,255, .95);
+      letter-spacing: 1.2px;
+      margin-top: 18px;
+      max-width: 540px;
+      line-height: 1.65;
+      animation: bFadeUp .85s ease both 1.0s;
+
+      /* Subtitle-style frosted backdrop at ~50% opacity */
+      background: rgba(7, 6, 15, .50);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      padding: 8px 22px 9px;
+      border-radius: 6px;
+      border: 1px solid rgba(168, 85, 247, .18);
+      box-shadow: 0 2px 16px rgba(0, 0, 0, .35);
+    }
+
+    /* Bottom accent divider */
+    .banner-bottom-accent {
+      display: flex; align-items: center; gap: 10px;
+      margin-top: 20px;
+      animation: bFadeUp .6s ease both 1.35s;
+    }
+    .accent-dot {
+      width: 5px; height: 5px; border-radius: 50%;
+      background: var(--gold);
+      box-shadow: 0 0 10px var(--gold), 0 0 20px rgba(168,85,247,.5);
+      animation: dotPulse 2.4s ease-in-out infinite;
+    }
+    .accent-dot:last-child { animation-delay: .8s; }
+    @keyframes dotPulse {
+      0%,100% { transform: scale(1);   opacity: .7; }
+      50%      { transform: scale(1.5); opacity: 1;  }
+    }
+    .accent-line {
+      width: clamp(55px, 9vw, 120px); height: 1px;
+      background: linear-gradient(90deg,
+        rgba(168,85,247,.7), rgba(240,165,0,.8), rgba(232,121,249,.7)
+      );
+      border-radius: 1px;
+    }
+
+    /* ── Second wallpaper banner ────────────── */
+    .wallpaper-banner-2 {
+      position: relative;
+      width: 100%;
+      height: 56vh;
+      min-height: 360px;
+      max-height: 600px;
+      overflow: hidden;
+      /* Centre the image so all three characters show */
+      background: url('assets/secondwallpaper_background.png') center 5% / cover no-repeat;
+    }
+
+    /* Lighter overlay — let the vivid colours breathe */
+    .wallpaper-banner-2::before {
+      content: '';
+      position: absolute; inset: 0; z-index: 1;
+      background: linear-gradient(
+        135deg,
+        rgba(7, 6, 15, .52) 0%,
+        rgba(168, 85,247, .12) 35%,
+        rgba(232,121,249, .08) 55%,
+        rgba(7, 6, 15, .50) 100%
+      );
+    }
+
+    /* Seamless top & bottom edge fades */
+    .wallpaper-banner-2::after {
+      content: '';
+      position: absolute; inset: 0; z-index: 2;
+      background: linear-gradient(
+        to bottom,
+        var(--bg)   0%,
+        transparent 13%,
+        transparent 75%,
+        var(--bg)   100%
+      );
+    }
+
+    /* Content sits above both overlay layers */
+    .wallpaper-banner-2 .wallpaper-center { z-index: 4; }
+
+    /* Sweep on the second title */
+    .banner-title-wrap-2 {
+      position: relative;
+      overflow: hidden;
+      border-radius: 4px;
+      animation: bScaleUp .95s cubic-bezier(.16,1,.3,1) both .35s;
+    }
+
+    /* Title gradient — pink → cyan → purple for this image's palette */
+    .banner-title-2 {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: clamp(26px, 5.2vw, 66px);
+      font-weight: 700;
+      line-height: 1.05;
+      letter-spacing: clamp(3px, .7vw, 8px);
+      text-transform: uppercase;
+      margin: 0; padding: 0 4px;
+
+      background: linear-gradient(
+        155deg,
+        #ffffff  0%,
+        #ffcce8 20%,
+        #e879f9 38%,
+        #22d3ee 56%,
+        #ffffff 70%,
+        #f0c0ff 85%,
+        #a855f7 100%
+      );
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+
+      filter:
+        drop-shadow(0 0 18px rgba(232,121,249,.55))
+        drop-shadow(0 0 36px rgba(34,211,238,.22))
+        drop-shadow(0 4px 14px rgba(0,0,0,.8));
+    }
+
+    /* Pink × cyan accent for the divider on banner-2 */
+    .wallpaper-banner-2 .banner-bottom-accent .accent-line {
+      background: linear-gradient(90deg,
+        rgba(232,121,249,.8),
+        rgba(34,211,238,.8),
+        rgba(168,85,247,.8)
+      );
+    }
+    .wallpaper-banner-2 .banner-bottom-accent .accent-dot {
+      background: var(--pink);
+      box-shadow: 0 0 10px var(--pink), 0 0 20px rgba(232,121,249,.5);
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .wallpaper-banner-2 {
+        height: 46vh; min-height: 270px; max-height: 440px;
+        background-position: center 5%;
+      }
+      .banner-title-2 { letter-spacing: 2px; }
+    }
+    @media (max-width: 480px) {
+      .wallpaper-banner-2 {
+        height: 40vh; min-height: 220px; max-height: 320px;
+      }
+      .banner-title-2 { letter-spacing: 1.5px; }
+    }
+
+    /* ── Entrance keyframes ──────────────────── */
+    @keyframes bFadeUp {
+      from { opacity: 0; transform: translateY(14px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes bScaleUp {
+      from { opacity: 0; transform: translateY(10px) scale(.95); }
+      to   { opacity: 1; transform: translateY(0)   scale(1);   }
+    }
+
+    /* ── Responsive ──────────────────────────── */
+    @media (max-width: 768px) {
+      .wallpaper-banner {
+        height: 48vh; min-height: 280px; max-height: 460px;
+        background-position: center center;
+      }
+      .banner-title      { letter-spacing: 2px; }
+      .banner-tagline    { font-size: 13px; margin-top: 12px; padding: 7px 16px 8px; }
+      .banner-bottom-accent { margin-top: 14px; }
+    }
+    @media (max-width: 480px) {
+      .wallpaper-banner {
+        height: 42vh; min-height: 230px; max-height: 340px;
+      }
+      .banner-title      { letter-spacing: 1.5px; }
+      .banner-eyebrow    { display: none; }
+      .banner-tagline    { font-size: 12px; margin-top: 10px; max-width: 90vw; padding: 6px 14px 7px; }
+    }
+
+    .section {
+      padding: 5rem 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .section-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: end;
+      gap: 1.5rem;
+      margin-bottom: 2.25rem;
+      flex-wrap: wrap;
+    }
+
+    .section-head h2 {
+      color: var(--txt);
+      text-shadow: 0 0 32px rgba(168,85,247,.25);
+      margin-bottom: .35rem;
+    }
+
+    .section-head p {
+      color: var(--txt2);
+      font-size: 16px;
+      max-width: 580px;
+      line-height: 1.75;
+    }
+
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 1rem;
+    }
+
+    .feature-card {
+      min-height: 180px;
+      background: linear-gradient(145deg, var(--card) 0%, rgba(15,11,36,.9) 100%);
+      border: 1px solid var(--border);
+      border-top: 2px solid var(--border2);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      display: grid;
+      align-content: start;
+      gap: .85rem;
+      transition: transform .22s, border-color .22s, box-shadow .22s;
+    }
+
+    .feature-card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(168,85,247,.5);
+      border-top-color: var(--gold);
+      box-shadow: 0 12px 32px rgba(168,85,247,.18);
+    }
+
+    .feature-card strong {
+      color: var(--gold2);
+      font-family: var(--font-mono);
+      font-size: 13px;
+      letter-spacing: 2px;
+    }
+
+    .feature-card h3 {
+      color: var(--txt);
+      font-size: 20px;
+    }
+
+    .feature-card p {
+      color: var(--txt2);
+      font-size: 15px;
+      line-height: 1.7;
+    }
+
+    .path-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 1rem;
+    }
+
+    .path-card {
+      background: linear-gradient(145deg, var(--bg3) 0%, rgba(14,11,32,.9) 100%);
+      border: 1px solid var(--border2);
+      border-radius: var(--radius);
+      padding: 1.6rem;
+      display: grid;
+      gap: .85rem;
+      transition: transform .22s, border-color .22s, box-shadow .22s;
+    }
+
+    .path-card:hover {
+      transform: translateY(-3px);
+      border-color: var(--gold);
+      box-shadow: 0 8px 28px rgba(168,85,247,.16);
+    }
+
+    .path-card h3 {
+      color: var(--txt);
+      font-size: 21px;
+    }
+
+    .path-card > p,
+    .path-card .text-muted {
+      color: var(--txt2);
+      font-size: 15px;
+      line-height: 1.7;
+    }
+
+    .team-strip {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(110px, 1fr));
+      gap: 10px;
+    }
+
+    .team-slot {
+      background: linear-gradient(145deg, var(--bg3), rgba(14,11,34,.95));
+      border: 1px solid var(--border2);
+      border-radius: var(--radius);
+      padding: 1.1rem 1rem;
+      min-height: 100px;
+      display: flex;
+      flex-direction: column;
+      gap: .4rem;
+      transition: border-color .2s, box-shadow .2s;
+    }
+
+    .team-slot:hover {
+      border-color: var(--gold);
+      box-shadow: 0 6px 20px rgba(168,85,247,.15);
+    }
+
+    .team-slot span {
+      color: var(--txt3);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+    }
+
+    .team-slot h3 {
+      color: var(--txt);
+      font-size: 18px;
+    }
+
+    .contact-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 1rem;
+    }
+
+    .footer {
+      padding: 2rem 0;
+      color: var(--txt2);
+      font-size: 14px;
+      border-top: 1px solid var(--border);
+      letter-spacing: .5px;
+    }
+
+    @media (max-width: 1100px) {
+      .home-nav-inner {
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 8px;
+      }
+
+      .navbar-logo {
+        flex: 1 1 100%;
+        justify-content: center;
+      }
+
+      .home-links {
+        flex-wrap: wrap;
+        flex: 1 1 100%;
+        overflow: visible;
+        justify-content: center;
+      }
+
+      .home-actions {
+        justify-content: center;
+      }
+
+      .feature-grid,
+      .path-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 640px) {
+      .home-nav-inner {
+        padding: 12px 1rem;
+      }
+
+      .home-links {
+        flex-basis: 100%;
+      }
+
+      .home-links a {
+        font-size: 12px;
+        padding: 7px 10px;
+      }
+
+      .home-actions {
+        width: 100%;
+      }
+
+      .home-actions .btn {
+        flex: 1 1 130px;
+        padding-left: 12px;
+        padding-right: 12px;
+      }
+
+      .hero {
+        min-height: auto;
+        background-position: 58% center;
+      }
+
+      .hero-content {
+        padding: 3rem 0;
+      }
+
+      .feature-grid,
+      .path-grid,
+      .contact-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .team-strip {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    /* ── Anchor scroll offset for sticky nav ── */
+    html {
+      scroll-padding-top: var(--nav-scroll-offset, 110px);
+    }
+  </style>
+</head>
+<body>
+  <header class="home-nav">
+    <div class="home-nav-inner">
+      <a href="index.html" class="navbar-logo">
+        <img src="assets/logo_organizer.png" alt="HC" class="logo-img">
+        <span class="logo-name">Tournament <span>Organizer</span></span>
+      </a>
+
+      <ul class="home-links">
+        <li><a class="active" href="index.html">Home</a></li>
+        <li><a href="#tournaments">Tournaments</a></li>
+        <li><a href="#teams">Teams</a></li>
+        <li><a href="#about">About</a></li>
+        <li><a href="#contact">Contact</a></li>
+        <li><a href="standing.html">Standing</a></li>
+        <li><a href="schedule.html">Schedule</a></li>
+        <li class="player-nav"><a href="team-setup.html">Registration</a></li>
+        <li class="admin-nav hidden"><a href="organizer.html">Organizer Dashboard</a></li>
+      </ul>
+
+      <div class="home-actions" id="navActions" style="visibility:hidden"></div>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="container">
+        <div class="hero-content fade-in">
+          <span class="eyebrow"><span class="live-dot"></span> Malaysia MLBB Tournament Platform</span>
+          <img src="assets/ml_logo.png" alt="Mobile Legends: Bang Bang" class="hero-logo">
+          <p>Platform pengurusan tournament dengan Admin View untuk pengurusan dan Player View untuk maklumat tournament yang diterbitkan.</p>
+          <div class="hero-actions">
+            <a class="btn btn-primary btn-lg" href="register.html">Register Team</a>
+            <a class="btn btn-secondary btn-lg" href="schedule.html">View Schedule</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Tournament Promo Banner ──────────── -->
+    <div class="wallpaper-banner" aria-label="Semi-Pro X Local Tournament promotional banner">
+
+      <!-- Floating ambient particles -->
+      <div class="banner-particles" aria-hidden="true">
+        <span class="particle p1"></span>
+        <span class="particle p2"></span>
+        <span class="particle p3"></span>
+        <span class="particle p4"></span>
+        <span class="particle p5"></span>
+        <span class="particle p6"></span>
+        <span class="particle p7"></span>
+        <span class="particle p8"></span>
+        <span class="particle p9"></span>
+        <span class="particle p10"></span>
+        <span class="particle p11"></span>
+        <span class="particle p12"></span>
+      </div>
+
+      <!-- Energy light streaks -->
+      <div class="banner-streaks" aria-hidden="true">
+        <span class="streak s1"></span>
+        <span class="streak s2"></span>
+        <span class="streak s3"></span>
+        <span class="streak s4"></span>
+      </div>
+
+      <!-- Main content -->
+      <div class="wallpaper-center">
+
+        <div class="banner-eyebrow">
+          <span class="eyebrow-line"></span>
+          Mobile Legends · Bang Bang
+          <span class="eyebrow-line"></span>
+        </div>
+
+        <div class="banner-title-wrap">
+          <h2 class="banner-title">
+            SEMI-PRO <span class="title-x">×</span> LOCAL<br>TOURNAMENT
+          </h2>
+          <div class="banner-sweep" aria-hidden="true"></div>
+        </div>
+
+        <p class="banner-tagline">
+          This is your journey to become what you have dreamed.
+        </p>
+
+        <div class="banner-bottom-accent" aria-hidden="true">
+          <span class="accent-dot"></span>
+          <span class="accent-line"></span>
+          <span class="accent-dot"></span>
+        </div>
+
+      </div>
+    </div>
+
+        <section class="section" id="about">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <h2>About MLBB OPS</h2>
+            <p>A clean tournament command center with separated Admin View for management and Player View for published information.</p>
+          </div>
+        </div>
+        <div class="path-grid">
+          <article class="path-card">
+            <span class="badge badge-marhaen">Players</span>
+            <h3>Join and compete</h3>
+            <p class="text-muted">Create an account and view published tournament brackets and information.</p>
+            <a class="btn btn-secondary btn-sm" href="register.html">Sign Up</a>
+          </article>
+          <article class="path-card">
+            <span class="badge badge-jaguh">Visitors</span>
+            <h3>Watch brackets</h3>
+            <p class="text-muted">Open public schedules and follow tournament progress without logging in.</p>
+            <a class="btn btn-secondary btn-sm" href="schedule.html">Schedule</a>
+          </article>
+          <article class="path-card">
+            <span class="badge badge-sultan">Organizers</span>
+            <h3>Control events</h3>
+            <p class="text-muted">Login with the fixed admin account to create brackets and manage tournament content.</p>
+            <a class="btn btn-secondary btn-sm admin-nav hidden" href="organizer.html">Organizer Dashboard</a>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="tournaments">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <h2>Tournaments</h2>
+            <p>Browse public brackets, prize pools, categories, live status and upcoming matches from one central schedule.</p>
+          </div>
+          <a class="btn btn-secondary" href="schedule.html">Open Bracket View</a>
+        </div>
+        <div class="feature-grid">
+          <article class="feature-card">
+            <strong>01</strong>
+            <h3>Live Brackets</h3>
+            <p>Single and double elimination structures with live match status and champion display.</p>
+          </article>
+          <article class="feature-card">
+            <strong>02</strong>
+            <h3>Match Results</h3>
+            <p>Published results and bracket progress are displayed clearly for players and visitors.</p>
+          </article>
+          <article class="feature-card">
+            <strong>03</strong>
+            <h3>Categories</h3>
+            <p>Marhaen, Jaguh and Sultan tournament tiers keep events clear for different communities.</p>
+          </article>
+          <article class="feature-card">
+            <strong>04</strong>
+            <h3>Organizer Tools</h3>
+            <p>Create tournaments, generate brackets and monitor pending results from a dedicated dashboard.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+        <!-- ── Squad / Characters Banner ─────────── -->
+    <div class="wallpaper-banner-2" aria-label="Mobile Legends heroes — assemble your squad">
+
+      <!-- Reuse particle layer with different timing offsets -->
+      <div class="banner-particles" aria-hidden="true">
+        <span class="particle p1"></span>
+        <span class="particle p3"></span>
+        <span class="particle p5"></span>
+        <span class="particle p7"></span>
+        <span class="particle p9"></span>
+        <span class="particle p2"></span>
+        <span class="particle p4"></span>
+        <span class="particle p6"></span>
+        <span class="particle p10"></span>
+        <span class="particle p11"></span>
+      </div>
+
+      <!-- Streaks -->
+      <div class="banner-streaks" aria-hidden="true">
+        <span class="streak s2"></span>
+        <span class="streak s3"></span>
+        <span class="streak s4"></span>
+      </div>
+
+      <!-- Content -->
+      <div class="wallpaper-center">
+
+        <div class="banner-eyebrow" style="animation-delay:.15s">
+          <span class="eyebrow-line"></span>
+          Register · Compete · Rise
+          <span class="eyebrow-line"></span>
+        </div>
+
+        <div class="banner-title-wrap-2">
+          <h2 class="banner-title-2">
+            ASSEMBLE<br>YOUR SQUAD
+          </h2>
+          <div class="banner-sweep" aria-hidden="true"></div>
+        </div>
+
+        <p class="banner-tagline" style="animation-delay:1.05s">
+          Every champion starts somewhere — gather your team and make your mark.
+        </p>
+
+        <div class="banner-bottom-accent" aria-hidden="true" style="animation-delay:1.4s">
+          <span class="accent-dot"></span>
+          <span class="accent-line"></span>
+          <span class="accent-dot"></span>
+        </div>
+
+      </div>
+    </div>
+
+    <section class="section" id="teams">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <h2>Teams</h2>
+            <p>Team leaders can register squad details, captain contacts and member IDs before joining events.</p>
+          </div>
+          <button class="btn btn-primary" id="btnStartReg" type="button">Start Registration</button>
+        </div>
+        <div class="team-strip">
+          <div class="team-slot"><span>Captain</span><h3>Leader</h3></div>
+          <div class="team-slot"><span>Member 2</span><h3>Core</h3></div>
+          <div class="team-slot"><span>Member 3</span><h3>Core</h3></div>
+          <div class="team-slot"><span>Member 4</span><h3>Optional</h3></div>
+          <div class="team-slot"><span>Member 5</span><h3>Optional</h3></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="contact">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <h2>Contact</h2>
+            <p>Use the platform links below for player registration, login, and schedule viewing.</p>
+          </div>
+        </div>
+        <div class="contact-grid">
+          <article class="path-card">
+            <h3>Account Access</h3>
+            <p class="text-muted">Login routes admins to Admin View and players to Player View.</p>
+            <a class="btn btn-primary btn-sm" href="login.html">Login</a>
+          </article>
+          <article class="path-card">
+            <h3>New Team</h3>
+            <p class="text-muted">Create a player account for read-only tournament access.</p>
+            <a class="btn btn-secondary btn-sm" href="register.html">Registration</a>
+          </article>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      MLBB OPS - Tournament management for Malaysian Mobile Legends communities.
+    </div>
+  </footer>
+
+  <script>
+    (function () {
+      var debounce;
+
+      function update() {
+        clearTimeout(debounce);
+        debounce = setTimeout(function () {
+          var nav = document.querySelector('.home-nav');
+          if (!nav) return;
+
+          // 1. Set scroll-padding-top to nav height + breathing room
+          var offset = nav.getBoundingClientRect().height + 16;
+          document.documentElement.style.setProperty('--nav-scroll-offset', offset + 'px');
+
+          // 2. Ensure the last anchored section can actually scroll to the offset position.
+          //    Remove any previous padding first so we measure the natural page height.
+          document.body.style.paddingBottom = '';
+          var last = document.getElementById('contact');
+          if (last) {
+            var lastTop   = last.getBoundingClientRect().top + window.scrollY;
+            var needed    = lastTop - offset;          // scrollY we need to reach
+            var maxScroll = document.body.scrollHeight - window.innerHeight;
+            var extra     = needed - maxScroll;
+            if (extra > 0) {
+              document.body.style.paddingBottom = (extra + 24) + 'px';
+            }
+          }
+        }, 0);
+      }
+
+      update();
+      window.addEventListener('resize', update);
+      window.addEventListener('load', update);
+
+      // Re-run after Firebase auth settles (toggles hidden class / fills navActions)
+      document.addEventListener('DOMContentLoaded', function () {
+        var nav = document.querySelector('.home-nav');
+        if (!nav) return;
+        var observer = new MutationObserver(update);
+        observer.observe(nav, { subtree: true, childList: true, attributes: true, attributeFilter: ['class', 'style'] });
+      });
+
+      // Fix initial-load URL hash: browser scrolls before CSS var is applied
+      if (location.hash) {
+        window.addEventListener('load', function () {
+          var target = document.querySelector(location.hash);
+          if (!target) return;
+          var nav = document.querySelector('.home-nav');
+          var off = nav ? nav.getBoundingClientRect().height + 16 : 110;
+          window.scrollTo({ top: target.getBoundingClientRect().top + window.scrollY - off });
+        });
+      }
+    })();
+  </script>
+
+  <script type="module">
+    import { auth, db } from "./js/firebase-config.js";
+    import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-auth.js";
+    import { ref, get } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-database.js";
+
+    const navActions = document.getElementById("navActions");
+
+    // ── Nav auth state ──────────────────────────────────────
+    let resolvedRole = null; // cached after first auth resolution
+
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        resolvedRole = null;
+        document.querySelectorAll(".admin-nav").forEach((node) => node.classList.add("hidden"));
+        navActions.innerHTML = `
+          <a class="btn btn-secondary btn-sm" href="login.html">Login</a>
+          <a class="btn btn-primary btn-sm" href="register.html">Sign Up</a>
+        `;
+        navActions.style.visibility = "visible";
+        return;
+      }
+
+      const roleSnap = await get(ref(db, `users/${user.uid}/role`));
+      resolvedRole = roleSnap.exists() ? roleSnap.val() : "player";
+      document.querySelectorAll(".admin-nav").forEach((node) => node.classList.toggle("hidden", resolvedRole !== "organizer"));
+      document.querySelectorAll(".player-nav").forEach((node) => node.classList.toggle("hidden", resolvedRole === "organizer"));
+      if (resolvedRole === "organizer") {
+        navActions.innerHTML = '<span class="btn btn-primary btn-sm" style="cursor:default;user-select:none;pointer-events:none;">Admin</span>';
+      } else {
+        navActions.innerHTML = '<span class="btn btn-primary btn-sm" style="cursor:default;user-select:none;pointer-events:none;">Player</span>';
+      }
+      navActions.style.visibility = "visible";
+    });
+
+    // ── "Start Registration" auth guard ─────────────────────
+    // Correct flow: not logged-in → login.html?redirect=team-setup.html
+    //               player        → team-setup.html
+    //               organizer     → organizer.html (admins don't register teams)
+    const btnStartReg = document.getElementById("btnStartReg");
+    if (btnStartReg) {
+      btnStartReg.addEventListener("click", async () => {
+        // Show brief loading state while checking auth
+        const orig = btnStartReg.textContent;
+        btnStartReg.disabled = true;
+        btnStartReg.textContent = "Checking…";
+
+        try {
+          // Wait for Firebase to resolve current user (handles cold-start delay)
+          const user = await new Promise((resolve) => {
+            const unsub = onAuthStateChanged(auth, (u) => { unsub(); resolve(u); });
+          });
+
+          if (!user) {
+            // Not logged in — send to login with redirect back to team setup
+            window.location.href = "login.html?redirect=team-setup.html";
+            return;
+          }
+
+          // Use cached role if available (already fetched by nav handler above)
+          let role = resolvedRole;
+          if (!role) {
+            const snap = await get(ref(db, `users/${user.uid}/role`));
+            role = snap.exists() ? snap.val() : "player";
+          }
+
+          if (role === "organizer") {
+            // Admins manage tournaments — redirect to their dashboard
+            window.location.href = "organizer.html";
+          } else {
+            // Players go straight to team registration
+            window.location.href = "team-setup.html";
+          }
+        } catch {
+          // On any error fall back gracefully
+          btnStartReg.disabled = false;
+          btnStartReg.textContent = orig;
+        }
+      });
+    }
+  </script>
+</body>
+</html>

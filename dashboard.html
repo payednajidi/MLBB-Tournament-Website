@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Player View - MLBB OPS</title>
+  <link rel="stylesheet" href="css/global.css">
+  <style>
+    .redirect-wrap {
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 2rem;
+    }
+    .redirect-card {
+      max-width: 460px;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <main class="redirect-wrap">
+    <section class="card redirect-card">
+      <div class="card-header">
+        <h1>Player View</h1>
+      </div>
+      <div class="card-body">
+        <p class="text-muted mb-2">Player View hanya memaparkan maklumat tournament dan bracket yang telah diterbitkan.</p>
+        <span class="spinner"></span>
+      </div>
+    </section>
+  </main>
+
+  <script type="module">
+    import { requireAuth, getUserRole } from "./js/auth.js";
+
+    requireAuth(async (user) => {
+      const role = await getUserRole(user.uid);
+      window.location.href = role === "organizer" ? "organizer.html" : "schedule.html";
+    });
+  </script>
+</body>
+</html>

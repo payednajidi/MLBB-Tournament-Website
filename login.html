@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Log Masuk - MLBB OPS</title>
+  <link rel="stylesheet" href="css/global.css">
+  <style>
+    /* ── Layout ──────────────────────────────── */
+    .auth-wrap {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2.5rem 1rem;
+      position: relative;
+    }
+
+    /* Subtle radial glow behind the card */
+    .auth-wrap::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background: radial-gradient(
+        ellipse 60% 50% at 50% 40%,
+        color-mix(in srgb, var(--gold) 6%, transparent) 0%,
+        transparent 70%
+      );
+    }
+
+    /* ── Card ────────────────────────────────── */
+    .auth-card {
+      width: 100%;
+      max-width: 460px;
+      background: #130e2e;
+      border: 1px solid #2d2060;
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      box-shadow: 0 20px 60px rgba(0,0,0,.55), 0 0 80px rgba(168,85,247,.08);
+      animation: fadeIn .35s ease both;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Gold top accent line */
+    .auth-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--gold) 0%, var(--gold2) 60%, transparent 100%);
+    }
+
+    /* ── Header ──────────────────────────────── */
+    .auth-header {
+      background: #0f0a24;
+      border-bottom: 1px solid #241a52;
+      padding: 2.25rem 2.25rem 2rem;
+      text-align: center;
+    }
+
+    .auth-logo {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 1.25rem;
+      text-decoration: none;
+    }
+
+    .auth-title {
+      font-family: var(--font-head);
+      font-size: clamp(28px, 5vw, 36px);
+      font-weight: 700;
+      color: #ffffff;
+      letter-spacing: 1px;
+      margin-bottom: 8px;
+    }
+
+    .auth-subtitle {
+      color: #d4caff;
+      font-size: 15px;
+      font-weight: 500;
+      line-height: 1.5;
+      max-width: 320px;
+      margin: 0 auto;
+    }
+
+    /* ── Body ────────────────────────────────── */
+    .auth-body { padding: 2rem 2.25rem; }
+
+    /* ── Labels ──────────────────────────────── */
+    .auth-card .form-group { margin-bottom: 1.4rem; }
+
+    .auth-card .form-label {
+      color: #ede8ff;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 1.35px;
+      margin-bottom: 8px;
+    }
+
+    /* ── Inputs ──────────────────────────────── */
+    .auth-card .form-input {
+      min-height: 52px;
+      background: #0c0a1c;
+      border-color: #2d2060;
+      color: #f2eeff;
+      font-size: 17px;
+      font-weight: 500;
+      line-height: 1.45;
+      padding: 13px 15px;
+    }
+
+    .auth-card .form-input:hover { border-color: #3d2e80; }
+
+    .auth-card .form-input:focus {
+      border-color: var(--gold);
+      box-shadow: 0 0 0 3px rgba(168, 85, 247, .22);
+    }
+
+    .auth-card .form-input::placeholder {
+      color: #6b5a9a;
+      opacity: 1;
+      font-weight: 400;
+      font-size: 15px;
+    }
+
+    /* ── Error text ──────────────────────────── */
+    .auth-card .form-error {
+      color: #ff8b8b;
+      font-size: 14px;
+      font-weight: 600;
+      line-height: 1.4;
+      margin-top: 7px;
+    }
+
+    /* ── Alert ───────────────────────────────── */
+    .auth-card .alert {
+      font-size: 15px;
+      font-weight: 600;
+      line-height: 1.45;
+      margin-bottom: 1.25rem;
+    }
+
+    /* ── Role info card ──────────────────────── */
+    .role-card {
+      display: flex;
+      gap: 13px;
+      align-items: flex-start;
+      background: rgba(168, 85, 247, .08);
+      border: 1px solid rgba(168, 85, 247, .25);
+      border-radius: var(--radius);
+      padding: 13px 15px;
+      margin-bottom: 1.5rem;
+    }
+
+    .role-card-icon {
+      font-size: 20px;
+      flex-shrink: 0;
+      margin-top: 1px;
+      line-height: 1;
+    }
+
+    .role-card-text { flex: 1; }
+
+    .role-card-title {
+      font-family: var(--font-head);
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 5px;
+    }
+
+    .role-card-desc {
+      color: #c4b8f5;
+      font-size: 14px;
+      font-weight: 500;
+      line-height: 1.5;
+    }
+
+    /* ── Password field ──────────────────────── */
+    .pwd-wrap { position: relative; }
+    .pwd-wrap .form-input { padding-right: 50px; }
+
+    .pwd-eye {
+      position: absolute;
+      right: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #7060a8;
+      padding: 0;
+      line-height: 1;
+      transition: color .15s;
+    }
+    .pwd-eye:hover { color: #c084fc; }
+    .pwd-eye svg { width: 20px; height: 20px; display: block; }
+
+    /* ── Submit button ───────────────────────── */
+    .auth-card .btn {
+      min-height: 52px;
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+    }
+
+    .auth-card .btn-primary {
+      background: linear-gradient(135deg, var(--gold) 0%, var(--gold2) 100%);
+      color: #000;
+      transition: transform .2s, box-shadow .2s, background .2s;
+    }
+
+    .auth-card .btn-primary:hover:not(:disabled) {
+      background: linear-gradient(135deg, var(--gold2) 0%, var(--purple) 100%);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 24px rgba(168, 85, 247, .4);
+    }
+
+    /* ── Footer ──────────────────────────────── */
+    .auth-footer {
+      padding: 1.15rem 2.25rem;
+      background: #0f0a24;
+      border-top: 1px solid #241a52;
+      text-align: center;
+      color: #c4b8f5;
+      font-size: 15px;
+      font-weight: 500;
+    }
+
+    .auth-footer a {
+      color: var(--gold2);
+      font-weight: 700;
+      transition: color .15s;
+    }
+    .auth-footer a:hover { color: var(--gold); }
+
+    /* ── Divider ─────────────────────────────── */
+    .auth-divider {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 1.5rem 0 1.25rem;
+    }
+    .auth-divider::before,
+    .auth-divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: #221848;
+    }
+    .auth-divider span {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: #3d2e70;
+      white-space: nowrap;
+    }
+
+    /* ── Responsive ──────────────────────────── */
+    @media (max-width: 560px) {
+      .auth-wrap { padding: 1rem; align-items: flex-start; }
+      .auth-header { padding: 1.75rem 1.5rem 1.6rem; }
+      .auth-title { font-size: 28px; }
+      .auth-subtitle { font-size: 14px; }
+      .auth-body { padding: 1.5rem; }
+      .auth-card .form-label { font-size: 12px; letter-spacing: 1.1px; }
+      .auth-card .form-input { font-size: 16px; min-height: 50px; }
+      .auth-footer { padding: 1rem 1.5rem; font-size: 14px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="auth-wrap">
+  <div class="auth-card">
+
+    <!-- ── Header ──────────────────────────── -->
+    <div class="auth-header">
+      <a href="index.html" class="auth-logo">
+        <img src="assets/logo_organizer.png" alt="HC" class="logo-img">
+        <span class="logo-name">Tournament <span>Organizer</span></span>
+      </a>
+      <h1 class="auth-title">Log Masuk</h1>
+      <p class="auth-subtitle">Akses platform pengurusan tournament esports anda</p>
+    </div>
+
+    <!-- ── Body ────────────────────────────── -->
+    <div class="auth-body">
+      <div class="alert alert-error" id="alertError">
+        <span id="alertMsg">Ralat berlaku.</span>
+      </div>
+
+      <!-- Role access info -->
+      <div class="role-card">
+        <div class="role-card-icon">🔐</div>
+        <div class="role-card-text">
+          <div class="role-card-title">Role Access</div>
+          <div class="role-card-desc">Admin guna akaun tetap. Pemain guna username dan kata laluan yang diberikan semasa pendaftaran.</div>
+        </div>
+      </div>
+
+      <form id="loginForm" novalidate>
+
+        <div class="form-group">
+          <label class="form-label" for="inputUsername">Username</label>
+          <input type="text" class="form-input" id="inputUsername"
+                 placeholder="Masukkan username anda"
+                 autocomplete="username">
+          <span class="form-error" id="errUsername">Masukkan username yang sah.</span>
+        </div>
+
+        <div class="form-group" style="margin-bottom:1.75rem">
+          <label class="form-label" for="inputPassword">Kata Laluan</label>
+          <div class="pwd-wrap">
+            <input type="password" class="form-input" id="inputPassword"
+                   placeholder="Masukkan kata laluan anda"
+                   autocomplete="current-password">
+            <button type="button" class="pwd-eye" id="togglePwd" title="Tunjuk / Sembunyi Kata Laluan">
+              <svg id="eyeOpen" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                   stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M1 12S5 4 12 4s11 8 11 8-4 8-11 8S1 12 1 12z"/>
+                <circle cx="12" cy="12" r="3"/>
+              </svg>
+              <svg id="eyeClosed" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                   stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                   style="display:none">
+                <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20C5 20 1 12 1 12a18.45 18.45 0 0 1 5.06-5.94"/>
+                <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>
+                <line x1="1" y1="1" x2="23" y2="23"/>
+              </svg>
+            </button>
+          </div>
+          <span class="form-error" id="errPassword">Kata laluan diperlukan.</span>
+        </div>
+
+        <button class="btn btn-primary btn-full" id="btnLogin" type="submit">
+          Log Masuk
+        </button>
+
+      </form>
+    </div>
+
+    <!-- ── Footer ──────────────────────────── -->
+    <div class="auth-footer">
+      Pemain baru? <a href="register.html">Daftar akaun player</a>
+    </div>
+
+  </div>
+</div>
+
+<script type="module">
+import { loginWithCredentials, redirectIfLoggedIn, getUserRole } from "./js/auth.js";
+
+/* ── Password toggle ─────────────────────── */
+(function () {
+  const inp    = document.getElementById("inputPassword");
+  const btn    = document.getElementById("togglePwd");
+  const open   = document.getElementById("eyeOpen");
+  const closed = document.getElementById("eyeClosed");
+  let visible  = false;
+  btn.addEventListener("click", () => {
+    visible             = !visible;
+    inp.type            = visible ? "text"  : "password";
+    open.style.display  = visible ? "none"  : "block";
+    closed.style.display= visible ? "block" : "none";
+  });
+})();
+
+redirectIfLoggedIn();
+
+/* ── Form refs ───────────────────────────── */
+const form          = document.getElementById("loginForm");
+const btnLogin      = document.getElementById("btnLogin");
+const inputUsername = document.getElementById("inputUsername");
+const inputPassword = document.getElementById("inputPassword");
+const alertError    = document.getElementById("alertError");
+const alertMsg      = document.getElementById("alertMsg");
+const errUsername   = document.getElementById("errUsername");
+const errPassword   = document.getElementById("errPassword");
+
+function showAlert(message) {
+  alertMsg.textContent = message;
+  alertError.classList.add("show");
+}
+
+function clearErrors() {
+  alertError.classList.remove("show");
+  [errUsername, errPassword].forEach(n => n.classList.remove("show"));
+  [inputUsername, inputPassword].forEach(n => n.classList.remove("error"));
+}
+
+function parseLoginError(error) {
+  if (error.message === "invalid-admin-password") return "Kata laluan admin tidak sah.";
+  const map = {
+    "auth/user-not-found":        "Akaun tidak dijumpai. Sila daftar dahulu.",
+    "auth/wrong-password":        "Kata laluan salah. Cuba semula.",
+    "auth/invalid-credential":    "Username atau kata laluan salah.",
+    "auth/too-many-requests":     "Terlalu banyak cubaan. Cuba semula selepas beberapa minit.",
+    "auth/network-request-failed":"Tiada sambungan internet. Semak rangkaian anda.",
+  };
+  return map[error.code] || "Ralat berlaku. Sila cuba lagi.";
+}
+
+/* ── Submit ──────────────────────────────── */
+form.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  clearErrors();
+
+  const username = inputUsername.value.trim();
+  const password = inputPassword.value;
+  let valid = true;
+
+  if (!username) {
+    errUsername.classList.add("show");
+    inputUsername.classList.add("error");
+    valid = false;
+  }
+  if (!password) {
+    errPassword.classList.add("show");
+    inputPassword.classList.add("error");
+    valid = false;
+  }
+  if (!valid) return;
+
+  const originalHTML  = btnLogin.innerHTML;
+  btnLogin.disabled   = true;
+  btnLogin.innerHTML  = '<span class="spinner"></span> Masuk...';
+
+  try {
+    const user = await loginWithCredentials(username, password);
+    const role = await getUserRole(user.uid);
+    // Honour ?redirect= param so "Start Registration" lands on team-setup after login
+    const redirectTo = new URLSearchParams(window.location.search).get("redirect");
+    window.location.href =
+      redirectTo || (role === "organizer" ? "organizer.html" : "schedule.html");
+  } catch (error) {
+    showAlert(parseLoginError(error));
+    btnLogin.disabled  = false;
+    btnLogin.innerHTML = originalHTML;
+  }
+});
+</script>
+</body>
+</html>

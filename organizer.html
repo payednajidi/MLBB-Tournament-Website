@@ -1,0 +1,1691 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Organizer - MLBB OPS</title>
+  <link rel="stylesheet" href="css/global.css">
+  <style>
+    .page-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 1.25rem;
+      flex-wrap: wrap;
+    }
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 1rem;
+      margin-bottom: 1.25rem;
+    }
+    .stat-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 1rem;
+    }
+    .stat-card strong {
+      display: block;
+      color: var(--gold);
+      font-family: var(--font-head);
+      font-size: 30px;
+    }
+    .tabs {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 1rem;
+    }
+    .tab-btn {
+      border: 1px solid var(--border);
+      background: var(--bg3);
+      color: var(--txt2);
+      border-radius: var(--radius);
+      padding: 10px 14px;
+      font-family: var(--font-head);
+      letter-spacing: 1px;
+      cursor: pointer;
+    }
+    .tab-btn.active {
+      border-color: var(--gold);
+      color: var(--gold);
+    }
+    .tab-badge {
+      display: inline-flex; align-items: center; justify-content: center;
+      min-width: 18px; height: 18px; border-radius: 9px;
+      background: var(--red); color: #fff;
+      font-family: var(--font-mono); font-size: 10px; font-weight: 700;
+      padding: 0 5px; margin-left: 4px;
+    }
+    .panel { display: none; }
+    .panel.active { display: grid; gap: 1rem; }
+    /* Application cards */
+    .app-card {
+      background: var(--bg3); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 14px 16px;
+      display: flex; align-items: flex-start; gap: 14px; flex-wrap: wrap;
+    }
+    .app-card-info { flex: 1; min-width: 200px; }
+    .app-card-actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+    .app-status {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 4px 10px; border-radius: 4px;
+      font-family: var(--font-mono); font-size: 10px; letter-spacing: 1.2px;
+      text-transform: uppercase; font-weight: 700; margin-bottom: 6px;
+    }
+    .app-status.payment_submitted{ background:rgba(59,130,246,.12);color:#60a5fa;border:1px solid rgba(59,130,246,.3); }
+    .app-status.pending_review   { background:rgba(99,102,241,.12);color:#a5b4fc;border:1px solid rgba(99,102,241,.3); }
+    .app-status.approved         { background:rgba(34,197,94,.12);color:var(--green);border:1px solid rgba(34,197,94,.3); }
+    .app-status.rejected         { background:rgba(239,68,68,.1);color:#f87171;border:1px solid rgba(239,68,68,.25); }
+    .row-card {
+      display: grid;
+      gap: 10px;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1rem;
+    }
+    .row-main {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .row-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .score-line {
+      font-family: var(--font-head);
+      font-size: 20px;
+      color: var(--txt);
+    }
+    .score-line strong { color: var(--gold); }
+    .empty-state {
+      color: var(--txt2);
+      border: 1px dashed var(--border2);
+      border-radius: var(--radius);
+      padding: 1rem;
+    }
+    .row-poster-thumb {
+      width: 60px;
+      height: 38px;
+      object-fit: cover;
+      border-radius: 4px;
+      border: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: color-mix(in srgb, var(--bg) 84%, transparent);
+      z-index: 1000;
+      display: none;
+      place-items: center;
+      padding: 1rem;
+    }
+    .modal-backdrop.show { display: grid; }
+
+    /* ── Recovery panel ──────────────────── */
+    .recovery-search {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 1.25rem;
+      flex-wrap: wrap;
+    }
+    .recovery-search .form-input { flex: 1 1 220px; }
+    .recovery-result {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.1rem;
+      display: none;
+    }
+    .recovery-result.show { display: block; }
+    .recovery-field { margin-bottom: .85rem; }
+    .recovery-field:last-child { margin-bottom: 0; }
+    .recovery-field-label {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--txt3);
+      margin-bottom: 4px;
+    }
+    .recovery-field-value {
+      font-family: var(--font-mono);
+      font-size: 14px;
+      color: var(--txt);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .recovery-pwd-blur {
+      filter: blur(5px);
+      transition: filter .2s;
+      cursor: pointer;
+    }
+    .recovery-copy {
+      background: transparent;
+      border: 1px solid var(--border2);
+      border-radius: 5px;
+      color: var(--txt2);
+      font-size: 11px;
+      padding: 3px 8px;
+      cursor: pointer;
+      font-family: var(--font-mono);
+      transition: all .15s;
+    }
+    .recovery-copy:hover { border-color: var(--gold); color: var(--gold); }
+    .recovery-reveal {
+      background: none;
+      border: none;
+      color: var(--txt2);
+      cursor: pointer;
+      font-size: 12px;
+      padding: 2px 6px;
+      font-family: var(--font-mono);
+      letter-spacing: 1px;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      transition: all .15s;
+    }
+    .recovery-reveal:hover { color: var(--gold); border-color: var(--gold); }
+    .modal {
+      width: min(520px, 100%);
+      background: var(--card);
+      border: 1px solid var(--border2);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+    }
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-top: 1rem;
+    }
+    .home-nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: color-mix(in srgb, var(--bg) 94%, transparent);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+    }
+    .home-nav-inner {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 14px 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: nowrap; /* never push links to a second row on desktop */
+    }
+    .home-links {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      flex-wrap: nowrap; /* all links stay on ONE row */
+      list-style: none;
+      flex: 1 1 auto;   /* grow/shrink freely — no large minimum */
+      overflow: hidden;
+    }
+    .home-links a {
+      display: inline-flex;
+      align-items: center;
+      min-height: 44px;
+      padding: 9px 10px;
+      border-radius: var(--radius);
+      color: var(--txt2);
+      font-family: var(--font-head);
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      white-space: nowrap;
+      transition: all .2s;
+    }
+    .home-links a:hover,
+    .home-links a.active {
+      color: var(--gold);
+      background: color-mix(in srgb, var(--gold) 12%, transparent);
+    }
+    .home-actions {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-shrink: 0;
+      justify-content: flex-end;
+    }
+    .nav-admin-badge {
+      display: inline-flex;
+      align-items: center;
+      min-height: 34px;
+      padding: 4px 10px;
+      border-radius: var(--radius);
+      color: var(--gold);
+      background: color-mix(in srgb, var(--gold) 12%, transparent);
+      border: 1px solid color-mix(in srgb, var(--gold) 30%, transparent);
+      font-family: var(--font-head);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      cursor: default;
+      user-select: none;
+    }
+    /* ── Squad panel ─────────────────────────── */
+    .squad-search-bar {
+      display: flex; gap: 10px; flex-wrap: wrap;
+      margin-bottom: 1rem;
+    }
+    .squad-search-bar .form-input { flex: 1 1 220px; }
+    .squad-count {
+      font-family: var(--font-mono); font-size: 11px;
+      letter-spacing: 1.5px; text-transform: uppercase;
+      color: var(--txt3); margin-bottom: .75rem;
+    }
+    .squad-card {
+      background: var(--bg3); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1rem;
+      display: flex; align-items: flex-start;
+      justify-content: space-between; gap: 14px; flex-wrap: wrap;
+      transition: border-color .2s;
+    }
+    .squad-card:hover { border-color: var(--border2); }
+    .squad-info { flex: 1; min-width: 0; }
+    .squad-tag {
+      font-family: var(--font-mono); font-size: 11px;
+      color: var(--gold); letter-spacing: 2px; margin-bottom: 2px;
+    }
+    .squad-name {
+      font-family: var(--font-head); font-size: 17px;
+      font-weight: 700; letter-spacing: 1px; color: var(--txt);
+    }
+    .squad-meta {
+      font-size: 13px; color: var(--txt2); margin-top: 5px;
+      display: flex; flex-wrap: wrap; gap: 12px;
+    }
+    .squad-meta span { display: flex; align-items: center; gap: 4px; }
+    .squad-members-row {
+      display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px;
+    }
+    .squad-member-chip {
+      font-family: var(--font-mono); font-size: 10px;
+      letter-spacing: 1px; background: var(--bg);
+      border: 1px solid var(--border); border-radius: 4px;
+      padding: 2px 8px; color: var(--txt2);
+    }
+    .squad-member-chip.captain {
+      border-color: color-mix(in srgb, var(--gold) 35%, transparent);
+      color: var(--gold);
+    }
+    .squad-actions { display: flex; gap: 8px; flex-shrink: 0; align-items: flex-start; }
+
+    /* ── Edit Squad Modal ────────────────────── */
+    .modal-lg { width: min(680px, 100%); }
+    .modal-scroll-body {
+      max-height: 68vh; overflow-y: auto; padding: 1.25rem;
+    }
+    .modal-scroll-body::-webkit-scrollbar { width: 5px; }
+    .modal-scroll-body::-webkit-scrollbar-track { background: var(--bg2); }
+    .modal-scroll-body::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+    .modal-section {
+      font-family: var(--font-mono); font-size: 10px;
+      letter-spacing: 2px; text-transform: uppercase;
+      color: var(--gold); padding-bottom: 6px;
+      border-bottom: 1px solid var(--border);
+      margin: 1.25rem 0 1rem;
+    }
+    .modal-section:first-child { margin-top: 0; }
+    .edit-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .edit-grid-3 { display: grid; grid-template-columns: 1fr 1fr 140px; gap: 10px; }
+    .member-edit-block {
+      background: var(--bg); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: .85rem; margin-bottom: 8px;
+    }
+    .member-edit-block:last-child { margin-bottom: 0; }
+    .member-edit-label {
+      font-family: var(--font-mono); font-size: 10px;
+      letter-spacing: 1.5px; text-transform: uppercase;
+      color: var(--txt3); margin-bottom: 8px;
+    }
+    .modal-footer-actions {
+      padding: .9rem 1.25rem;
+      border-top: 1px solid var(--border);
+      display: flex; justify-content: flex-end; gap: 8px;
+    }
+
+    @media (max-width: 1100px) {
+      /* Allow wrapping below 1100px — logo stacks above links */
+      .home-nav-inner {
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 8px;
+      }
+      .navbar-logo   { flex: 1 1 100%; justify-content: center; }
+      .home-links    { flex-wrap: wrap; flex: 1 1 100%; overflow: visible; justify-content: center; }
+      .home-actions  { justify-content: center; width: 100%; }
+    }
+    @media (max-width: 760px) {
+      .stats-row { grid-template-columns: 1fr; }
+      .home-links a  { font-size: 12px; padding: 7px 10px; }
+      .edit-grid-2, .edit-grid-3 { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header class="home-nav">
+    <div class="home-nav-inner">
+      <a href="index.html" class="navbar-logo">
+        <img src="assets/logo_organizer.png" alt="HC" class="logo-img">
+        <span class="logo-name">Tournament <span>Organizer</span></span>
+      </a>
+      <ul class="home-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="index.html#tournaments">Tournaments</a></li>
+        <li><a href="index.html#teams">Teams</a></li>
+        <li><a href="index.html#about">About</a></li>
+        <li><a href="index.html#contact">Contact</a></li>
+        <li><a href="standing.html">Standing</a></li>
+        <li><a href="schedule.html">Schedule</a></li>
+        <li><a class="active" href="organizer.html">Organizer Dashboard</a></li>
+      </ul>
+      <div class="home-actions">
+        <span class="btn btn-primary btn-sm" style="cursor:default;user-select:none;pointer-events:none;">Admin</span>
+        <button class="btn btn-secondary btn-sm" id="btnLogout">Log Keluar</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="page-wrap">
+    <div class="container">
+      <div class="page-head">
+        <div>
+          <h1>Admin View</h1>
+          <p class="text-muted">Urus tournament, bracket, maklumat dan kandungan yang diterbitkan.</p>
+        </div>
+        <a class="btn btn-primary" href="organizer-create.html">Cipta Tournament</a>
+      </div>
+
+      <div class="alert alert-error" id="alertError"><span id="alertMsg"></span></div>
+      <div class="alert alert-success" id="alertSuccess"><span id="successMsg"></span></div>
+
+      <section class="stats-row">
+        <div class="stat-card"><strong id="statActive">0</strong><span class="text-muted">Active Tournaments</span></div>
+        <div class="stat-card"><strong id="statPending">0</strong><span class="text-muted">Pending Results</span></div>
+        <div class="stat-card"><strong id="statTeamsToday">0</strong><span class="text-muted">Teams Today</span></div>
+      </section>
+
+      <div class="tabs" id="tabs">
+        <button class="tab-btn active" data-tab="tournaments">Tournaments</button>
+        <button class="tab-btn" data-tab="applications">📬 Permohonan <span id="appBadge" class="tab-badge" style="display:none"></span></button>
+        <button class="tab-btn" data-tab="pending">Pending Results</button>
+        <button class="tab-btn" data-tab="activity">Activity Log</button>
+        <button class="tab-btn" data-tab="squads">👥 Squads</button>
+        <button class="tab-btn" data-tab="recovery">Pemulihan Akaun</button>
+      </div>
+
+      <section class="panel active" id="panel-tournaments"></section>
+      <section class="panel" id="panel-applications"></section>
+      <section class="panel" id="panel-pending"></section>
+      <section class="panel" id="panel-activity"></section>
+      <section class="panel" id="panel-squads"></section>
+
+      <!-- ── Pemulihan Akaun ────────────────── -->
+      <section class="panel" id="panel-recovery">
+        <div class="row-card">
+          <h3 style="margin-bottom:.75rem">Cari Akaun Player</h3>
+          <p class="text-muted" style="font-size:13px;margin-bottom:1rem">
+            Masukkan Player ID yang diberikan oleh player untuk melihat maklumat log masuk mereka.
+          </p>
+          <div class="recovery-search">
+            <input class="form-input" id="recoveryInput"
+                   placeholder="Contoh: MLBB@HC-2026-00001"
+                   style="font-family:var(--font-mono);letter-spacing:1px">
+            <button class="btn btn-primary" id="btnRecoverySearch">Cari</button>
+          </div>
+          <div class="alert alert-error" id="recoveryError" style="margin-bottom:.75rem">
+            <span id="recoveryErrMsg"></span>
+          </div>
+
+          <div class="recovery-result" id="recoveryResult">
+            <div class="recovery-field">
+              <div class="recovery-field-label">Player ID</div>
+              <div class="recovery-field-value" id="rPlayerId">—</div>
+            </div>
+            <div class="recovery-field">
+              <div class="recovery-field-label">Nama Paparan</div>
+              <div class="recovery-field-value" id="rDisplayName">—</div>
+            </div>
+            <div class="recovery-field">
+              <div class="recovery-field-label">Username</div>
+              <div class="recovery-field-value" id="rUsername">—</div>
+            </div>
+            <div class="recovery-field">
+              <div class="recovery-field-label">Tarikh Daftar</div>
+              <div class="recovery-field-value" id="rCreatedAt">—</div>
+            </div>
+            <div class="recovery-field">
+              <div class="recovery-field-label">Kata Laluan Asal</div>
+              <div class="recovery-field-value">
+                <span id="rPassword" class="recovery-pwd-blur">—</span>
+                <button class="recovery-reveal" id="btnRevealPwd">👁 Tunjuk</button>
+                <button class="recovery-copy" id="btnCopyPwd">Salin</button>
+              </div>
+            </div>
+            <p class="text-muted" style="font-size:12px;margin-top:.75rem">
+              ⚠ Hanya berikan maklumat ini kepada player yang dapat mengesahkan Player ID mereka sendiri.
+            </p>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <div class="modal-backdrop" id="rejectModal">
+    <div class="modal">
+      <div class="card-header"><h2>Tolak Keputusan</h2></div>
+      <div class="card-body">
+        <label class="form-label" for="rejectReason">Sebab penolakan</label>
+        <textarea class="form-textarea" id="rejectReason" placeholder="Contoh: Skor tidak sepadan dengan bukti organizer."></textarea>
+        <span class="form-error" id="errRejectReason">Sebab penolakan diperlukan.</span>
+        <div class="modal-actions">
+          <button class="btn btn-secondary" data-close-modal>Tutup</button>
+          <button class="btn btn-danger" id="btnConfirmReject">Tolak</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="walkoverModal">
+    <div class="modal">
+      <div class="card-header"><h2>Pilih Pemenang Walkover</h2></div>
+      <div class="card-body">
+        <label class="form-label" for="walkoverWinner">Pasukan menang</label>
+        <select class="form-select" id="walkoverWinner"></select>
+        <div class="modal-actions">
+          <button class="btn btn-secondary" data-close-modal>Tutup</button>
+          <button class="btn btn-primary" id="btnConfirmWalkover">Sahkan</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="deleteModal">
+    <div class="modal">
+      <div class="card-header"><h2 style="color:var(--red)">🗑 Hapus Tournament</h2></div>
+      <div class="card-body">
+        <p class="text-muted" style="margin-bottom:.75rem">
+          Anda akan menghapus tournament ini secara kekal:
+        </p>
+        <p style="font-family:var(--font-head);font-size:18px;color:var(--txt);margin-bottom:.75rem" id="deleteTournamentName">—</p>
+        <div class="alert alert-error show" id="deleteWarning" style="display:none!important">
+          ⚠ Tournament ini sudah ada pasukan berdaftar. Data semua pasukan dan bracket akan turut dipadam.
+        </div>
+        <p style="font-size:13px;color:var(--red);margin-top:.5rem">
+          Tindakan ini tidak boleh dibatalkan.
+        </p>
+        <div class="modal-actions">
+          <button class="btn btn-secondary" data-close-modal>Batal</button>
+          <button class="btn btn-danger" id="btnConfirmDelete">Ya, Hapus</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Delete Squad Modal ──────────────────── -->
+  <div class="modal-backdrop" id="deleteSquadModal">
+    <div class="modal">
+      <div class="card-header"><h2 style="color:var(--red)">🗑 Hapus Squad</h2></div>
+      <div class="card-body">
+        <p class="text-muted" style="margin-bottom:.75rem">Anda akan menghapus squad ini secara kekal:</p>
+        <p style="font-family:var(--font-head);font-size:18px;color:var(--txt);margin-bottom:.5rem" id="deleteSquadName">—</p>
+        <p style="font-family:var(--font-mono);font-size:12px;color:var(--txt3);margin-bottom:1rem" id="deleteSquadTag">—</p>
+        <p style="font-size:13px;color:var(--red)">Tindakan ini tidak boleh dibatalkan. Semua maklumat squad akan dipadam.</p>
+        <div class="modal-actions">
+          <button class="btn btn-secondary" data-close-modal>Batal</button>
+          <button class="btn btn-danger" id="btnConfirmDeleteSquad">Ya, Hapus Squad</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Edit Squad Modal ─────────────────────── -->
+  <div class="modal-backdrop" id="editSquadModal">
+    <div class="modal modal-lg">
+      <div class="card-header" style="display:flex;align-items:center;justify-content:space-between">
+        <h2>✏️ Edit Squad</h2>
+        <button class="btn btn-secondary btn-sm" data-close-modal>✕</button>
+      </div>
+      <div class="modal-scroll-body">
+
+        <p class="modal-section">Identiti Pasukan</p>
+        <div class="edit-grid-2 mb-2">
+          <div class="form-group" style="margin-bottom:0">
+            <label class="form-label" for="esTeamName">Nama Pasukan</label>
+            <input class="form-input" id="esTeamName" type="text" maxlength="40" autocomplete="off">
+          </div>
+          <div class="form-group" style="margin-bottom:0">
+            <label class="form-label" for="esTeamTag">Tag (Maks 5)</label>
+            <input class="form-input" id="esTeamTag" type="text" maxlength="5" autocomplete="off"
+                   style="text-transform:uppercase;letter-spacing:3px;font-family:var(--font-mono)">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="esRegion">Server Region</label>
+          <select class="form-select" id="esRegion">
+            <option value="MY/SG">🇲🇾 MY/SG — Malaysia / Singapore</option>
+            <option value="ID">🇮🇩 ID — Indonesia</option>
+            <option value="TH">🇹🇭 TH — Thailand</option>
+            <option value="PH">🇵🇭 PH — Philippines</option>
+            <option value="INT">🌐 INT — International</option>
+          </select>
+        </div>
+
+        <p class="modal-section">Maklumat Kapten</p>
+        <div class="edit-grid-2 mb-2">
+          <div class="form-group" style="margin-bottom:0">
+            <label class="form-label" for="esCaptainName">Nama In-Game</label>
+            <input class="form-input" id="esCaptainName" type="text" maxlength="30" autocomplete="off">
+          </div>
+          <div class="form-group" style="margin-bottom:0">
+            <label class="form-label" for="esCaptainMlId">ML ID</label>
+            <input class="form-input" id="esCaptainMlId" type="text" maxlength="25" autocomplete="off">
+          </div>
+        </div>
+        <div class="edit-grid-2 mb-2">
+          <div class="form-group" style="margin-bottom:0">
+            <label class="form-label" for="esCaptainRole">Peranan</label>
+            <select class="form-select" id="esCaptainRole">
+              <option value="">— Pilih —</option>
+              <option value="Tank">🛡️ Tank</option>
+              <option value="Fighter">⚔️ Fighter</option>
+              <option value="Assassin">🗡️ Assassin</option>
+              <option value="Mage">🔮 Mage</option>
+              <option value="Marksman">🏹 Marksman</option>
+              <option value="Support">💚 Support</option>
+            </select>
+          </div>
+          <div class="form-group" style="margin-bottom:0">
+            <label class="form-label" for="esCaptainRank">Rank Semasa</label>
+            <select class="form-select" id="esCaptainRank">
+              <option value="">— Pilih —</option>
+              <option value="Warrior">Warrior</option>
+              <option value="Elite">Elite</option>
+              <option value="Master">Master</option>
+              <option value="Grandmaster">Grandmaster</option>
+              <option value="Epic">Epic</option>
+              <option value="Legend">Legend</option>
+              <option value="Mythic">Mythic</option>
+              <option value="Mythic Honor">Mythic Honor</option>
+              <option value="Mythic Glory">Mythic Glory</option>
+              <option value="Mythic Immortal">Mythic Immortal</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="esCaptainHighestRank">Rank Tertinggi <span style="color:var(--txt3)">(Pilihan)</span></label>
+          <select class="form-select" id="esCaptainHighestRank">
+            <option value="">— Tidak ditetapkan —</option>
+            <option value="Warrior">Warrior</option>
+            <option value="Elite">Elite</option>
+            <option value="Master">Master</option>
+            <option value="Grandmaster">Grandmaster</option>
+            <option value="Epic">Epic</option>
+            <option value="Legend">Legend</option>
+            <option value="Mythic">Mythic</option>
+            <option value="Mythic Honor">Mythic Honor</option>
+            <option value="Mythic Glory">Mythic Glory</option>
+            <option value="Mythic Immortal">Mythic Immortal</option>
+          </select>
+        </div>
+
+        <p class="modal-section">Ahli Pasukan</p>
+
+        <!-- Member 2 -->
+        <div class="member-edit-block">
+          <div class="member-edit-label">Ahli 2</div>
+          <div class="edit-grid-3">
+            <div>
+              <label class="form-label" for="esM2Name">Nama In-Game</label>
+              <input class="form-input" id="esM2Name" type="text" maxlength="30" autocomplete="off" placeholder="PlayerTwo">
+            </div>
+            <div>
+              <label class="form-label" for="esM2Id">ML ID</label>
+              <input class="form-input" id="esM2Id" type="text" maxlength="25" autocomplete="off">
+            </div>
+            <div>
+              <label class="form-label" for="esM2Role">Peranan</label>
+              <select class="form-select" id="esM2Role">
+                <option value="">—</option>
+                <option value="Tank">Tank</option>
+                <option value="Fighter">Fighter</option>
+                <option value="Assassin">Assassin</option>
+                <option value="Mage">Mage</option>
+                <option value="Marksman">Marksman</option>
+                <option value="Support">Support</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Member 3 -->
+        <div class="member-edit-block">
+          <div class="member-edit-label">Ahli 3</div>
+          <div class="edit-grid-3">
+            <div>
+              <label class="form-label" for="esM3Name">Nama In-Game</label>
+              <input class="form-input" id="esM3Name" type="text" maxlength="30" autocomplete="off" placeholder="PlayerThree">
+            </div>
+            <div>
+              <label class="form-label" for="esM3Id">ML ID</label>
+              <input class="form-input" id="esM3Id" type="text" maxlength="25" autocomplete="off">
+            </div>
+            <div>
+              <label class="form-label" for="esM3Role">Peranan</label>
+              <select class="form-select" id="esM3Role">
+                <option value="">—</option>
+                <option value="Tank">Tank</option>
+                <option value="Fighter">Fighter</option>
+                <option value="Assassin">Assassin</option>
+                <option value="Mage">Mage</option>
+                <option value="Marksman">Marksman</option>
+                <option value="Support">Support</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Member 4 -->
+        <div class="member-edit-block">
+          <div class="member-edit-label">Ahli 4 <span style="color:var(--txt3);font-weight:400">— Pilihan</span></div>
+          <div class="edit-grid-3">
+            <div>
+              <label class="form-label" for="esM4Name">Nama In-Game</label>
+              <input class="form-input" id="esM4Name" type="text" maxlength="30" autocomplete="off" placeholder="PlayerFour">
+            </div>
+            <div>
+              <label class="form-label" for="esM4Id">ML ID</label>
+              <input class="form-input" id="esM4Id" type="text" maxlength="25" autocomplete="off">
+            </div>
+            <div>
+              <label class="form-label" for="esM4Role">Peranan</label>
+              <select class="form-select" id="esM4Role">
+                <option value="">—</option>
+                <option value="Tank">Tank</option>
+                <option value="Fighter">Fighter</option>
+                <option value="Assassin">Assassin</option>
+                <option value="Mage">Mage</option>
+                <option value="Marksman">Marksman</option>
+                <option value="Support">Support</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Member 5 -->
+        <div class="member-edit-block">
+          <div class="member-edit-label">Ahli 5 <span style="color:var(--txt3);font-weight:400">— Pilihan</span></div>
+          <div class="edit-grid-3">
+            <div>
+              <label class="form-label" for="esM5Name">Nama In-Game</label>
+              <input class="form-input" id="esM5Name" type="text" maxlength="30" autocomplete="off" placeholder="PlayerFive">
+            </div>
+            <div>
+              <label class="form-label" for="esM5Id">ML ID</label>
+              <input class="form-input" id="esM5Id" type="text" maxlength="25" autocomplete="off">
+            </div>
+            <div>
+              <label class="form-label" for="esM5Role">Peranan</label>
+              <select class="form-select" id="esM5Role">
+                <option value="">—</option>
+                <option value="Tank">Tank</option>
+                <option value="Fighter">Fighter</option>
+                <option value="Assassin">Assassin</option>
+                <option value="Mage">Mage</option>
+                <option value="Marksman">Marksman</option>
+                <option value="Support">Support</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <p class="modal-section" style="border-top:1px dashed var(--border);padding-top:12px;color:rgba(99,102,241,.8)">🔄 Pemain Rizab <span style="color:var(--txt3);font-weight:400;font-size:11px">(Pilihan — Maks 2)</span></p>
+
+        <!-- Reserve 1 -->
+        <div class="member-edit-block">
+          <div class="member-edit-label" style="color:#818cf8">Rizab 1 <span style="color:var(--txt3);font-weight:400">— Pilihan</span></div>
+          <div class="edit-grid-3">
+            <div>
+              <label class="form-label" for="esR1Name">Nama In-Game</label>
+              <input class="form-input" id="esR1Name" type="text" maxlength="30" autocomplete="off" placeholder="ReserveOne">
+            </div>
+            <div>
+              <label class="form-label" for="esR1Id">ML ID</label>
+              <input class="form-input" id="esR1Id" type="text" maxlength="25" autocomplete="off">
+            </div>
+            <div>
+              <label class="form-label" for="esR1Role">Peranan</label>
+              <select class="form-select" id="esR1Role">
+                <option value="">—</option>
+                <option value="Hyper">Hyper</option>
+                <option value="Roamer">Roamer</option>
+                <option value="EXPlaner">EXPlaner</option>
+                <option value="Goldlaner">Goldlaner</option>
+                <option value="Midlaner">Midlaner</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Reserve 2 -->
+        <div class="member-edit-block">
+          <div class="member-edit-label" style="color:#818cf8">Rizab 2 <span style="color:var(--txt3);font-weight:400">— Pilihan</span></div>
+          <div class="edit-grid-3">
+            <div>
+              <label class="form-label" for="esR2Name">Nama In-Game</label>
+              <input class="form-input" id="esR2Name" type="text" maxlength="30" autocomplete="off" placeholder="ReserveTwo">
+            </div>
+            <div>
+              <label class="form-label" for="esR2Id">ML ID</label>
+              <input class="form-input" id="esR2Id" type="text" maxlength="25" autocomplete="off">
+            </div>
+            <div>
+              <label class="form-label" for="esR2Role">Peranan</label>
+              <select class="form-select" id="esR2Role">
+                <option value="">—</option>
+                <option value="Hyper">Hyper</option>
+                <option value="Roamer">Roamer</option>
+                <option value="EXPlaner">EXPlaner</option>
+                <option value="Goldlaner">Goldlaner</option>
+                <option value="Midlaner">Midlaner</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- end scroll body -->
+      <div class="modal-footer-actions">
+        <button class="btn btn-secondary" data-close-modal>Batal</button>
+        <button class="btn btn-primary" id="btnSaveSquad">💾 Simpan Perubahan</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { requireOrganizer, logout } from "./js/auth.js";
+    import { db } from "./js/firebase-config.js";
+    import { advanceBracket, formatDate, setLoading } from "./js/utils.js";
+    import { ref, get, update, push, set, remove } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-database.js";
+
+    /* ── Account Recovery ─────────────────────────────── */
+    let recoveryPwdVisible = false;
+
+    document.getElementById("btnRecoverySearch").addEventListener("click", async () => {
+      const playerId = document.getElementById("recoveryInput").value.trim();
+      const errEl    = document.getElementById("recoveryError");
+      const errMsg   = document.getElementById("recoveryErrMsg");
+      const result   = document.getElementById("recoveryResult");
+      errEl.classList.remove("show");
+      result.classList.remove("show");
+      recoveryPwdVisible = false;
+      document.getElementById("rPassword").classList.add("recovery-pwd-blur");
+      document.getElementById("btnRevealPwd").textContent = "👁 Tunjuk";
+
+      if (!playerId) {
+        errMsg.textContent = "Sila masukkan Player ID.";
+        errEl.classList.add("show");
+        return;
+      }
+
+      const btn = document.getElementById("btnRecoverySearch");
+      btn.disabled   = true;
+      btn.innerHTML  = '<span class="spinner"></span>';
+
+      try {
+        const idxSnap = await get(ref(db, `playerIndex/${playerId}`));
+        if (!idxSnap.exists()) {
+          errMsg.textContent = "Player ID tidak dijumpai. Semak semula ejaan.";
+          errEl.classList.add("show");
+          return;
+        }
+        const { uid } = idxSnap.val();
+        const userSnap = await get(ref(db, `users/${uid}`));
+        if (!userSnap.exists()) {
+          errMsg.textContent = "Data pengguna tidak dijumpai.";
+          errEl.classList.add("show");
+          return;
+        }
+        const u = userSnap.val();
+        document.getElementById("rPlayerId").textContent     = u.playerId    || playerId;
+        document.getElementById("rDisplayName").textContent  = u.displayName || "—";
+        document.getElementById("rUsername").textContent     = u.username    || "—";
+        document.getElementById("rCreatedAt").textContent    = u.createdAt   || "—";
+        document.getElementById("rPassword").textContent     = u.generatedPassword || "(tiada rekod)";
+        result.classList.add("show");
+      } catch (err) {
+        errMsg.textContent = "Ralat memuat data. Cuba lagi.";
+        errEl.classList.add("show");
+      } finally {
+        btn.disabled  = false;
+        btn.innerHTML = "Cari";
+      }
+    });
+
+    document.getElementById("btnRevealPwd").addEventListener("click", () => {
+      recoveryPwdVisible = !recoveryPwdVisible;
+      document.getElementById("rPassword").classList.toggle("recovery-pwd-blur", !recoveryPwdVisible);
+      document.getElementById("btnRevealPwd").textContent = recoveryPwdVisible ? "🙈 Sembunyi" : "👁 Tunjuk";
+    });
+
+    document.getElementById("btnCopyPwd").addEventListener("click", async () => {
+      const text = document.getElementById("rPassword").textContent;
+      try {
+        await navigator.clipboard.writeText(text);
+        const btn = document.getElementById("btnCopyPwd");
+        btn.textContent = "✓ Disalin";
+        setTimeout(() => btn.textContent = "Salin", 1800);
+      } catch { /* clipboard blocked */ }
+    });
+
+    document.getElementById("recoveryInput").addEventListener("keydown", (e) => {
+      if (e.key === "Enter") document.getElementById("btnRecoverySearch").click();
+    });
+
+    requireOrganizer(async (user) => {
+      const state = {
+        user,
+        tournaments: [],
+        teams: {},
+        currentAction: null,
+      };
+
+      const btnLogout = document.getElementById("btnLogout");
+      btnLogout.addEventListener("click", async () => {
+        const originalHTML = btnLogout.innerHTML;
+        setLoading(btnLogout, true, originalHTML);
+        await logout();
+      });
+
+      window.__adminState = state; // expose for live squad search
+      await loadData(state);
+      bindTabs();
+      bindActions(state);
+      renderAll(state);
+    });
+
+    function showAlert(message, type = "error") {
+      const error = document.getElementById("alertError");
+      const success = document.getElementById("alertSuccess");
+      error.classList.remove("show");
+      success.classList.remove("show");
+      if (type === "success") {
+        document.getElementById("successMsg").textContent = message;
+        success.classList.add("show");
+      } else {
+        document.getElementById("alertMsg").textContent = message;
+        error.classList.add("show");
+      }
+    }
+
+    async function loadData(state) {
+      const [tournamentsSnap, teamsSnap] = await Promise.all([
+        get(ref(db, "tournaments")),
+        get(ref(db, "teams")),
+      ]);
+      state.teams = teamsSnap.exists() ? teamsSnap.val() : {};
+      state.tournaments = tournamentsSnap.exists()
+        ? Object.entries(tournamentsSnap.val())
+          .map(([id, tournament]) => ({ id, ...tournament }))
+          .filter((tournament) => tournament.organizerId === state.user.uid)
+          .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0))
+        : [];
+
+      // Load applications for all tournaments by this organizer
+      const appResults = await Promise.all(state.tournaments.map(async (t) => {
+        const snap = await get(ref(db, `applications/${t.id}`));
+        if (!snap.exists()) return [];
+        return Object.entries(snap.val()).map(([uid, app]) => ({
+          ...app, uid, tournamentId: t.id, tournamentName: t.name
+        }));
+      }));
+      state.applications = appResults.flat().sort((a, b) => (b.appliedAt||0) - (a.appliedAt||0));
+
+      const logs = await Promise.all(state.tournaments.map(async (tournament) => {
+        const snap = await get(ref(db, `activityLog/${tournament.id}`));
+        return snap.exists()
+          ? Object.values(snap.val()).map((entry) => ({ tournamentName: tournament.name, ...entry }))
+          : [];
+      }));
+      state.activity = logs.flat().sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+    }
+
+    function teamName(state, uid) {
+      return state.teams[uid]?.teamName || "TBD";
+    }
+
+    function matchLabel(match) {
+      const bracketMap = { wb: "WB", lb: "LB", gf: "GF" };
+      return `${bracketMap[match.bracket] || "BR"} R${match.round} M${match.position}`;
+    }
+
+    function actionMatches(state) {
+      return state.tournaments.flatMap((tournament) => Object.entries(tournament.matches || {})
+        .filter(([, match]) => match.status === "pending" || match.status === "upcoming")
+        .map(([matchId, match]) => ({ tournament, matchId, ...match })));
+    }
+
+    function renderAll(state) {
+      renderStats(state);
+      renderTournaments(state);
+      renderApplications(state);
+      renderPending(state);
+      renderActivity(state);
+      renderSquads(state);
+    }
+
+    function renderStats(state) {
+      document.getElementById("statActive").textContent = state.tournaments.filter((t) => t.status === "live" || t.status === "registration").length;
+      document.getElementById("statPending").textContent = actionMatches(state).filter((m) => m.status === "pending").length;
+      const todayStart = new Date();
+      todayStart.setHours(0, 0, 0, 0);
+      document.getElementById("statTeamsToday").textContent = Object.values(state.teams).filter((team) => (team.createdAt || 0) >= todayStart.getTime()).length;
+    }
+
+    function statusBadge(status) {
+      const klass = status === "done" ? "done" : status === "live" ? "live" : "upcoming";
+      return `<span class="badge badge-${klass}">${status}</span>`;
+    }
+
+    function renderTournaments(state) {
+      const panel = document.getElementById("panel-tournaments");
+      if (!state.tournaments.length) {
+        panel.innerHTML = '<div class="empty-state">Tiada tournament lagi.</div>';
+        return;
+      }
+      panel.innerHTML = state.tournaments.map((tournament) => `
+        <article class="row-card">
+          <div class="row-main">
+            ${tournament.posterUrl ? `<img class="row-poster-thumb" src="${tournament.posterUrl}" alt="" onerror="this.style.display='none'">` : ""}
+            <div>
+              <span class="badge badge-${tournament.category}">${tournament.category}</span>
+              ${statusBadge(tournament.status)}
+              <h3 class="mt-1">${tournament.name}</h3>
+              <p class="text-muted">${formatDate(tournament.startDate)} - ${tournament.teamCount || 0}/${tournament.maxTeams || 0} teams</p>
+            </div>
+            <div class="row-actions">
+              <a class="btn btn-secondary btn-sm" href="organizer-create.html?edit=${tournament.id}">Manage</a>
+              <button class="btn btn-secondary btn-sm" data-action="pause" data-tid="${tournament.id}">Pause</button>
+              <button class="btn btn-danger btn-sm" data-action="end" data-tid="${tournament.id}">End Tournament</button>
+              <button class="btn btn-danger btn-sm" data-action="delete" data-tid="${tournament.id}" data-tname="${tournament.name}" data-tcount="${tournament.teamCount || 0}" title="Hapus tournament sepenuhnya">🗑 Hapus</button>
+            </div>
+          </div>
+        </article>
+      `).join("");
+    }
+
+    function renderPending(state) {
+      const panel = document.getElementById("panel-pending");
+      const matches = actionMatches(state);
+      if (!matches.length) {
+        panel.innerHTML = '<div class="empty-state">Tiada keputusan pending atau match upcoming.</div>';
+        return;
+      }
+      panel.innerHTML = matches.map((match) => `
+        <article class="row-card">
+          <div class="row-main">
+            <div>
+              <span class="badge badge-${match.status === "pending" ? "upcoming" : "live"}">${match.status}</span>
+              <h3>${match.tournament.name} - ${match.matchId}</h3>
+              <p class="text-muted">${matchLabel(match)} - Submitted by ${teamName(state, match.confirmedBy)} ${match.submittedAt ? `at ${formatDate(match.submittedAt)}` : ""}</p>
+            </div>
+          </div>
+          <div class="score-line">
+            ${teamName(state, match.team1)} <strong>${match.score1 || 0}</strong> vs <strong>${match.score2 || 0}</strong> ${teamName(state, match.team2)}
+          </div>
+          <div class="row-actions">
+            ${match.status === "pending" ? `<button class="btn btn-primary btn-sm" data-action="approve" data-tid="${match.tournament.id}" data-mid="${match.matchId}">Approve</button>
+            <button class="btn btn-danger btn-sm" data-action="reject" data-tid="${match.tournament.id}" data-mid="${match.matchId}">Reject</button>` : ""}
+            <button class="btn btn-secondary btn-sm" data-action="walkover" data-tid="${match.tournament.id}" data-mid="${match.matchId}">Walkover</button>
+          </div>
+        </article>
+      `).join("");
+    }
+
+    function renderActivity(state) {
+      const panel = document.getElementById("panel-activity");
+      if (!state.activity.length) {
+        panel.innerHTML = '<div class="empty-state">Belum ada aktiviti organizer.</div>';
+        return;
+      }
+      panel.innerHTML = state.activity.map((entry) => `
+        <article class="row-card">
+          <div class="row-main">
+            <div>
+              <h3>${entry.action}</h3>
+              <p class="text-muted">${entry.tournamentName} - ${entry.matchId || entry.teamId || "-"} - ${formatDate(entry.timestamp)}</p>
+            </div>
+          </div>
+          ${entry.reason ? `<p class="text-muted">${entry.reason}</p>` : ""}
+        </article>
+      `).join("");
+    }
+
+    /* ── Squad helpers ────────────────────────── */
+    const ROLE_ICONS_ADM = { Tank:"🛡️", Fighter:"⚔️", Assassin:"🗡️", Mage:"🔮", Marksman:"🏹", Support:"💚" };
+
+    const ADM_RANK_WEIGHTS = {
+      "Warrior":10,"Elite":20,"Master":30,"Grandmaster":40,
+      "Epic":50,"Legend":60,"Mythic":70,"Mythic Honor":80,
+      "Mythic Glory":90,"Mythic Immortal":100
+    };
+    // Configurable — mirrors TIER_CONFIG in team-setup.html
+    const ADM_TIER_CONFIG = [
+      { min:10, max:29,  label:"Newbie"   },
+      { min:30, max:49,  label:"Elite"    },
+      { min:50, max:59,  label:"Hard"     },
+      { min:60, max:69,  label:"Advanced" },
+      { min:70, max:100, label:"Semi-Pro" }
+    ];
+    const ADM_TIER_COLORS = {
+      "Newbie":  "#9e9e9e",
+      "Elite":   "#4caf50",
+      "Hard":    "#2196f3",
+      "Advanced":"#ff9800",
+      "Semi-Pro":"#e91e63"
+    };
+
+    function computeTeamPower(t) {
+      const ranks = [t.captainRank];
+      (t.members  || []).forEach(m => { if (m && m.rank) ranks.push(m.rank); });
+      (t.reserves || []).forEach(r => { if (r && r.rank) ranks.push(r.rank); });
+      const weights = ranks.filter(Boolean).map(r => ADM_RANK_WEIGHTS[r] || 0).filter(w => w > 0);
+      if (!weights.length) return { avg: "—", top: "—", category: "—", color: "var(--txt3)" };
+      const avg = weights.reduce((a, b) => a + b, 0) / weights.length;
+      const top = Math.max(...weights);
+      const topRank = Object.keys(ADM_RANK_WEIGHTS).find(k => ADM_RANK_WEIGHTS[k] === top) || "—";
+      const avgRank = Object.keys(ADM_RANK_WEIGHTS).reduce((best, k) =>
+        Math.abs(ADM_RANK_WEIGHTS[k] - avg) < Math.abs(ADM_RANK_WEIGHTS[best] - avg) ? k : best, "Warrior");
+      const tier = ADM_TIER_CONFIG.find(t => avg >= t.min && avg <= t.max);
+      const category = tier?.label || "—";
+      return { avg: avgRank, top: topRank, category, color: ADM_TIER_COLORS[category] || "var(--txt3)" };
+    }
+
+    function renderSquads(state) {
+      const panel  = document.getElementById("panel-squads");
+      const teams  = Object.entries(state.teams);
+      const query  = (document.getElementById("squadSearch")?.value || "").toLowerCase();
+      const filtered = teams.filter(([, t]) =>
+        !query ||
+        (t.teamName  || "").toLowerCase().includes(query) ||
+        (t.teamTag   || "").toLowerCase().includes(query) ||
+        (t.displayName || "").toLowerCase().includes(query)
+      );
+
+      if (!teams.length) {
+        panel.innerHTML = '<div class="empty-state">Tiada squad berdaftar lagi.</div>';
+        return;
+      }
+
+      const cards = filtered.map(([uid, t]) => {
+        const members  = (t.members  || []).filter(m => m && m.name);
+        const reserves = (t.reserves || []).filter(r => r && r.name);
+        const power = computeTeamPower(t);
+
+        const activeChips = [
+          `<span class="squad-member-chip captain">👑 ${escHtml(t.displayName || "?")} ${t.captainRole ? `(${t.captainRole})` : ""}</span>`,
+          ...members.map(m =>
+            `<span class="squad-member-chip">${escHtml(m.name)}${m.role ? ` (${m.role})` : ""}</span>`
+          )
+        ].join("");
+
+        const reserveChips = reserves.map(r =>
+          `<span class="squad-member-chip" style="border-color:rgba(99,102,241,.35);color:#818cf8">🔄 ${escHtml(r.name)}${r.role ? ` (${r.role})` : ""}</span>`
+        ).join("");
+
+        return `
+          <div class="squad-card">
+            <div class="squad-info">
+              <div class="squad-tag">[ ${escHtml(t.teamTag || "—")} ]</div>
+              <div class="squad-name">${escHtml(t.teamName || "Unnamed")}</div>
+              <div class="squad-meta">
+                <span>🌐 ${t.serverRegion || "—"}</span>
+                <span>📊 <span style="color:${power.color};font-weight:700">${power.category}</span></span>
+                <span>⭐ ${power.avg}</span>
+                <span>👥 ${1 + members.length} aktif${reserves.length ? ` + ${reserves.length} rizab` : ""}</span>
+                ${t.createdAt ? `<span>📅 ${new Date(t.createdAt).toLocaleDateString("ms-MY")}</span>` : ""}
+              </div>
+              <div class="squad-members-row">${activeChips}</div>
+              ${reserveChips ? `<div class="squad-members-row" style="margin-top:4px">${reserveChips}</div>` : ""}
+            </div>
+            <div class="squad-actions">
+              <button class="btn btn-secondary btn-sm"
+                      data-action="edit-squad" data-uid="${uid}"
+                      title="Edit maklumat squad">✏️ Edit</button>
+              <button class="btn btn-danger btn-sm"
+                      data-action="delete-squad" data-uid="${uid}"
+                      data-sname="${escHtmlAttr(t.teamName || "")}"
+                      data-stag="${escHtmlAttr(t.teamTag || "")}"
+                      title="Hapus squad">🗑 Hapus</button>
+            </div>
+          </div>`;
+      }).join("");
+
+      panel.innerHTML = `
+        <div class="squad-search-bar">
+          <input class="form-input" id="squadSearch" placeholder="Cari nama pasukan, tag atau kapten..."
+                 value="${escHtmlAttr(query)}" oninput="renderSquadsLive()" autocomplete="off">
+        </div>
+        <p class="squad-count">${filtered.length} / ${teams.length} Squad</p>
+        <div style="display:grid;gap:10px">${cards || '<div class="empty-state">Tiada squad sepadan carian.</div>'}</div>`;
+    }
+
+    window.renderSquadsLive = function() {
+      const query = document.getElementById("squadSearch")?.value || "";
+      if (window.__adminState) renderSquads(window.__adminState);
+    };
+
+    /* ── Applications panel ──────────────────────── */
+    function renderApplications(state) {
+      const panel = document.getElementById("panel-applications");
+      const apps  = state.applications || [];
+
+      // Update badge
+      const pending = apps.filter(a => a.status === "pending_review" || a.status === "payment_submitted");
+      const badge = document.getElementById("appBadge");
+      if (badge) {
+        badge.textContent = pending.length;
+        badge.style.display = pending.length ? "inline-flex" : "none";
+      }
+
+      if (!apps.length) {
+        panel.innerHTML = '<div class="empty-state">Tiada permohonan lagi.</div>';
+        return;
+      }
+
+      const STATUS_LABELS = {
+        payment_submitted: "📤 Bukti Bayaran",
+        pending_review:    "⏳ Menunggu Semakan",
+        approved:          "✅ Diluluskan",
+        rejected:          "❌ Ditolak",
+      };
+
+      const cards = apps.map(app => {
+        const statusLbl = STATUS_LABELS[app.status] || app.status;
+        const canAct = app.status === "pending_review" || app.status === "payment_submitted";
+
+        return `<div class="app-card">
+          <div class="app-card-info">
+            <div class="app-status ${app.status}">${statusLbl}</div>
+            <div style="font-size:14px;font-weight:700;color:var(--txt)">[${escHtml(app.teamTag||"")}] ${escHtml(app.teamName||"")}</div>
+            <div style="font-size:12px;color:var(--txt3);margin-top:4px">
+              ${escHtml(app.tournamentName||"")} · Dihantar: ${formatDate(app.appliedAt)}
+            </div>
+            ${app.paymentProofUrl
+              ? `<div style="margin-top:8px"><a href="${escHtml(app.paymentProofUrl)}" target="_blank" rel="noopener" style="font-size:12px;color:var(--blue2)">🖼 Lihat Bukti Bayaran</a></div>`
+              : ""}
+            ${app.status === "rejected" && app.rejectionReason
+              ? `<div style="font-size:12px;color:var(--red);margin-top:4px">Sebab: ${escHtml(app.rejectionReason)}</div>`
+              : ""}
+          </div>
+          ${canAct ? `
+          <div class="app-card-actions">
+            <button class="btn btn-primary btn-sm" data-action="approve-app"
+              data-app-uid="${app.uid}" data-app-tid="${app.tournamentId}">✅ Lulus</button>
+            <button class="btn btn-danger btn-sm" data-action="reject-app"
+              data-app-uid="${app.uid}" data-app-tid="${app.tournamentId}">❌ Tolak</button>
+          </div>` : ""}
+        </div>`;
+      }).join("");
+
+      panel.innerHTML = `
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:4px">
+          <p style="font-size:13px;color:var(--txt2)">${apps.length} permohonan diterima · ${pending.length} menunggu tindakan</p>
+        </div>
+        <div style="display:grid;gap:8px">${cards}</div>`;
+    }
+
+    /* ── Place approved team into bracket ────────── */
+    async function placeTeamInBracket(db, tournamentId, teamUid) {
+      const tSnap = await get(ref(db, `tournaments/${tournamentId}`));
+      if (!tSnap.exists()) return;
+      const t = tSnap.val();
+      const matches = t.matches || {};
+      // Find first R1 WB match slot that is still empty
+      const r1Matches = Object.entries(matches)
+        .filter(([, m]) => m.bracket === "wb" && m.round === 1)
+        .sort(([,a],[,b]) => a.position - b.position);
+
+      let placed = false;
+      const updates = {};
+
+      for (const [matchId, match] of r1Matches) {
+        if (!match.team1) {
+          updates[`tournaments/${tournamentId}/matches/${matchId}/team1`] = teamUid;
+          if (match.team2) updates[`tournaments/${tournamentId}/matches/${matchId}/status`] = "upcoming";
+          placed = true; break;
+        } else if (!match.team2) {
+          updates[`tournaments/${tournamentId}/matches/${matchId}/team2`] = teamUid;
+          if (match.team1) updates[`tournaments/${tournamentId}/matches/${matchId}/status`] = "upcoming";
+          placed = true; break;
+        }
+      }
+
+      if (!placed) return; // bracket full — admin should handle manually
+
+      // Add to tournament teams object
+      updates[`tournaments/${tournamentId}/teams/${teamUid}`] = true;
+      updates[`tournaments/${tournamentId}/teamCount`] = (t.teamCount || 0) + 1;
+      await update(ref(db), updates);
+    }
+
+    function escHtml(str) {
+      return String(str).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+    }
+    function escHtmlAttr(str) {
+      return String(str).replace(/"/g,"&quot;").replace(/'/g,"&#39;");
+    }
+
+    /* ── Load squad data into edit modal ─────── */
+    function openEditSquadModal(uid, state) {
+      const t = state.teams[uid];
+      if (!t) return;
+
+      const setVal = (id, val) => { const el = document.getElementById(id); if (el) el.value = val || ""; };
+      setVal("esTeamName",          t.teamName);
+      setVal("esTeamTag",           t.teamTag);
+      setVal("esRegion",            t.serverRegion || "MY/SG");
+      setVal("esCaptainName",       t.displayName);
+      setVal("esCaptainMlId",       t.mlId);
+      setVal("esCaptainRole",       t.captainRole);
+      setVal("esCaptainRank",       t.captainRank);
+      setVal("esCaptainHighestRank",t.captainHighestRank);
+
+      const members = t.members || [];
+      [2,3,4,5].forEach((n, i) => {
+        const m = members[i] || {};
+        setVal(`esM${n}Name`, m.name);
+        setVal(`esM${n}Id`,   m.mlId);
+        setVal(`esM${n}Role`, m.role);
+      });
+      const reserves = t.reserves || [];
+      [1,2].forEach((n, i) => {
+        const r = reserves[i] || {};
+        setVal(`esR${n}Name`, r.name);
+        setVal(`esR${n}Id`,   r.mlId);
+        setVal(`esR${n}Role`, r.role);
+      });
+
+      state.currentAction = { ...state.currentAction, editUid: uid };
+      openModal("editSquadModal");
+    }
+
+    function bindTabs() {
+      document.getElementById("tabs").addEventListener("click", (event) => {
+        const btn = event.target.closest("[data-tab]");
+        if (!btn) return;
+        document.querySelectorAll(".tab-btn").forEach((node) => node.classList.toggle("active", node === btn));
+        document.querySelectorAll(".panel").forEach((node) => node.classList.toggle("active", node.id === `panel-${btn.dataset.tab}`));
+      });
+    }
+
+    function findTournament(state, tournamentId) {
+      return state.tournaments.find((tournament) => tournament.id === tournamentId);
+    }
+
+    function findMatch(state, tournamentId, matchId) {
+      const tournament = findTournament(state, tournamentId);
+      return tournament ? { tournament, match: tournament.matches?.[matchId] } : {};
+    }
+
+    async function logAction(tournamentId, entry) {
+      await set(push(ref(db, `activityLog/${tournamentId}`)), {
+        ...entry,
+        timestamp: Date.now(),
+      });
+    }
+
+    function openModal(id) {
+      document.getElementById(id).classList.add("show");
+    }
+
+    function closeModals() {
+      document.querySelectorAll(".modal-backdrop").forEach((modal) => modal.classList.remove("show"));
+    }
+
+    async function refresh(state) {
+      await loadData(state);
+      renderAll(state);
+    }
+
+    function bindActions(state) {
+      document.body.addEventListener("click", async (event) => {
+        const close = event.target.closest("[data-close-modal]");
+        if (close) {
+          closeModals();
+          return;
+        }
+
+        const btn = event.target.closest("[data-action]");
+        if (!btn) return;
+
+        const action = btn.dataset.action;
+        const tournamentId = btn.dataset.tid;
+        const matchId = btn.dataset.mid;
+
+        if (action === "delete") {
+          state.currentAction = { tournamentId };
+          document.getElementById("deleteTournamentName").textContent = btn.dataset.tname || "Tournament";
+          const hasTeams = parseInt(btn.dataset.tcount || "0") > 0;
+          document.getElementById("deleteWarning").style.display = hasTeams ? "flex" : "none";
+          openModal("deleteModal");
+          return;
+        }
+
+        if (action === "delete-squad") {
+          state.currentAction = { ...state.currentAction, deleteSquadUid: btn.dataset.uid };
+          document.getElementById("deleteSquadName").textContent = btn.dataset.sname || "Squad";
+          document.getElementById("deleteSquadTag").textContent  = btn.dataset.stag ? `[ ${btn.dataset.stag} ]` : "";
+          openModal("deleteSquadModal");
+          return;
+        }
+
+        if (action === "edit-squad") {
+          openEditSquadModal(btn.dataset.uid, state);
+          return;
+        }
+
+        if (action === "approve-app") {
+          const appUid = btn.dataset.appUid;
+          const appTid = btn.dataset.appTid;
+          const origHTML = btn.innerHTML;
+          setLoading(btn, true, origHTML);
+          try {
+            // Update application status
+            await update(ref(db, `applications/${appTid}/${appUid}`), {
+              status: "approved",
+              reviewedAt: Date.now(),
+              reviewedBy: state.user.uid,
+            });
+            // Place team in bracket
+            await placeTeamInBracket(db, appTid, appUid);
+            await refresh(state);
+            showAlert("Permohonan diluluskan. Pasukan telah dimasukkan ke dalam bracket.", "success");
+          } catch (err) {
+            showAlert("Ralat meluluskan permohonan.");
+            setLoading(btn, false, origHTML);
+          }
+          return;
+        }
+
+        if (action === "reject-app") {
+          const appUid = btn.dataset.appUid;
+          const appTid = btn.dataset.appTid;
+          const reason = prompt("Sila nyatakan sebab penolakan (pilihan):") ?? "";
+          const origHTML = btn.innerHTML;
+          setLoading(btn, true, origHTML);
+          try {
+            await update(ref(db, `applications/${appTid}/${appUid}`), {
+              status: "rejected",
+              rejectionReason: reason,
+              reviewedAt: Date.now(),
+              reviewedBy: state.user.uid,
+            });
+            await refresh(state);
+            showAlert("Permohonan telah ditolak.", "success");
+          } catch (err) {
+            showAlert("Ralat menolak permohonan.");
+            setLoading(btn, false, origHTML);
+          }
+          return;
+        }
+
+        if (action === "reject") {
+          state.currentAction = { tournamentId, matchId };
+          document.getElementById("rejectReason").value = "";
+          document.getElementById("errRejectReason").classList.remove("show");
+          openModal("rejectModal");
+          return;
+        }
+
+        if (action === "walkover") {
+          const { match } = findMatch(state, tournamentId, matchId);
+          state.currentAction = { tournamentId, matchId };
+          document.getElementById("walkoverWinner").innerHTML = `
+            <option value="${match.team1}">${teamName(state, match.team1)}</option>
+            <option value="${match.team2}">${teamName(state, match.team2)}</option>
+          `;
+          openModal("walkoverModal");
+          return;
+        }
+
+        const originalHTML = btn.innerHTML;
+        setLoading(btn, true, originalHTML);
+        try {
+          if (action === "approve") await approveResult(state, tournamentId, matchId);
+          if (action === "pause") await pauseTournament(tournamentId);
+          if (action === "end") await endTournament(tournamentId);
+          await refresh(state);
+          showAlert("Tindakan organizer berjaya disimpan.", "success");
+        } catch (error) {
+          showAlert("Ralat menjalankan tindakan organizer. Cuba lagi.");
+          setLoading(btn, false, originalHTML);
+        }
+      });
+
+      document.getElementById("btnConfirmDelete").addEventListener("click", async () => {
+        const btn = document.getElementById("btnConfirmDelete");
+        const originalHTML = btn.innerHTML;
+        setLoading(btn, true, originalHTML);
+        try {
+          await remove(ref(db, `tournaments/${state.currentAction.tournamentId}`));
+          closeModals();
+          await refresh(state);
+          showAlert("Tournament berjaya dipadam.", "success");
+        } catch (error) {
+          showAlert("Ralat memadam tournament. Cuba lagi.");
+        } finally {
+          setLoading(btn, false, originalHTML);
+        }
+      });
+
+      document.getElementById("btnConfirmReject").addEventListener("click", async () => {
+        const reason = document.getElementById("rejectReason").value.trim();
+        if (!reason) {
+          document.getElementById("errRejectReason").classList.add("show");
+          return;
+        }
+        const btn = document.getElementById("btnConfirmReject");
+        const originalHTML = btn.innerHTML;
+        setLoading(btn, true, originalHTML);
+        try {
+          await rejectResult(state.currentAction.tournamentId, state.currentAction.matchId, reason);
+          closeModals();
+          await refresh(state);
+          showAlert("Keputusan ditolak dan match dibuka semula.", "success");
+        } catch (error) {
+          showAlert("Ralat menolak keputusan.");
+        } finally {
+          setLoading(btn, false, originalHTML);
+        }
+      });
+
+      document.getElementById("btnConfirmWalkover").addEventListener("click", async () => {
+        const btn = document.getElementById("btnConfirmWalkover");
+        const originalHTML = btn.innerHTML;
+        const winnerId = document.getElementById("walkoverWinner").value;
+        setLoading(btn, true, originalHTML);
+        try {
+          await walkover(state, state.currentAction.tournamentId, state.currentAction.matchId, winnerId);
+          closeModals();
+          await refresh(state);
+          showAlert("Walkover berjaya disahkan.", "success");
+        } catch (error) {
+          showAlert("Ralat menyimpan walkover.");
+        } finally {
+          setLoading(btn, false, originalHTML);
+        }
+      });
+
+      /* ── Delete Squad ────────────────────── */
+      document.getElementById("btnConfirmDeleteSquad").addEventListener("click", async () => {
+        const btn = document.getElementById("btnConfirmDeleteSquad");
+        const originalHTML = btn.innerHTML;
+        setLoading(btn, true, originalHTML);
+        try {
+          const uid = state.currentAction.deleteSquadUid;
+          await remove(ref(db, `teams/${uid}`));
+          delete state.teams[uid];
+          closeModals();
+          renderAll(state);
+          showAlert("Squad berjaya dipadam.", "success");
+        } catch (err) {
+          showAlert("Ralat memadam squad. Cuba lagi.");
+        } finally {
+          setLoading(btn, false, originalHTML);
+        }
+      });
+
+      /* ── Save Squad Edit ─────────────────── */
+      document.getElementById("btnSaveSquad").addEventListener("click", async () => {
+        const btn = document.getElementById("btnSaveSquad");
+        const originalHTML = btn.innerHTML;
+        const uid = state.currentAction.editUid;
+        if (!uid) return;
+
+        const getVal = id => (document.getElementById(id)?.value || "").trim();
+
+        const teamName  = getVal("esTeamName");
+        const teamTag   = getVal("esTeamTag").toUpperCase().replace(/[^A-Z0-9]/g, "");
+        if (!teamName || !teamTag) {
+          showAlert("Nama Pasukan dan Tag tidak boleh kosong.");
+          return;
+        }
+
+        const updated = {
+          teamName,
+          teamTag,
+          serverRegion:      getVal("esRegion")            || "MY/SG",
+          displayName:       getVal("esCaptainName"),
+          mlId:              getVal("esCaptainMlId"),
+          captainRole:       getVal("esCaptainRole"),
+          captainRank:       getVal("esCaptainRank"),
+          captainHighestRank:getVal("esCaptainHighestRank"),
+          members: [2,3,4,5].map(n => ({
+            name:  getVal(`esM${n}Name`),
+            mlId:  getVal(`esM${n}Id`),
+            role:  getVal(`esM${n}Role`),
+            // preserve existing member ranks from current state
+            ...(state.teams[uid]?.members?.[n-2]?.rank ? { rank: state.teams[uid].members[n-2].rank, rankStars: state.teams[uid].members[n-2].rankStars } : {}),
+          })),
+          reserves: [1,2].map(n => ({
+            name:  getVal(`esR${n}Name`),
+            mlId:  getVal(`esR${n}Id`),
+            role:  getVal(`esR${n}Role`),
+            // preserve existing reserve ranks from current state
+            ...(state.teams[uid]?.reserves?.[n-1]?.rank ? { rank: state.teams[uid].reserves[n-1].rank, rankStars: state.teams[uid].reserves[n-1].rankStars } : {}),
+          })).filter(r => r.name),
+          uid,
+          // preserve original create time and rank stars if they exist
+          ...(state.teams[uid]?.createdAt       ? { createdAt:              state.teams[uid].createdAt }       : {}),
+          ...(state.teams[uid]?.captainRankStars ? { captainRankStars:       state.teams[uid].captainRankStars } : {}),
+          ...(state.teams[uid]?.captainHighestRankStars ? { captainHighestRankStars: state.teams[uid].captainHighestRankStars } : {}),
+        };
+
+        setLoading(btn, true, originalHTML);
+        try {
+          await set(ref(db, `teams/${uid}`), updated);
+          state.teams[uid] = updated;
+          closeModals();
+          renderAll(state);
+          showAlert("Squad berjaya dikemaskini.", "success");
+        } catch (err) {
+          showAlert("Ralat menyimpan perubahan. Cuba lagi.");
+        } finally {
+          setLoading(btn, false, originalHTML);
+        }
+      });
+
+      /* ── Tag uppercase enforcement in edit modal ── */
+      document.getElementById("esTeamTag").addEventListener("input", e => {
+        const pos = e.target.selectionStart;
+        e.target.value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, "");
+        e.target.setSelectionRange(pos, pos);
+      });
+    }
+
+    async function approveResult(state, tournamentId, matchId) {
+      const { tournament, match } = findMatch(state, tournamentId, matchId);
+      if (!match?.winnerId || !match?.loserId) throw new Error("Missing winner");
+      await update(ref(db, `tournaments/${tournamentId}/matches/${matchId}`), {
+        status: "done",
+        completedAt: Date.now(),
+      });
+      await advanceBracket(db, tournamentId, matchId, match.winnerId, match.loserId, tournament.format);
+      await logAction(tournamentId, {
+        action: "APPROVE_RESULT",
+        matchId,
+        organizerId: state.user.uid,
+      });
+    }
+
+    async function rejectResult(tournamentId, matchId, reason) {
+      await update(ref(db, `tournaments/${tournamentId}/matches/${matchId}`), {
+        score1: 0,
+        score2: 0,
+        winnerId: null,
+        loserId: null,
+        status: "upcoming",
+        confirmedBy: null,
+        submittedAt: null,
+        completedAt: null,
+        rejection: {
+          reason,
+          rejectedAt: Date.now(),
+        },
+      });
+      await logAction(tournamentId, {
+        action: "REJECT_RESULT",
+        matchId,
+        reason,
+      });
+    }
+
+    async function walkover(state, tournamentId, matchId, winnerId) {
+      const { tournament, match } = findMatch(state, tournamentId, matchId);
+      const loserId = match.team1 === winnerId ? match.team2 : match.team1;
+      await update(ref(db, `tournaments/${tournamentId}/matches/${matchId}`), {
+        winnerId,
+        loserId,
+        status: "walkover",
+        completedAt: Date.now(),
+      });
+      await advanceBracket(db, tournamentId, matchId, winnerId, loserId, tournament.format);
+      await logAction(tournamentId, {
+        action: "WALKOVER",
+        matchId,
+        teamId: winnerId,
+        organizerId: state.user.uid,
+      });
+    }
+
+    async function pauseTournament(tournamentId) {
+      await update(ref(db, `tournaments/${tournamentId}`), { status: "upcoming" });
+      await logAction(tournamentId, { action: "PAUSE_TOURNAMENT", matchId: null });
+    }
+
+    async function endTournament(tournamentId) {
+      await update(ref(db, `tournaments/${tournamentId}`), { status: "done", finalizedAt: Date.now() });
+      await logAction(tournamentId, { action: "END_TOURNAMENT", matchId: null });
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,1754 @@
+﻿<!DOCTYPE html>
+<html lang="ms">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Setup Pasukan - MLBB OPS</title>
+  <link rel="stylesheet" href="css/global.css">
+  <style>
+    /* ── Page Layout ─────────────────────────── */
+    .setup-wrap {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 0 1.5rem 5rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* ── Tournament Banner ───────────────────── */
+    .tournament-banner {
+      background: linear-gradient(135deg, #0d1520 0%, #1a2535 50%, #0d1a2a 100%);
+      border-bottom: 1px solid var(--border);
+      border-left: 3px solid var(--gold);
+      position: relative;
+      overflow: hidden;
+    }
+    .tournament-banner::before {
+      content: '';
+      position: absolute; inset: 0; pointer-events: none;
+      background:
+        linear-gradient(135deg, color-mix(in srgb, var(--gold) 5%, transparent) 0%, transparent 60%),
+        repeating-linear-gradient(45deg, transparent, transparent 20px,
+          rgba(240,165,0,.015) 20px, rgba(240,165,0,.015) 21px);
+    }
+    .tournament-banner-inner {
+      max-width: 1280px; margin: 0 auto;
+      padding: 1rem 1.5rem;
+      display: flex; align-items: center; gap: 1.5rem;
+      position: relative; flex-wrap: wrap;
+    }
+    .tnm-badge {
+      display: flex; align-items: center; gap: 7px;
+      background: color-mix(in srgb, var(--gold) 14%, transparent);
+      border: 1px solid color-mix(in srgb, var(--gold) 35%, transparent);
+      border-radius: 6px; padding: 4px 12px;
+      font-family: var(--font-mono); font-size: 10px;
+      letter-spacing: 2px; text-transform: uppercase;
+      color: var(--gold); white-space: nowrap; flex-shrink: 0;
+    }
+    .tnm-name {
+      font-family: var(--font-head); font-size: 17px;
+      font-weight: 700; letter-spacing: 1.5px; color: var(--txt); flex: 1;
+    }
+    .tnm-stats { display: flex; gap: 1.5rem; flex-wrap: wrap; }
+    .tnm-stat { display: flex; flex-direction: column; gap: 2px; }
+    .tnm-stat-lbl {
+      font-family: var(--font-mono); font-size: 9px;
+      letter-spacing: 2px; text-transform: uppercase; color: var(--txt3);
+    }
+    .tnm-stat-val {
+      font-family: var(--font-head); font-size: 13px;
+      font-weight: 700; letter-spacing: 1px; color: var(--txt);
+    }
+    .tnm-stat-val.gold { color: var(--gold); }
+    .tnm-stat-val.green { color: var(--green); }
+    .tnm-stat-val.blue { color: var(--blue2); }
+
+    /* ── Page Hero ───────────────────────────── */
+    .page-hero {
+      padding: 1.5rem 0 1.25rem;
+      display: flex; align-items: flex-end;
+      justify-content: space-between; gap: 1rem; flex-wrap: wrap;
+    }
+    .page-hero-title { display: flex; align-items: center; gap: 12px; }
+    .page-hero-icon {
+      width: 46px; height: 46px;
+      background: color-mix(in srgb, var(--gold) 14%, var(--bg3));
+      border: 1px solid color-mix(in srgb, var(--gold) 28%, transparent);
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px; flex-shrink: 0;
+    }
+    .page-hero-text h1 { font-size: clamp(20px, 3vw, 28px); letter-spacing: 2px; }
+    .page-hero-text p {
+      font-size: 12px; color: var(--txt2);
+      font-family: var(--font-mono); letter-spacing: 1px; margin-top: 3px;
+    }
+
+    /* ── Progress Steps ──────────────────────── */
+    .steps-wrap { margin-bottom: 1.5rem; }
+    .steps-header { display: flex; align-items: center; }
+    .step-connector {
+      flex: 1; height: 2px; background: var(--border);
+      transition: background .45s ease;
+    }
+    .step-connector.done { background: var(--gold); }
+    .step-item {
+      display: flex; flex-direction: column;
+      align-items: center; gap: 6px; cursor: pointer; flex-shrink: 0;
+    }
+    .step-circle {
+      width: 36px; height: 36px; border-radius: 50%;
+      border: 2px solid var(--border2); background: var(--bg3);
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--font-head); font-size: 14px; font-weight: 700;
+      color: var(--txt3); transition: all .3s; position: relative; z-index: 1;
+    }
+    .step-item.active .step-circle {
+      border-color: var(--gold);
+      background: color-mix(in srgb, var(--gold) 14%, var(--bg3));
+      color: var(--gold);
+      box-shadow: 0 0 0 3px color-mix(in srgb, var(--gold) 18%, transparent);
+    }
+    .step-item.done .step-circle {
+      border-color: var(--gold); background: var(--gold); color: #000;
+    }
+    .step-label {
+      font-family: var(--font-head); font-size: 11px; letter-spacing: 1px;
+      text-transform: uppercase; color: var(--txt3);
+      white-space: nowrap; transition: color .3s;
+    }
+    .step-item.active .step-label { color: var(--gold); }
+    .step-item.done .step-label { color: var(--txt2); }
+    .progress-bar-wrap {
+      margin-top: 1.1rem; background: var(--bg3);
+      border-radius: 3px; height: 3px; overflow: hidden;
+    }
+    .progress-bar-fill {
+      height: 100%; width: 0%;
+      background: linear-gradient(90deg, var(--gold) 0%, var(--gold2) 100%);
+      border-radius: 3px; transition: width .5s cubic-bezier(.4,0,.2,1);
+    }
+
+    /* ── Main Grid ───────────────────────────── */
+    .setup-grid {
+      display: grid;
+      grid-template-columns: 1fr 345px;
+      gap: 1.5rem; align-items: start;
+    }
+
+    /* ── Step Panels ─────────────────────────── */
+    .step-panel { display: none; }
+    .step-panel.active {
+      display: block;
+      animation: panelIn .3s ease both;
+    }
+    @keyframes panelIn {
+      from { opacity: 0; transform: translateX(18px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+
+    /* ── Esports Section Titles ──────────────── */
+    .esports-section {
+      display: flex; align-items: center; gap: 10px;
+      margin-bottom: 1.25rem; padding-bottom: .75rem;
+      border-bottom: 1px solid var(--border);
+      position: relative;
+    }
+    .esports-section::after {
+      content: ''; position: absolute; bottom: -1px; left: 0;
+      width: 44px; height: 2px;
+      background: var(--gold); border-radius: 1px;
+    }
+    .esports-section-icon {
+      width: 32px; height: 32px; flex-shrink: 0;
+      background: color-mix(in srgb, var(--gold) 11%, var(--bg3));
+      border: 1px solid color-mix(in srgb, var(--gold) 22%, transparent);
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 15px;
+    }
+    .esports-section-text h3 {
+      font-family: var(--font-head); font-size: 14px; font-weight: 700;
+      letter-spacing: 1.5px; text-transform: uppercase; color: var(--txt); line-height: 1;
+    }
+    .esports-section-text p {
+      font-family: var(--font-mono); font-size: 10px;
+      letter-spacing: 1px; color: var(--txt3); margin-top: 3px;
+    }
+
+    /* ── Role Chips ──────────────────────────── */
+    .role-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 4px; }
+    .role-chip {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 7px 15px;
+      background: var(--bg3); border: 1px solid var(--border);
+      border-radius: 20px; cursor: pointer;
+      font-family: var(--font-head); font-size: 13px; font-weight: 600;
+      letter-spacing: 1px; text-transform: uppercase; color: var(--txt2);
+      user-select: none; transition: all .18s;
+    }
+    .role-chip:hover {
+      border-color: var(--border2); color: var(--txt);
+      transform: translateY(-1px);
+    }
+    .role-chip.active {
+      border-color: var(--gold); color: var(--gold);
+      background: color-mix(in srgb, var(--gold) 11%, var(--bg3));
+      box-shadow: 0 0 0 1px color-mix(in srgb, var(--gold) 35%, transparent),
+                  0 4px 12px color-mix(in srgb, var(--gold) 14%, transparent);
+    }
+    .role-chip-icon { font-size: 14px; }
+
+    /* Allow rank dropdowns to overflow card */
+    #teamForm .card { overflow: visible; }
+
+    /* ── Rank Select ─────────────────────────── */
+    .rank-select { position: relative; user-select: none; }
+    .rank-select-trigger {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 10px; padding: 8px 14px; min-height: 52px;
+      background: var(--bg3); border: 1px solid var(--border);
+      border-radius: var(--radius); cursor: pointer;
+      transition: border-color .2s, box-shadow .2s;
+    }
+    .rank-select-trigger:hover { border-color: var(--border2); }
+    .rank-select-trigger.open {
+      border-color: var(--blue);
+      border-radius: var(--radius) var(--radius) 0 0;
+      box-shadow: 0 0 0 3px rgba(61,142,240,.12);
+    }
+    .rank-select-left { display: flex; align-items: center; gap: 10px; }
+    .rank-select-img { width: 36px; height: 36px; object-fit: fill; display: none; }
+    .rank-select-img.visible { display: block; }
+    .rank-select-name {
+      font-family: var(--font-head); font-size: 14px;
+      letter-spacing: 1px; text-transform: uppercase;
+    }
+    .rank-select-name.placeholder { color: var(--txt3); font-size: 13px; }
+    .rank-select-arrow {
+      color: var(--txt3); font-size: 11px;
+      transition: transform .2s; flex-shrink: 0;
+    }
+    .rank-select-trigger.open .rank-select-arrow { transform: rotate(180deg); }
+    .rank-select-panel {
+      position: absolute; left: 0; right: 0; top: 100%;
+      background: var(--bg2); border: 1px solid var(--blue);
+      border-top: none; border-radius: 0 0 var(--radius) var(--radius);
+      z-index: 500; padding: 10px;
+      box-shadow: 0 8px 28px rgba(0,0,0,.5); display: none;
+    }
+    .rank-select-panel.open { display: block; }
+    .rank-option-grid { display: flex; flex-wrap: wrap; gap: 7px; }
+    .rank-option {
+      display: flex; flex-direction: column;
+      align-items: center; gap: 4px;
+      padding: 8px 5px 6px; width: 72px;
+      background: var(--bg3); border: 2px solid transparent;
+      border-radius: var(--radius); cursor: pointer;
+      transition: border-color .12s, background .12s; text-align: center;
+    }
+    .rank-option img {
+      width: 42px; height: 42px; object-fit: fill;
+      transition: transform .12s; pointer-events: none;
+    }
+    .rank-option span {
+      font-family: var(--font-head); font-size: 9px;
+      letter-spacing: 1px; text-transform: uppercase;
+      color: var(--txt2); line-height: 1.3; pointer-events: none;
+    }
+    .rank-option:hover { border-color: var(--border2); }
+    .rank-option:hover img { transform: scale(1.08); }
+    .rank-option.selected {
+      border-color: var(--gold);
+      background: color-mix(in srgb, var(--gold) 10%, var(--bg3));
+    }
+    .rank-option.selected span { color: var(--gold); }
+
+    /* ── Tag Preview ─────────────────────────── */
+    .tag-preview {
+      font-family: var(--font-mono); font-size: 13px;
+      color: var(--gold); margin-top: 6px;
+      min-height: 18px; letter-spacing: 1px;
+    }
+
+    /* ── Stars wrap ──────────────────────────── */
+    .stars-wrap { margin-top: 10px; }
+
+    /* ── Member Blocks ───────────────────────── */
+    .member-block {
+      background: var(--bg3); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1rem; margin-bottom: 10px;
+      transition: border-color .2s;
+    }
+    .member-block:last-child { margin-bottom: 0; }
+    .member-block:hover { border-color: var(--border2); }
+    .member-block-header {
+      display: flex; align-items: center;
+      justify-content: space-between; margin-bottom: 10px;
+    }
+    .member-num {
+      display: flex; align-items: center; gap: 8px;
+      font-family: var(--font-head); font-size: 12px;
+      font-weight: 700; letter-spacing: 1.5px;
+      text-transform: uppercase; color: var(--txt2);
+    }
+    .member-num-badge {
+      width: 24px; height: 24px; border-radius: 50%;
+      background: var(--border); display: flex;
+      align-items: center; justify-content: center;
+      font-family: var(--font-mono); font-size: 11px; color: var(--txt3);
+      transition: all .3s;
+    }
+    .member-num-badge.filled {
+      background: color-mix(in srgb, var(--gold) 18%, var(--bg3));
+      border: 1px solid color-mix(in srgb, var(--gold) 38%, transparent);
+      color: var(--gold);
+    }
+    .member-optional-badge {
+      font-family: var(--font-mono); font-size: 9px;
+      letter-spacing: 1.5px; text-transform: uppercase; color: var(--txt3);
+      background: var(--bg); border: 1px solid var(--border);
+      border-radius: 3px; padding: 2px 6px;
+    }
+    .member-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr 150px;
+      gap: 10px;
+    }
+
+    /* ── Team Strength ───────────────────────── */
+    .strength-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; }
+    .strength-item {
+      background: var(--bg3); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 12px; text-align: center;
+    }
+    .strength-item-lbl {
+      font-family: var(--font-mono); font-size: 9px;
+      letter-spacing: 2px; text-transform: uppercase;
+      color: var(--txt3); margin-bottom: 6px;
+    }
+    .strength-item-val {
+      font-family: var(--font-head); font-size: 16px;
+      font-weight: 700; letter-spacing: 1px; color: var(--txt2);
+    }
+    .strength-item-val.hi { color: var(--gold); }
+
+    /* ── Trust Badges ────────────────────────── */
+    .trust-badges { display: flex; flex-wrap: wrap; gap: 8px; }
+    .trust-badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 5px 11px; border-radius: 6px;
+      font-family: var(--font-mono); font-size: 9px;
+      letter-spacing: 1.5px; text-transform: uppercase;
+    }
+    .trust-badge.gold {
+      background: color-mix(in srgb, var(--gold) 9%, transparent);
+      border: 1px solid color-mix(in srgb, var(--gold) 28%, transparent);
+      color: var(--gold);
+    }
+    .trust-badge.green {
+      background: color-mix(in srgb, var(--green) 9%, transparent);
+      border: 1px solid color-mix(in srgb, var(--green) 28%, transparent);
+      color: var(--green);
+    }
+    .trust-badge.blue {
+      background: color-mix(in srgb, var(--blue) 9%, transparent);
+      border: 1px solid color-mix(in srgb, var(--blue) 28%, transparent);
+      color: var(--blue2);
+    }
+
+    /* ── Step Navigation ─────────────────────── */
+    .step-nav { display: flex; gap: 10px; margin-top: 1.25rem; }
+    .btn-back {
+      background: transparent; border: 1px solid var(--border2);
+      color: var(--txt2); padding: 11px 20px;
+      font-family: var(--font-head); font-size: 13px;
+      font-weight: 600; letter-spacing: 1px; text-transform: uppercase;
+      border-radius: var(--radius); cursor: pointer;
+      transition: all .2s; display: flex; align-items: center; gap: 6px;
+      flex-shrink: 0;
+    }
+    .btn-back:hover { border-color: var(--txt2); color: var(--txt); }
+    .btn-next {
+      flex: 1; background: var(--gold); color: #000;
+      padding: 12px 22px;
+      font-family: var(--font-head); font-size: 14px;
+      font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase;
+      border: none; border-radius: var(--radius); cursor: pointer;
+      transition: all .2s;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+    }
+    .btn-next:hover { background: var(--gold2); transform: translateY(-1px); }
+
+    /* ── Review Grid ─────────────────────────── */
+    .review-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .review-item {
+      padding: 10px 12px; background: var(--bg3);
+      border: 1px solid var(--border); border-radius: var(--radius);
+    }
+    .review-item-lbl {
+      font-family: var(--font-mono); font-size: 9px;
+      letter-spacing: 2px; text-transform: uppercase;
+      color: var(--txt3); margin-bottom: 4px;
+    }
+    .review-item-val {
+      font-family: var(--font-head); font-size: 15px;
+      font-weight: 600; letter-spacing: 0.5px; color: var(--txt);
+    }
+    .review-item-val.empty {
+      color: var(--txt3); font-style: italic; font-size: 13px;
+    }
+    .review-item-val.gold { color: var(--gold); }
+
+    /* ── Submit CTA ──────────────────────────── */
+    .submit-cta {
+      background: linear-gradient(135deg, var(--bg3) 0%,
+        color-mix(in srgb, var(--gold) 5%, var(--bg3)) 100%);
+      border: 1px solid color-mix(in srgb, var(--gold) 22%, transparent);
+      border-radius: var(--radius-lg); padding: 1.5rem;
+      margin-top: 1rem; text-align: center;
+    }
+    .readiness-bar {
+      display: flex; align-items: center;
+      justify-content: space-between; gap: 12px; margin-bottom: 1rem;
+    }
+    .readiness-lbl {
+      font-family: var(--font-mono); font-size: 10px;
+      letter-spacing: 2px; text-transform: uppercase;
+      color: var(--txt3); white-space: nowrap;
+    }
+    .readiness-track {
+      flex: 1; height: 6px; background: var(--border);
+      border-radius: 3px; overflow: hidden;
+    }
+    .readiness-fill {
+      height: 100%; width: 0%;
+      background: linear-gradient(90deg, var(--red) 0%, var(--gold) 55%, var(--green) 100%);
+      border-radius: 3px; transition: width .5s;
+    }
+    .readiness-pct {
+      font-family: var(--font-mono); font-size: 12px;
+      color: var(--gold); white-space: nowrap; min-width: 38px; text-align: right;
+    }
+    .readiness-checks {
+      display: flex; flex-wrap: wrap; gap: 8px;
+      margin-bottom: 1.25rem; justify-content: center;
+    }
+    .r-check {
+      display: inline-flex; align-items: center; gap: 5px;
+      font-family: var(--font-mono); font-size: 10px;
+      letter-spacing: 1px; color: var(--txt3);
+    }
+    .r-check.ok { color: var(--green); }
+    .r-dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--border2); flex-shrink: 0;
+    }
+    .r-check.ok .r-dot { background: var(--green); }
+    .btn-submit {
+      width: 100%; position: relative; overflow: hidden;
+      background: linear-gradient(135deg, var(--gold) 0%, var(--gold2) 100%);
+      color: #000; padding: 17px 32px;
+      font-family: var(--font-head); font-size: 16px;
+      font-weight: 700; letter-spacing: 2px; text-transform: uppercase;
+      border: none; border-radius: var(--radius); cursor: pointer;
+      transition: all .25s;
+    }
+    .btn-submit::after {
+      content: ''; position: absolute; inset: 0; pointer-events: none;
+      background: linear-gradient(135deg, rgba(255,255,255,.1) 0%, transparent 50%);
+    }
+    .btn-submit:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 28px color-mix(in srgb, var(--gold) 32%, transparent);
+    }
+    .btn-submit:disabled { opacity: .45; cursor: not-allowed; transform: none; }
+
+    /* ── Live Preview Card ───────────────────── */
+    .preview-sticky { position: sticky; top: 76px; }
+    .preview-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: var(--radius-lg); overflow: hidden;
+    }
+    .preview-card-hd {
+      background: linear-gradient(135deg, var(--bg3) 0%,
+        color-mix(in srgb, var(--gold) 6%, var(--bg3)) 100%);
+      border-bottom: 1px solid var(--border);
+      padding: 1rem 1.1rem; position: relative;
+    }
+    .preview-card-hd::before {
+      content: ''; position: absolute;
+      left: 0; top: 0; bottom: 0; width: 3px;
+      background: var(--gold);
+    }
+    .prev-live-row {
+      display: flex; align-items: center; gap: 6px;
+      font-family: var(--font-mono); font-size: 9px;
+      letter-spacing: 2.5px; text-transform: uppercase;
+      color: var(--txt3); margin-bottom: 8px;
+    }
+    .live-dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--green);
+      animation: pulse-dot 1.4s ease-in-out infinite;
+    }
+    .prev-tag {
+      font-family: var(--font-mono); font-size: 11px;
+      color: var(--gold); letter-spacing: 2px; margin-bottom: 2px;
+    }
+    .prev-name {
+      font-family: var(--font-head); font-size: 20px;
+      font-weight: 700; letter-spacing: 1px;
+      color: var(--txt); line-height: 1.2;
+    }
+    .prev-info-grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 6px; margin-top: 8px;
+    }
+    .prev-info-item { display: flex; flex-direction: column; gap: 2px; }
+    .prev-info-lbl {
+      font-family: var(--font-mono); font-size: 8px;
+      letter-spacing: 1.5px; text-transform: uppercase; color: var(--txt3);
+    }
+    .prev-info-val {
+      font-family: var(--font-head); font-size: 12px;
+      font-weight: 600; color: var(--txt2);
+    }
+    /* Completion bar */
+    .prev-completion {
+      padding: .7rem 1.1rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .prev-comp-row {
+      display: flex; align-items: center;
+      justify-content: space-between; margin-bottom: 5px;
+    }
+    .prev-comp-lbl {
+      font-family: var(--font-mono); font-size: 9px;
+      letter-spacing: 1.5px; text-transform: uppercase; color: var(--txt3);
+    }
+    .prev-comp-pct {
+      font-family: var(--font-mono); font-size: 11px; color: var(--gold);
+    }
+    .prev-comp-track {
+      width: 100%; height: 4px; background: var(--border);
+      border-radius: 2px; overflow: hidden;
+    }
+    .prev-comp-fill {
+      height: 100%; width: 0%;
+      background: linear-gradient(90deg, var(--blue2) 0%, var(--gold) 100%);
+      border-radius: 2px; transition: width .5s;
+    }
+    /* Roster */
+    .prev-body { padding: .9rem 1.1rem; }
+    .prev-roster-hd {
+      display: flex; align-items: center;
+      justify-content: space-between; margin-bottom: 8px;
+      font-family: var(--font-mono); font-size: 9px;
+      letter-spacing: 2px; text-transform: uppercase; color: var(--txt3);
+    }
+    .prev-roster-count { font-size: 10px; }
+    .prev-member {
+      display: flex; align-items: center;
+      justify-content: space-between;
+      padding: 6px 0; border-bottom: 1px solid var(--border); gap: 8px;
+    }
+    .prev-member:last-child { border-bottom: none; }
+    .prev-member-l { min-width: 0; flex: 1; }
+    .prev-member-name {
+      font-size: 13px; font-weight: 600; color: var(--txt);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .prev-captain-badge {
+      font-family: var(--font-mono); font-size: 8px;
+      letter-spacing: 1.5px; color: var(--gold); text-transform: uppercase;
+    }
+    .prev-role-pill {
+      font-family: var(--font-head); font-size: 11px;
+      color: var(--txt2); white-space: nowrap; flex-shrink: 0;
+    }
+    .prev-slot-empty {
+      display: flex; align-items: center; gap: 8px;
+      padding: 6px 0; border-bottom: 1px solid var(--border);
+    }
+    .prev-slot-empty:last-child { border-bottom: none; }
+    .prev-slot-line { flex: 1; height: 1px; background: var(--border); }
+    .prev-slot-lbl {
+      font-family: var(--font-mono); font-size: 9px;
+      letter-spacing: 1px; color: var(--txt3);
+    }
+    /* Strength in preview */
+    .prev-strength {
+      padding: .7rem 1.1rem;
+      border-top: 1px solid var(--border);
+    }
+    .prev-strength-lbl {
+      font-family: var(--font-mono); font-size: 9px;
+      letter-spacing: 2px; text-transform: uppercase;
+      color: var(--txt3); margin-bottom: 8px;
+    }
+    .prev-strength-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 6px; }
+    .prev-strength-item {
+      background: var(--bg3); border: 1px solid var(--border);
+      border-radius: 6px; padding: 6px 4px; text-align: center;
+    }
+    .prev-strength-val {
+      font-family: var(--font-head); font-size: 13px;
+      font-weight: 700; color: var(--txt2); letter-spacing: .5px;
+    }
+    .prev-strength-val.hi { color: var(--gold); }
+    .prev-strength-key {
+      font-family: var(--font-mono); font-size: 8px;
+      letter-spacing: 1px; text-transform: uppercase;
+      color: var(--txt3); margin-top: 2px;
+    }
+    .prev-footer {
+      padding: .6rem 1.1rem; border-top: 1px solid var(--border);
+      font-family: var(--font-mono); font-size: 9px; color: var(--txt3);
+      letter-spacing: 1.5px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+
+    /* ── Navbar ──────────────────────────────── */
+    .home-nav {
+      position: sticky; top: 0; z-index: 100;
+      background: color-mix(in srgb, var(--bg) 94%, transparent);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+    }
+    .home-nav-inner {
+      max-width: 1280px; margin: 0 auto;
+      padding: 14px 2rem;
+      display: flex; align-items: center;
+      justify-content: space-between; gap: 20px; flex-wrap: wrap;
+    }
+    .home-links {
+      display: flex; align-items: center; justify-content: center;
+      gap: 2px; flex-wrap: wrap; list-style: none; flex: 1 1 560px;
+    }
+    .home-links a {
+      display: inline-flex; align-items: center; min-height: 44px;
+      padding: 9px 10px; border-radius: var(--radius); color: var(--txt2);
+      font-family: var(--font-head); font-size: 15px; font-weight: 700;
+      letter-spacing: 1.5px; text-transform: uppercase; transition: all .2s;
+    }
+    .home-links a:hover, .home-links a.active {
+      color: var(--gold);
+      background: color-mix(in srgb, var(--gold) 12%, transparent);
+    }
+    .home-actions {
+      display: flex; gap: 8px; align-items: center;
+      flex-wrap: wrap; justify-content: flex-end;
+    }
+
+    /* ── Responsive ──────────────────────────── */
+    /* Readability pass for setup form and live preview */
+    .setup-wrap .card,
+    .preview-card {
+      background: #1b2434;
+      border-color: #40506a;
+      box-shadow: 0 14px 36px rgba(0, 0, 0, .22);
+    }
+
+    .page-hero-text h1 {
+      font-size: clamp(28px, 4vw, 42px);
+      color: #ffffff;
+      letter-spacing: 1.3px;
+    }
+
+    .page-hero-text p {
+      color: #d6deeb;
+      font-size: 14px;
+      font-weight: 600;
+      line-height: 1.45;
+    }
+
+    .page-hero-icon {
+      border-color: rgba(240, 165, 0, .45);
+      background: rgba(240, 165, 0, .16);
+    }
+
+    .tournament-banner {
+      border-bottom-color: #40506a;
+    }
+
+    .tnm-badge {
+      color: #ffd166;
+      border-color: rgba(240, 165, 0, .48);
+      background: rgba(240, 165, 0, .16);
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .tnm-name {
+      color: #ffffff;
+      font-size: 20px;
+    }
+
+    .tnm-stat-lbl {
+      color: #c9d4e4;
+      font-size: 10px;
+      font-weight: 700;
+    }
+
+    .tnm-stat-val {
+      color: #ffffff;
+      font-size: 15px;
+    }
+
+    .step-circle {
+      color: #d8e2f1;
+      background: #182130;
+      border-color: #53647d;
+      font-size: 15px;
+    }
+
+    .step-label {
+      color: #c9d4e4;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .step-item.done .step-label {
+      color: #e2e9f5;
+    }
+
+    .esports-section {
+      border-bottom-color: #40506a;
+      gap: 12px;
+    }
+
+    .esports-section-icon {
+      width: 38px;
+      height: 38px;
+      border-color: rgba(240, 165, 0, .42);
+      background: rgba(240, 165, 0, .14);
+      font-size: 18px;
+    }
+
+    .esports-section-text h3 {
+      color: #ffffff;
+      font-size: 18px;
+      letter-spacing: 1.15px;
+      line-height: 1.15;
+    }
+
+    .esports-section-text p {
+      color: #d6deeb;
+      font-size: 12px;
+      font-weight: 600;
+      line-height: 1.45;
+    }
+
+    #teamForm .form-label {
+      color: #f3f7ff;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 1.25px;
+      margin-bottom: 8px;
+    }
+
+    #teamForm .form-label span {
+      color: #cbd5e4 !important;
+      font-weight: 600 !important;
+    }
+
+    #teamForm .form-input,
+    #teamForm .form-select {
+      min-height: 50px;
+      background-color: #101722;
+      border-color: #4b5c76;
+      color: #ffffff;
+      font-size: 16px;
+      font-weight: 500;
+      line-height: 1.45;
+    }
+
+    #teamForm .form-input:hover,
+    #teamForm .form-select:hover {
+      border-color: #647690;
+    }
+
+    #teamForm .form-input:focus,
+    #teamForm .form-select:focus {
+      border-color: var(--gold);
+      box-shadow: 0 0 0 3px rgba(240, 165, 0, .2);
+    }
+
+    #teamForm .form-input::placeholder {
+      color: #aeb8c9;
+      opacity: 1;
+      font-weight: 400;
+    }
+
+    #teamForm .form-error {
+      color: #ff8b8b;
+      font-size: 14px;
+      font-weight: 700;
+      line-height: 1.4;
+      margin-top: 7px;
+    }
+
+    .rank-select-trigger {
+      background: #101722;
+      border-color: #4b5c76;
+      min-height: 54px;
+    }
+
+    .rank-select-trigger:hover {
+      border-color: #647690;
+    }
+
+    .rank-select-name {
+      color: #f3f7ff;
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .rank-select-name.placeholder,
+    .rank-select-arrow {
+      color: #b8c4d5;
+    }
+
+    .rank-select-panel {
+      background: #111925;
+      border-color: var(--blue2);
+    }
+
+    .rank-option {
+      background: #182130;
+      border-color: #34445a;
+    }
+
+    .rank-option span {
+      color: #d8e2f1;
+      font-size: 10px;
+      font-weight: 700;
+    }
+
+    .tag-preview {
+      color: #ffd166;
+      font-size: 14px;
+      font-weight: 700;
+      min-height: 22px;
+    }
+
+    .role-chip {
+      background: #182130;
+      border-color: #53647d;
+      color: #e2e9f5;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .role-chip:hover {
+      border-color: var(--gold);
+      color: #ffffff;
+    }
+
+    .member-block,
+    .strength-item,
+    .review-item {
+      background: #182130;
+      border-color: #40506a;
+    }
+
+    .member-num {
+      color: #f3f7ff;
+      font-size: 14px;
+    }
+
+    .member-num-badge {
+      background: #263348;
+      color: #e2e9f5;
+      border: 1px solid #53647d;
+      font-weight: 700;
+    }
+
+    .member-optional-badge,
+    .trust-badge,
+    .r-check {
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .member-optional-badge {
+      color: #cbd5e4;
+      border-color: #53647d;
+      background: #101722;
+    }
+
+    .strength-item-lbl,
+    .review-item-lbl,
+    .readiness-lbl {
+      color: #cbd5e4;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .strength-item-val {
+      color: #ffffff;
+      font-size: 20px;
+    }
+
+    .review-item-val {
+      color: #ffffff;
+      font-size: 17px;
+    }
+
+    .review-item-val.empty {
+      color: #b8c4d5;
+      font-size: 15px;
+    }
+
+    .submit-cta {
+      background: linear-gradient(135deg, #182130 0%, #222638 100%);
+      border-color: rgba(240, 165, 0, .38);
+    }
+
+    .submit-cta p {
+      color: #cbd5e4 !important;
+      font-size: 11px !important;
+      line-height: 1.45;
+    }
+
+    .readiness-pct {
+      color: #ffd166;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .r-check {
+      color: #cbd5e4;
+    }
+
+    .preview-card-hd {
+      background: linear-gradient(135deg, #182130 0%, #22283a 100%);
+      border-bottom-color: #40506a;
+    }
+
+    .prev-live-row,
+    .prev-info-lbl,
+    .prev-comp-lbl,
+    .prev-roster-hd,
+    .prev-strength-lbl,
+    .prev-strength-key,
+    .prev-slot-lbl,
+    .prev-footer {
+      color: #cbd5e4;
+      font-weight: 700;
+    }
+
+    .prev-live-row {
+      font-size: 10px;
+    }
+
+    .prev-tag {
+      color: #ffd166;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .prev-name {
+      color: #ffffff;
+      font-size: 24px;
+    }
+
+    .prev-info-val {
+      color: #f3f7ff;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .prev-comp-pct {
+      color: #ffd166;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .prev-member {
+      border-bottom-color: #40506a;
+      padding: 8px 0;
+    }
+
+    .prev-member-name {
+      color: #ffffff;
+      font-size: 15px;
+      font-weight: 700;
+    }
+
+    .prev-captain-badge {
+      color: #ffd166;
+      font-size: 9px;
+      font-weight: 700;
+    }
+
+    .prev-role-pill {
+      color: #d8e2f1;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .prev-strength-item {
+      background: #182130;
+      border-color: #40506a;
+    }
+
+    .prev-strength-val {
+      color: #ffffff;
+      font-size: 15px;
+    }
+
+    .prev-footer {
+      border-top-color: #40506a;
+      font-size: 10px;
+    }
+
+    .home-links a {
+      color: #cbd5e4;
+    }
+
+    @media (max-width: 1020px) {
+      .setup-grid { grid-template-columns: 1fr; }
+      .preview-sticky { position: static; }
+    }
+    @media (max-width: 900px) {
+      .step-label { display: none; }
+    }
+    @media (max-width: 640px) {
+      body { overflow-x: hidden; }
+      .setup-grid,
+      #teamForm,
+      .step-panel,
+      .card,
+      .card-body,
+      .preview-card,
+      .esports-section-text {
+        min-width: 0;
+      }
+      .member-row { grid-template-columns: 1fr 1fr; }
+      .member-row > :last-child { grid-column: span 2; }
+      .review-grid { grid-template-columns: 1fr; }
+      .strength-grid { grid-template-columns: 1fr 1fr; }
+      .tnm-stats { gap: 1rem; }
+      .setup-wrap { padding: 0 1rem 4rem; }
+      .page-hero { padding-top: 1.15rem; }
+      .page-hero-text h1 { font-size: 30px; }
+      .page-hero-text p { font-size: 13px; }
+      .esports-section-text h3 { font-size: 17px; }
+      #teamForm .form-label { font-size: 12px; }
+      #teamForm .form-input,
+      #teamForm .form-select { font-size: 15px; }
+      .rank-select-name { font-size: 15px; }
+      .prev-name { font-size: 22px; }
+    }
+    @media (max-width: 560px) {
+      html,
+      body {
+        width: 100%;
+        max-width: 100vw;
+        overflow-x: hidden;
+      }
+
+      .home-nav,
+      .home-nav-inner,
+      .setup-wrap,
+      .setup-grid,
+      #teamForm {
+        width: 100%;
+        max-width: 100vw;
+      }
+
+      #teamForm [style*="grid-template-columns:1fr 140px"],
+      #teamForm [style*="grid-template-columns:1fr 1fr"] {
+        grid-template-columns: 1fr !important;
+      }
+
+      .member-row {
+        grid-template-columns: 1fr;
+      }
+
+      .member-row > :last-child {
+        grid-column: auto;
+      }
+
+      .home-nav-inner {
+        max-width: 100%;
+        min-width: 0;
+        padding: 12px 1rem;
+      }
+
+      .navbar-logo {
+        flex-basis: 100%;
+      }
+
+      .home-links {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 4px;
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+        flex: 1 1 100%;
+        justify-content: stretch;
+      }
+
+      .home-links a {
+        justify-content: center;
+        min-height: 34px;
+        font-size: 11px;
+        padding: 5px 7px;
+        text-align: center;
+        white-space: normal;
+        line-height: 1.2;
+        overflow-wrap: anywhere;
+      }
+
+      .page-hero-title,
+      .page-hero-text {
+        min-width: 0;
+        width: 100%;
+      }
+
+      .page-hero-title {
+        align-items: flex-start;
+      }
+
+      .esports-section {
+        align-items: flex-start;
+      }
+
+      .esports-section-text {
+        flex: 1 1 auto;
+        max-width: calc(100% - 50px);
+      }
+
+      .page-hero-text p,
+      .esports-section-text h3,
+      .esports-section-text p {
+        overflow-wrap: anywhere;
+      }
+    }
+    @media (max-width: 980px) {
+      .home-nav-inner { justify-content: center; }
+      .navbar-logo { flex: 1 1 100%; justify-content: center; }
+      .home-actions { justify-content: center; }
+    }
+    @media (max-width: 640px) {
+      .home-links a { font-size: 11px; padding: 5px 7px; }
+      .home-links { flex-basis: 100%; }
+      .home-actions { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ── Navbar ──────────────────────────────── -->
+  <header class="home-nav">
+    <div class="home-nav-inner">
+      <a href="index.html" class="navbar-logo">
+        <div class="logo-hex">ML</div>
+        <span class="logo-name">MLBB <span>OPS</span></span>
+      </a>
+      <ul class="home-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="index.html#tournaments">Tournaments</a></li>
+        <li><a href="index.html#teams">Teams</a></li>
+        <li><a href="standing.html">Standing</a></li>
+        <li><a href="schedule.html">Schedule</a></li>
+        <li><a class="active" href="team-setup.html">Registration</a></li>
+      </ul>
+      <div class="home-actions" id="navActions" style="visibility:hidden"></div>
+    </div>
+  </header>
+
+  <!-- ── Tournament Banner ───────────────────── -->
+  <div class="tournament-banner" id="tournamentBanner" style="display:none">
+    <div class="tournament-banner-inner">
+      <div class="tnm-badge">
+        <span class="live-dot"></span>
+        <span id="tnmStatus">Pendaftaran Dibuka</span>
+      </div>
+      <div class="tnm-name" id="tnmName">MLBB OPS Tournament</div>
+      <div class="tnm-stats">
+        <div class="tnm-stat">
+          <span class="tnm-stat-lbl">Format</span>
+          <span class="tnm-stat-val" id="tnmFormat">—</span>
+        </div>
+        <div class="tnm-stat">
+          <span class="tnm-stat-lbl">Hadiah</span>
+          <span class="tnm-stat-val gold" id="tnmPrize">—</span>
+        </div>
+        <div class="tnm-stat">
+          <span class="tnm-stat-lbl">Kapasiti</span>
+          <span class="tnm-stat-val blue" id="tnmSlots">—</span>
+        </div>
+        <div class="tnm-stat">
+          <span class="tnm-stat-lbl">Status</span>
+          <span class="tnm-stat-val green" id="tnmRemaining">—</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Main Content ────────────────────────── -->
+  <main class="setup-wrap">
+
+    <div class="page-hero">
+      <div class="page-hero-title">
+        <div class="page-hero-icon">🏆</div>
+        <div class="page-hero-text">
+          <h1>Setup Pasukan</h1>
+          <p>Lengkapkan profil pasukan untuk menyertai pertandingan rasmi</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="alert alert-error" id="alertError"><span id="errMsg"></span></div>
+    <div class="alert alert-success" id="alertSuccess">✓ Profil pasukan berjaya disimpan!</div>
+
+    <!-- ── Step Progress ────────────────────── -->
+    <div class="steps-wrap">
+      <div class="steps-header">
+        <div class="step-item active" id="si1">
+          <div class="step-circle" id="sc1">1</div>
+          <span class="step-label">Pasukan</span>
+        </div>
+        <div class="step-connector" id="scon1"></div>
+        <div class="step-item" id="si2">
+          <div class="step-circle" id="sc2">2</div>
+          <span class="step-label">Kapten</span>
+        </div>
+        <div class="step-connector" id="scon2"></div>
+        <div class="step-item" id="si3">
+          <div class="step-circle" id="sc3">3</div>
+          <span class="step-label">Ahli</span>
+        </div>
+        <div class="step-connector" id="scon3"></div>
+        <div class="step-item" id="si4">
+          <div class="step-circle" id="sc4">4</div>
+          <span class="step-label">Hantar</span>
+        </div>
+      </div>
+      <div class="progress-bar-wrap">
+        <div class="progress-bar-fill" id="progressFill"></div>
+      </div>
+    </div>
+
+    <!-- ── Grid ─────────────────────────────── -->
+    <div class="setup-grid">
+
+      <!-- FORM ─────────────────────────────── -->
+      <form id="teamForm" novalidate>
+
+        <!-- ═══ STEP 1: TEAM INFO ════════════ -->
+        <div class="step-panel active" id="panel1">
+          <div class="card mb-2">
+            <div class="card-body">
+
+              <div class="esports-section">
+                <div class="esports-section-icon">🛡️</div>
+                <div class="esports-section-text">
+                  <h3>Identiti Pasukan</h3>
+                  <p>Nama dan tag yang mewakili pasukan anda dalam pertandingan</p>
+                </div>
+              </div>
+
+              <div style="display:grid;grid-template-columns:1fr 140px;gap:12px" class="mb-2">
+                <div class="form-group" style="margin-bottom:0">
+                  <label class="form-label" for="teamName">Nama Pasukan</label>
+                  <input class="form-input" id="teamName" type="text" maxlength="40"
+                         placeholder="Shadow Wolves" autocomplete="off">
+                  <span class="form-error" id="errTeamName">Nama pasukan diperlukan.</span>
+                </div>
+                <div class="form-group" style="margin-bottom:0">
+                  <label class="form-label" for="teamTag">Tag <span style="color:var(--txt3)">(maks 5)</span></label>
+                  <input class="form-input" id="teamTag" type="text" maxlength="5"
+                         placeholder="SHDW" autocomplete="off"
+                         style="text-transform:uppercase;letter-spacing:3px;font-family:var(--font-mono)">
+                  <span class="form-error" id="errTeamTag">Tag diperlukan.</span>
+                </div>
+              </div>
+              <div class="tag-preview" id="tagPreview"></div>
+
+              <div class="esports-section mt-3">
+                <div class="esports-section-icon">🌐</div>
+                <div class="esports-section-text">
+                  <h3>Server Region</h3>
+                  <p>Pilih pelayan utama pasukan anda</p>
+                </div>
+              </div>
+
+              <div class="form-group" style="margin-bottom:0">
+                <label class="form-label" for="serverRegion">Region</label>
+                <select class="form-select" id="serverRegion">
+                  <option value="MY/SG">🇲🇾 MY/SG — Malaysia / Singapore</option>
+                  <option value="ID">🇮🇩 ID — Indonesia</option>
+                  <option value="TH">🇹🇭 TH — Thailand</option>
+                  <option value="PH">🇵🇭 PH — Philippines</option>
+                  <option value="INT">🌐 INT — International</option>
+                </select>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- Trust badges -->
+          <div class="card mb-2">
+            <div class="card-body" style="padding:.9rem 1.25rem">
+              <div class="trust-badges">
+                <span class="trust-badge gold">🏆 Tournament Verified</span>
+                <span class="trust-badge gold">✓ Organizer Verified</span>
+                <span class="trust-badge green">🔒 Secure Registration</span>
+                <span class="trust-badge blue">💾 Auto-Save Enabled</span>
+                <span class="trust-badge green">🛡️ Registration Protected</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="step-nav">
+            <button type="button" class="btn-next" id="next1">
+              Seterusnya: Maklumat Kapten <span>→</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- ═══ STEP 2: CAPTAIN ══════════════ -->
+        <div class="step-panel" id="panel2">
+          <div class="card mb-2">
+            <div class="card-body">
+
+              <div class="esports-section">
+                <div class="esports-section-icon">👑</div>
+                <div class="esports-section-text">
+                  <h3>Maklumat Kapten</h3>
+                  <p>Profil pemimpin dan ketua pasukan</p>
+                </div>
+              </div>
+
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px" class="mb-3">
+                <div class="form-group" style="margin-bottom:0">
+                  <label class="form-label" for="displayName">Nama In-Game Kapten</label>
+                  <input class="form-input" id="displayName" type="text" maxlength="30"
+                         placeholder="ShadowX" autocomplete="off">
+                  <span class="form-error" id="errDisplayName">Nama kapten diperlukan.</span>
+                </div>
+                <div class="form-group" style="margin-bottom:0">
+                  <label class="form-label" for="mlId">ML ID Kapten</label>
+                  <input class="form-input" id="mlId" type="text" maxlength="25"
+                         placeholder="123456789 (1234)" autocomplete="off">
+                  <span class="form-error" id="errMlId">ML ID diperlukan.</span>
+                </div>
+              </div>
+
+              <div class="esports-section">
+                <div class="esports-section-icon">⚔️</div>
+                <div class="esports-section-text">
+                  <h3>Peranan In-Game</h3>
+                  <p>Pilih peranan utama kapten dalam perlawanan</p>
+                </div>
+              </div>
+
+              <div class="form-group" style="margin-bottom:0">
+                <div class="role-chips" id="roleGrid">
+                  <div class="role-chip" data-role="Tank"><span class="role-chip-icon">🛡️</span>Tank</div>
+                  <div class="role-chip" data-role="Fighter"><span class="role-chip-icon">⚔️</span>Fighter</div>
+                  <div class="role-chip" data-role="Assassin"><span class="role-chip-icon">🗡️</span>Assassin</div>
+                  <div class="role-chip" data-role="Mage"><span class="role-chip-icon">🔮</span>Mage</div>
+                  <div class="role-chip" data-role="Marksman"><span class="role-chip-icon">🏹</span>Marksman</div>
+                  <div class="role-chip" data-role="Support"><span class="role-chip-icon">💚</span>Support</div>
+                </div>
+                <span class="form-error" id="errRole">Sila pilih peranan kapten.</span>
+              </div>
+
+            </div>
+          </div>
+
+          <div class="card mb-2">
+            <div class="card-body">
+
+              <div class="esports-section">
+                <div class="esports-section-icon">📊</div>
+                <div class="esports-section-text">
+                  <h3>Rank Kapten</h3>
+                  <p>Rank semasa dan pencapaian tertinggi musim ini</p>
+                </div>
+              </div>
+
+              <div class="form-group mb-2">
+                <label class="form-label">Rank Semasa</label>
+                <div class="rank-select" id="rankSelect">
+                  <div class="rank-select-trigger" id="rankTrigger">
+                    <div class="rank-select-left">
+                      <img class="rank-select-img" id="rankTriggerImg" src="" alt="">
+                      <span class="rank-select-name placeholder" id="rankTriggerName">— Pilih Rank Semasa —</span>
+                    </div>
+                    <span class="rank-select-arrow">▼</span>
+                  </div>
+                  <div class="rank-select-panel" id="rankPanel">
+                    <div class="rank-option-grid" id="rankOptionGrid">
+                      <div class="rank-option" data-rank="Warrior"        data-img="assets/warrior_Rank.png"><img src="assets/warrior_Rank.png" alt="Warrior"><span>Warrior</span></div>
+                      <div class="rank-option" data-rank="Elite"          data-img="assets/silver_Rank.png"><img src="assets/silver_Rank.png" alt="Elite"><span>Elite</span></div>
+                      <div class="rank-option" data-rank="Master"         data-img="assets/master_Rank.png"><img src="assets/master_Rank.png" alt="Master"><span>Master</span></div>
+                      <div class="rank-option" data-rank="Grandmaster"    data-img="assets/grandmaster_Rank.png"><img src="assets/grandmaster_Rank.png" alt="Grandmaster"><span>Grandmaster</span></div>
+                      <div class="rank-option" data-rank="Epic"           data-img="assets/epic_Rank.png"><img src="assets/epic_Rank.png" alt="Epic"><span>Epic</span></div>
+                      <div class="rank-option" data-rank="Legend"         data-img="assets/legend_Rank.png"><img src="assets/legend_Rank.png" alt="Legend"><span>Legend</span></div>
+                      <div class="rank-option" data-rank="Mythic"         data-img="assets/mythic_Rank.png"><img src="assets/mythic_Rank.png" alt="Mythic"><span>Mythic</span></div>
+                      <div class="rank-option" data-rank="Mythic Honor"   data-img="assets/mythichonor_Rank.png"><img src="assets/mythichonor_Rank.png" alt="Mythic Honor"><span>Mythic Honor</span></div>
+                      <div class="rank-option" data-rank="Mythic Glory"   data-img="assets/mythicimmortal_Rank.png"><img src="assets/mythicimmortal_Rank.png" alt="Mythic Glory" style="opacity:.75"><span>Mythic Glory</span></div>
+                      <div class="rank-option" data-rank="Mythic Immortal" data-img="assets/mythicimmortal_Rank.png"><img src="assets/mythicimmortal_Rank.png" alt="Mythic Immortal"><span>Mythic Immortal</span></div>
+                    </div>
+                  </div>
+                </div>
+                <div class="stars-wrap" id="rankStarsWrap" style="display:none">
+                  <label class="form-label mt-1" id="rankStarsLabel">Bilangan Bintang</label>
+                  <input class="form-input" id="rankStarsInput" type="number" min="1" max="5"
+                         placeholder="Contoh: 3" style="width:140px">
+                </div>
+                <span class="form-error" id="errRank">Sila pilih rank kapten.</span>
+              </div>
+
+              <div class="form-group" style="margin-bottom:0">
+                <label class="form-label">Rank Tertinggi <span style="color:var(--txt3);font-weight:400">(Pilihan)</span></label>
+                <div class="rank-select" id="highestRankSelect">
+                  <div class="rank-select-trigger" id="highestRankTrigger">
+                    <div class="rank-select-left">
+                      <img class="rank-select-img" id="highestRankTriggerImg" src="" alt="">
+                      <span class="rank-select-name placeholder" id="highestRankTriggerName">— Pilih Rank Tertinggi —</span>
+                    </div>
+                    <span class="rank-select-arrow">▼</span>
+                  </div>
+                  <div class="rank-select-panel" id="highestRankPanel">
+                    <div class="rank-option-grid" id="highestRankOptionGrid">
+                      <div class="rank-option" data-rank="Warrior"        data-img="assets/warrior_Rank.png"><img src="assets/warrior_Rank.png" alt="Warrior"><span>Warrior</span></div>
+                      <div class="rank-option" data-rank="Elite"          data-img="assets/silver_Rank.png"><img src="assets/silver_Rank.png" alt="Elite"><span>Elite</span></div>
+                      <div class="rank-option" data-rank="Master"         data-img="assets/master_Rank.png"><img src="assets/master_Rank.png" alt="Master"><span>Master</span></div>
+                      <div class="rank-option" data-rank="Grandmaster"    data-img="assets/grandmaster_Rank.png"><img src="assets/grandmaster_Rank.png" alt="Grandmaster"><span>Grandmaster</span></div>
+                      <div class="rank-option" data-rank="Epic"           data-img="assets/epic_Rank.png"><img src="assets/epic_Rank.png" alt="Epic"><span>Epic</span></div>
+                      <div class="rank-option" data-rank="Legend"         data-img="assets/legend_Rank.png"><img src="assets/legend_Rank.png" alt="Legend"><span>Legend</span></div>
+                      <div class="rank-option" data-rank="Mythic"         data-img="assets/mythic_Rank.png"><img src="assets/mythic_Rank.png" alt="Mythic"><span>Mythic</span></div>
+                      <div class="rank-option" data-rank="Mythic Honor"   data-img="assets/mythichonor_Rank.png"><img src="assets/mythichonor_Rank.png" alt="Mythic Honor"><span>Mythic Honor</span></div>
+                      <div class="rank-option" data-rank="Mythic Glory"   data-img="assets/mythicimmortal_Rank.png"><img src="assets/mythicimmortal_Rank.png" alt="Mythic Glory" style="opacity:.75"><span>Mythic Glory</span></div>
+                      <div class="rank-option" data-rank="Mythic Immortal" data-img="assets/mythicimmortal_Rank.png"><img src="assets/mythicimmortal_Rank.png" alt="Mythic Immortal"><span>Mythic Immortal</span></div>
+                    </div>
+                  </div>
+                </div>
+                <div class="stars-wrap" id="highestRankStarsWrap" style="display:none">
+                  <label class="form-label mt-1" id="highestRankStarsLabel">Bilangan Bintang</label>
+                  <input class="form-input" id="highestRankStarsInput" type="number" min="1" max="5"
+                         placeholder="Contoh: 5" style="width:140px">
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <div class="step-nav">
+            <button type="button" class="btn-back" id="prev2">← Kembali</button>
+            <button type="button" class="btn-next" id="next2">
+              Seterusnya: Ahli Pasukan <span>→</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- ═══ STEP 3: MEMBERS ══════════════ -->
+        <div class="step-panel" id="panel3">
+          <div class="card mb-2">
+            <div class="card-body">
+
+              <div class="esports-section">
+                <div class="esports-section-icon">👥</div>
+                <div class="esports-section-text">
+                  <h3>Ahli Pasukan</h3>
+                  <p>Minimum 3 ahli wajib. Ahli ke-4 dan ke-5 adalah pilihan</p>
+                </div>
+              </div>
+
+              <!-- Member 2 -->
+              <div class="member-block">
+                <div class="member-block-header">
+                  <div class="member-num">
+                    <div class="member-num-badge" id="badge2">2</div>Ahli 2
+                  </div>
+                </div>
+                <div class="member-row">
+                  <div>
+                    <label class="form-label" for="m2name">Nama In-Game</label>
+                    <input class="form-input" id="m2name" type="text" maxlength="30" placeholder="PlayerTwo" autocomplete="off">
+                  </div>
+                  <div>
+                    <label class="form-label" for="m2id">ML ID</label>
+                    <input class="form-input" id="m2id" type="text" maxlength="25" placeholder="123456789" autocomplete="off">
+                  </div>
+                  <div>
+                    <label class="form-label" for="m2role">Peranan</label>
+                    <select class="form-select" id="m2role">
+                      <option value="">— Pilih —</option>
+                      <option value="Tank">🛡️ Tank</option>
+                      <option value="Fighter">⚔️ Fighter</option>
+                      <option value="Assassin">🗡️ Assassin</option>
+                      <option value="Mage">🔮 Mage</option>
+                      <option value="Marksman">🏹 Marksman</option>
+                      <option value="Support">💚 Support</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Member 3 -->
+              <div class="member-block">
+                <div class="member-block-header">
+                  <div class="member-num">
+                    <div class="member-num-badge" id="badge3">3</div>Ahli 3
+                  </div>
+                </div>
+                <div class="member-row">
+                  <div>
+                    <label class="form-label" for="m3name">Nama In-Game</label>
+                    <input class="form-input" id="m3name" type="text" maxlength="30" placeholder="PlayerThree" autocomplete="off">
+                  </div>
+                  <div>
+                    <label class="form-label" for="m3id">ML ID</label>
+                    <input class="form-input" id="m3id" type="text" maxlength="25" placeholder="123456789" autocomplete="off">
+                  </div>
+                  <div>
+                    <label class="form-label" for="m3role">Peranan</label>
+                    <select class="form-select" id="m3role">
+                      <option value="">— Pilih —</option>
+                      <option value="Tank">🛡️ Tank</option>
+                      <option value="Fighter">⚔️ Fighter</option>
+                      <option value="Assassin">🗡️ Assassin</option>
+                      <option value="Mage">🔮 Mage</option>
+                      <option value="Marksman">🏹 Marksman</option>
+                      <option value="Support">💚 Support</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Member 4 -->
+              <div class="member-block">
+                <div class="member-block-header">
+                  <div class="member-num">
+                    <div class="member-num-badge" id="badge4">4</div>Ahli 4
+                  </div>
+                  <span class="member-optional-badge">Pilihan</span>
+                </div>
+                <div class="member-row">
+                  <div>
+                    <label class="form-label" for="m4name">Nama In-Game</label>
+                    <input class="form-input" id="m4name" type="text" maxlength="30" placeholder="PlayerFour" autocomplete="off">
+                  </div>
+                  <div>
+                    <label class="form-label" for="m4id">ML ID</label>
+                    <input class="form-input" id="m4id" type="text" maxlength="25" placeholder="123456789" autocomplete="off">
+                  </div>
+                  <div>
+                    <label class="form-label" for="m4role">Peranan</label>
+                    <select class="form-select" id="m4role">
+                      <option value="">— Pilih —</option>
+                      <option value="Tank">🛡️ Tank</option>
+                      <option value="Fighter">⚔️ Fighter</option>
+                      <option value="Assassin">🗡️ Assassin</option>
+                      <option value="Mage">🔮 Mage</option>
+                      <option value="Marksman">🏹 Marksman</option>
+                      <option value="Support">💚 Support</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Member 5 -->
+              <div class="member-block" style="margin-bottom:0">
+                <div class="member-block-header">
+                  <div class="member-num">
+                    <div class="member-num-badge" id="badge5">5</div>Ahli 5
+                  </div>
+                  <span class="member-optional-badge">Pilihan</span>
+                </div>
+                <div class="member-row">
+                  <div>
+                    <label class="form-label" for="m5name">Nama In-Game</label>
+                    <input class="form-input" id="m5name" type="text" maxlength="30" placeholder="PlayerFive" autocomplete="off">
+                  </div>
+                  <div>
+                    <label class="form-label" for="m5id">ML ID</label>
+                    <input class="form-input" id="m5id" type="text" maxlength="25" placeholder="123456789" autocomplete="off">
+                  </div>
+                  <div>
+                    <label class="form-label" for="m5role">Peranan</label>
+                    <select class="form-select" id="m5role">
+                      <option value="">— Pilih —</option>
+                      <option value="Tank">🛡️ Tank</option>
+                      <option value="Fighter">⚔️ Fighter</option>
+                      <option value="Assassin">🗡️ Assassin</option>
+                      <option value="Mage">🔮 Mage</option>
+                      <option value="Marksman">🏹 Marksman</option>
+                      <option value="Support">💚 Support</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- Team Strength -->
+          <div class="card mb-2">
+            <div class="card-body">
+              <div class="esports-section">
+                <div class="esports-section-icon">📈</div>
+                <div class="esports-section-text">
+                  <h3>Team Strength Summary</h3>
+                  <p>Analisis tahap persaingan berdasarkan rank pasukan</p>
+                </div>
+              </div>
+              <div class="strength-grid">
+                <div class="strength-item">
+                  <div class="strength-item-lbl">Rank Purata</div>
+                  <div class="strength-item-val" id="strengthAvg">—</div>
+                </div>
+                <div class="strength-item">
+                  <div class="strength-item-lbl">Rank Tertinggi</div>
+                  <div class="strength-item-val" id="strengthTop">—</div>
+                </div>
+                <div class="strength-item">
+                  <div class="strength-item-lbl">Skill Tier</div>
+                  <div class="strength-item-val hi" id="strengthTier">—</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="step-nav">
+            <button type="button" class="btn-back" id="prev3">← Kembali</button>
+            <button type="button" class="btn-next" id="next3">
+              Semak &amp; Hantar <span>→</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- ═══ STEP 4: REVIEW & SUBMIT ══════ -->
+        <div class="step-panel" id="panel4">
+          <div class="card mb-2">
+            <div class="card-body">
+              <div class="esports-section">
+                <div class="esports-section-icon">📋</div>
+                <div class="esports-section-text">
+                  <h3>Semak Pendaftaran</h3>
+                  <p>Pastikan semua maklumat tepat sebelum menghantar</p>
+                </div>
+              </div>
+              <div class="review-grid" id="reviewGrid"></div>
+            </div>
+          </div>
+
+          <!-- Submit CTA -->
+          <div class="submit-cta">
+            <div class="readiness-bar">
+              <span class="readiness-lbl">Kesediaan</span>
+              <div class="readiness-track">
+                <div class="readiness-fill" id="readinessFill"></div>
+              </div>
+              <span class="readiness-pct" id="readinessPct">0%</span>
+            </div>
+            <div class="readiness-checks" id="readinessChecks"></div>
+
+            <button class="btn-submit" type="submit" id="submitBtn">
+              🏆 &nbsp;Daftar Pasukan — Sertai Tournament
+            </button>
+            <p style="font-family:var(--font-mono);font-size:9px;color:var(--txt3);margin-top:10px;letter-spacing:1px">
+              Data anda disimpan dengan selamat melalui Firebase Realtime Database
+            </p>
+          </div>
+
+          <div class="step-nav" style="margin-top:.75rem">
+            <button type="button" class="btn-back" id="prev4" style="width:100%">← Kembali Semak Ahli</button>
+          </div>
+        </div>
+
+      </form>
+
+      <!-- ══ LIVE PREVIEW ════════════════════ -->
+      <div class="preview-sticky">
+        <div class="preview-card fade-in">
+
+          <div class="preview-card-hd">
+            <div class="prev-live-row">
+              <div class="live-dot"></div>
+              Pratonton Langsung
+            </div>
+            <div class="prev-tag" id="prevTag">[ — ]</div>
+            <div class="prev-name" id="prevName">Nama Pasukan</div>
+            <div class="prev-info-grid">
+              <div class="prev-info-item">
+                <span class="prev-info-lbl">Kapten</span>
+                <span class="prev-info-val" id="prevCaptain">—</span>
+              </div>
+              <div class="prev-info-item">
+                <span class="prev-info-lbl">Rank Semasa</span>
+                <span class="prev-info-val" id="prevCurrentRank">—</span>
+              </div>
+              <div class="prev-info-item">
+                <span class="prev-info-lbl">Rank Tertinggi</span>
+                <span class="prev-info-val" id="prevHighestRank">—</span>
+              </div>
+              <div class="prev-info-item">
+                <span class="prev-info-lbl">Server</span>
+                <span class="prev-info-val" id="prevServer">MY/SG</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="prev-completion">
+            <div class="prev-comp-row">
+              <span class="prev-comp-lbl">Completion</span>
+              <span class="prev-comp-pct" id="prevCompPct">0%</span>
+            </div>
+            <div class="prev-comp-track">
+              <div class="prev-comp-fill" id="prevCompFill"></div>
+            </div>
+          </div>
+
+          <div class="prev-body">
+            <div class="prev-roster-hd">
+              <span>Roster</span>
+              <span class="prev-roster-count" id="prevRosterCount">0 / 5</span>
+            </div>
+            <div id="prevRoster"></div>
+          </div>
+
+          <div class="prev-strength">
+            <div class="prev-strength-lbl">Kekuatan Pasukan</div>
+            <div class="prev-strength-grid">
+              <div class="prev-strength-item">
+                <div class="prev-strength-val" id="prevSAvg">—</div>
+                <div class="prev-strength-key">Purata</div>
+              </div>
+              <div class="prev-strength-item">
+                <div class="prev-strength-val hi" id="prevSTop">—</div>
+                <div class="prev-strength-key">Tertinggi</div>
+              </div>
+              <div class="prev-strength-item">
+                <div class="prev-strength-val" id="prevSTier" style="font-size:11px">—</div>
+                <div class="prev-strength-key">Tier</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="prev-footer">
+            <span>🌐 <span id="prevRegionFooter">MY/SG</span></span>
+            <span id="prevStepLabel">Langkah 1 / 4</span>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  
+</body>
+</html>
+

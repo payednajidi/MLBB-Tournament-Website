@@ -1,0 +1,57 @@
+{
+  "rules": {
+    ".read":  "auth != null",
+    ".write": "auth != null",
+
+    "tournaments": {
+      ".indexOn": ["status", "startDate", "category", "organizerId"],
+      "$tid": {
+        "matches": {
+          ".indexOn": ["bracket", "round", "status"]
+        }
+      }
+    },
+
+    "teams": {
+      ".indexOn": ["teamName", "createdAt", "serverRegion"]
+    },
+
+    "applications": {
+      "$tid": {
+        ".indexOn": ["status", "appliedAt"]
+      }
+    },
+
+    "seasons": {
+      ".read": true,
+      ".indexOn": ["startMs"]
+    },
+
+    "users": {
+      "$uid": {
+        ".read": "$uid === auth.uid || root.child('organizers').child(auth.uid).exists()"
+      }
+    },
+
+    "playerIndex": {
+      ".read": "root.child('organizers').child(auth.uid).exists()",
+      ".write": "auth != null"
+    },
+
+    "organizers": {
+      ".read": "auth != null",
+      ".write": false
+    },
+
+    "activityLog": {
+      ".indexOn": ["timestamp"]
+    },
+
+    "meta": {
+      ".read": true,
+      "playerCount": {
+        ".write": "auth != null"
+      }
+    }
+  }
+}

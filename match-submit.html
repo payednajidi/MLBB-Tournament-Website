@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Akses Terhad - MLBB OPS</title>
+  <link rel="stylesheet" href="css/global.css">
+  <style>
+    .notice-wrap {
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 2rem;
+    }
+    .notice-card {
+      max-width: 520px;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <main class="notice-wrap">
+    <section class="card notice-card">
+      <div class="card-header">
+        <h1>Akses Terhad</h1>
+      </div>
+      <div class="card-body">
+        <div class="alert alert-info show">Player View tidak boleh menghantar, mengubah, atau mengurus keputusan match.</div>
+        <p class="text-muted mb-2">Semua pengurusan tournament dibuat melalui Admin View sahaja.</p>
+        <a class="btn btn-primary" href="schedule.html">Buka Player View</a>
+      </div>
+    </section>
+  </main>
+
+  <script type="module">
+    import { requireAuth, getUserRole } from "./js/auth.js";
+
+    requireAuth(async (user) => {
+      const role = await getUserRole(user.uid);
+      if (role === "organizer") window.location.href = "organizer.html";
+    });
+  </script>
+</body>
+</html>

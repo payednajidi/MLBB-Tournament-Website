@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Daftar Player - MLBB OPS</title>
+<link rel="stylesheet" href="css/global.css">
+<style>
+  .auth-wrap {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2.5rem 1rem;
+  }
+
+  .auth-card {
+    width: 100%;
+    max-width: 520px;
+    background: #130e2e;
+    border: 1px solid #2d2060;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: 0 18px 50px rgba(0,0,0,.5), 0 0 80px rgba(168,85,247,.08);
+    animation: fadeIn .35s ease both;
+  }
+
+  .auth-header {
+    background: #0f0a24;
+    border-bottom: 1px solid #241a52;
+    padding: 2rem 2.25rem 1.85rem;
+    text-align: center;
+  }
+
+  .auth-logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 1rem;
+    text-decoration: none;
+  }
+
+  .auth-title {
+    font-family: var(--font-head);
+    font-size: clamp(30px, 5vw, 38px);
+    color: #ffffff;
+    letter-spacing: .8px;
+    margin-bottom: 8px;
+  }
+
+  .auth-subtitle {
+    color: #d4caff;
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 1.45;
+    max-width: 360px;
+    margin: 0 auto;
+  }
+
+  .auth-body { padding: 2rem 2.25rem; }
+
+  .auth-card .form-group { margin-bottom: 1.4rem; }
+
+  .auth-card .form-label {
+    color: #ede8ff;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 1.35px;
+    margin-bottom: 8px;
+  }
+
+  .auth-card .form-input {
+    min-height: 52px;
+    background: #0c0a1c;
+    border-color: #2d2060;
+    color: #f2eeff;
+    font-size: 17px;
+    font-weight: 500;
+    line-height: 1.45;
+    padding: 13px 15px;
+  }
+
+  .auth-card .form-input:hover {
+    border-color: #3d2e80;
+  }
+
+  .auth-card .form-input:focus {
+    border-color: var(--gold);
+    box-shadow: 0 0 0 3px rgba(168, 85, 247, .22);
+  }
+
+  .auth-card .form-input::placeholder {
+    color: #6b5a9a;
+    opacity: 1;
+    font-weight: 400;
+  }
+
+  .auth-card .form-error {
+    color: #ff8b8b;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.4;
+    margin-top: 7px;
+  }
+
+  .terms-wrap {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 1rem;
+    padding: 14px 15px;
+    background: rgba(168, 85, 247, .06);
+    border: 1px solid #2d2060;
+    border-radius: var(--radius);
+  }
+  .terms-wrap input {
+    width: 18px;
+    height: 18px;
+    margin-top: 3px;
+    accent-color: var(--gold);
+    flex: 0 0 auto;
+  }
+  .terms-wrap input:focus-visible {
+    outline: 2px solid var(--gold2);
+    outline-offset: 3px;
+  }
+  .terms-wrap label {
+    color: #c8baee;
+    font-size: 15px;
+    font-weight: 500;
+    line-height: 1.5;
+  }
+
+  .auth-footer {
+    padding: 1.15rem 2.25rem;
+    background: #0f0a24;
+    border-top: 1px solid #241a52;
+    text-align: center;
+    color: #c4b8f5;
+    font-size: 15px;
+    font-weight: 500;
+  }
+  .auth-footer a {
+    color: var(--gold2);
+    font-weight: 700;
+  }
+
+  .auth-card .btn {
+    min-height: 52px;
+    font-size: 16px;
+    font-weight: 700;
+  }
+
+  .auth-card .alert {
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 1.45;
+  }
+
+  /* ── Credentials reveal card ─────────────────── */
+  .cred-card {
+    background: #0e0b22;
+    border: 1px solid #a855f7;
+    border-radius: var(--radius);
+    overflow: hidden;
+    margin-bottom: 1.25rem;
+  }
+
+  .cred-warning {
+    background: rgba(168, 85, 247, .18);
+    padding: .85rem 1rem;
+    font-family: var(--font-head);
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    color: #d580ff;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .cred-body { padding: 1rem; }
+
+  .cred-row {
+    margin-bottom: .85rem;
+  }
+  .cred-row:last-child { margin-bottom: 0; }
+
+  .cred-label {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: 1.7px;
+    text-transform: uppercase;
+    color: #c4b8f5;
+    margin-bottom: 7px;
+  }
+
+  .cred-value-wrap {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #08061a;
+    border: 1px solid #2d2060;
+    border-radius: var(--radius);
+    padding: 10px 12px;
+  }
+
+  .cred-value {
+    font-family: var(--font-mono);
+    font-size: 17px;
+    color: #ffffff;
+    flex: 1;
+    letter-spacing: 1px;
+    word-break: break-all;
+  }
+
+  .cred-copy {
+    background: transparent;
+    border: 1px solid #3d2e80;
+    border-radius: 5px;
+    color: #c4b8f5;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 5px 9px;
+    cursor: pointer;
+    font-family: var(--font-mono);
+    white-space: nowrap;
+    transition: all .15s;
+    flex-shrink: 0;
+  }
+  .cred-copy:hover { border-color: var(--gold); color: var(--gold); }
+
+  .pwd-eye {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #9070c0;
+    padding: 0;
+    line-height: 1;
+    flex-shrink: 0;
+    transition: color .15s;
+  }
+  .pwd-eye:hover { color: var(--txt); }
+  .pwd-eye svg { width: 18px; height: 18px; display: block; }
+
+  .cred-note {
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.45;
+    color: #ff9a9a;
+    margin-top: .65rem;
+    display: flex;
+    gap: 6px;
+    align-items: flex-start;
+  }
+
+  @media (max-width: 560px) {
+    .auth-wrap {
+      align-items: flex-start;
+      justify-content: flex-start;
+      padding: 1rem;
+      overflow-x: hidden;
+    }
+
+    .auth-card {
+      max-width: 358px;
+      min-width: 0;
+    }
+
+    .auth-header {
+      padding: 1.6rem 1.35rem 1.45rem;
+    }
+
+    .auth-title {
+      font-size: 30px;
+    }
+
+    .auth-subtitle {
+      font-size: 15px;
+    }
+
+    .auth-body {
+      padding: 1.5rem 1.35rem;
+    }
+
+    .auth-card .form-label {
+      font-size: 12px;
+      letter-spacing: 1.15px;
+    }
+
+    .auth-card .form-input {
+      font-size: 16px;
+      min-height: 50px;
+    }
+
+    .terms-wrap {
+      padding: 13px;
+    }
+
+    .terms-wrap label {
+      font-size: 14px;
+      min-width: 0;
+      overflow-wrap: anywhere;
+    }
+
+    .auth-footer {
+      padding: 1rem 1.35rem;
+      font-size: 14px;
+    }
+
+    .cred-value-wrap {
+      align-items: stretch;
+      flex-wrap: wrap;
+    }
+
+    .cred-value {
+      flex-basis: 100%;
+    }
+  }
+</style>
+</head>
+<body>
+<div class="auth-wrap">
+  <div class="auth-card">
+    <div class="auth-header">
+      <a href="index.html" class="auth-logo">
+        <img src="assets/logo_organizer.png" alt="HC" class="logo-img">
+        <span class="logo-name">Tournament <span>Organizer</span></span>
+      </a>
+      <h1 class="auth-title" id="cardTitle">Daftar Player</h1>
+      <p class="auth-subtitle" id="cardSubtitle">Cipta akaun player — kata laluan dijana secara automatik</p>
+    </div>
+
+    <!-- ── Registration form ──────────────────── -->
+    <div class="auth-body" id="formWrap">
+      <div class="alert alert-error" id="alertError">
+        <span id="alertMsg"></span>
+      </div>
+
+      <form id="registerForm" novalidate>
+        <div class="form-group">
+          <label class="form-label" for="inputName">Nama Paparan</label>
+          <input type="text" class="form-input" id="inputName"
+                 placeholder="Nama penuh atau nama panggilan" autocomplete="name">
+          <span class="form-error" id="errName">Nama paparan diperlukan.</span>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="inputUsername">Username</label>
+          <input type="text" class="form-input" id="inputUsername"
+                 placeholder="3-20 aksara: huruf, nombor, _" autocomplete="username">
+          <span class="form-error" id="errUsername">Username mesti 3–20 aksara tanpa ruang.</span>
+        </div>
+
+        <div class="terms-wrap" style="margin-top:.5rem">
+          <input type="checkbox" id="chkTerms">
+          <label for="chkTerms">Saya faham akaun ini adalah Player View sahaja dan tidak mempunyai akses mengurus tournament.</label>
+        </div>
+        <span class="form-error" id="errTerms">Sahkan pemahaman akses player terlebih dahulu.</span>
+
+        <button class="btn btn-primary btn-full mt-2" id="btnRegister" type="submit">
+          Daftar Player
+        </button>
+      </form>
+    </div>
+
+    <!-- ── Success: show credentials ─────────── -->
+    <div class="auth-body" id="successWrap" style="display:none">
+      <div class="alert alert-success show" style="margin-bottom:1.25rem">
+        ✅ Akaun berjaya didaftarkan!
+      </div>
+
+      <div class="cred-card">
+        <div class="cred-warning">
+          ⚠️ Simpan maklumat ini sekarang — ia tidak akan dipaparkan lagi!
+        </div>
+        <div class="cred-body">
+
+          <!-- Player ID -->
+          <div class="cred-row">
+            <div class="cred-label">Player ID</div>
+            <div class="cred-value-wrap">
+              <span class="cred-value" id="showPlayerId">—</span>
+              <button class="cred-copy" id="copyPlayerId">Salin</button>
+            </div>
+          </div>
+
+          <!-- Password -->
+          <div class="cred-row">
+            <div class="cred-label">Kata Laluan</div>
+            <div class="cred-value-wrap">
+              <span class="cred-value" id="showPassword" style="filter:blur(5px);transition:filter .2s">—</span>
+              <button type="button" class="pwd-eye" id="toggleCredPwd" title="Tunjuk / Sembunyi">
+                <!-- eye icon -->
+                <svg id="eyeCredOpen" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M1 12S5 4 12 4s11 8 11 8-4 8-11 8S1 12 1 12z"/>
+                  <circle cx="12" cy="12" r="3"/>
+                </svg>
+                <svg id="eyeCredClosed" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none">
+                  <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20C5 20 1 12 1 12a18.45 18.45 0 0 1 5.06-5.94"/>
+                  <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>
+                  <line x1="1" y1="1" x2="23" y2="23"/>
+                </svg>
+              </button>
+              <button class="cred-copy" id="copyPassword">Salin</button>
+            </div>
+            <p class="cred-note">⚠ Kata laluan ini tidak boleh dipulihkan sendiri. Hubungi admin dengan Player ID anda jika terlupa.</p>
+          </div>
+
+        </div>
+      </div>
+
+      <a href="login.html" class="btn btn-primary btn-full">Pergi ke Log Masuk</a>
+    </div>
+
+    <div class="auth-footer" id="cardFooter">
+      Dah ada akaun? <a href="login.html">Log masuk</a>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+import { registerWithUsername, redirectIfLoggedIn } from "./js/auth.js";
+
+redirectIfLoggedIn();
+
+const form        = document.getElementById("registerForm");
+const btnRegister = document.getElementById("btnRegister");
+const alertError  = document.getElementById("alertError");
+const alertMsg    = document.getElementById("alertMsg");
+
+/* ── Show / hide blur on generated password ── */
+let pwdVisible = false;
+document.getElementById("toggleCredPwd").addEventListener("click", () => {
+  pwdVisible = !pwdVisible;
+  document.getElementById("showPassword").style.filter = pwdVisible ? "none" : "blur(5px)";
+  document.getElementById("eyeCredOpen").style.display   = pwdVisible ? "none"  : "block";
+  document.getElementById("eyeCredClosed").style.display = pwdVisible ? "block" : "none";
+});
+
+/* ── Copy helpers ─────────────────────────── */
+function makeCopyBtn(btnId, sourceId) {
+  document.getElementById(btnId).addEventListener("click", async () => {
+    const text = document.getElementById(sourceId).textContent;
+    try {
+      await navigator.clipboard.writeText(text);
+      const btn = document.getElementById(btnId);
+      btn.textContent = "✓ Disalin";
+      setTimeout(() => btn.textContent = "Salin", 1800);
+    } catch { /* clipboard blocked */ }
+  });
+}
+makeCopyBtn("copyPlayerId", "showPlayerId");
+makeCopyBtn("copyPassword", "showPassword");
+
+/* ── Validation helpers ───────────────────── */
+function showAlert(msg) { alertMsg.textContent = msg; alertError.classList.add("show"); }
+function clearErrors() {
+  alertError.classList.remove("show");
+  ["errName", "errUsername", "errTerms"].forEach(id => document.getElementById(id).classList.remove("show"));
+  ["inputName", "inputUsername"].forEach(id => document.getElementById(id).classList.remove("error"));
+}
+function mark(inputId, errorId) {
+  document.getElementById(inputId)?.classList.add("error");
+  document.getElementById(errorId)?.classList.add("show");
+}
+function validUsername(u) { return /^[a-zA-Z0-9_]{3,20}$/.test(u); }
+
+function parseError(error) {
+  if (error.message === "invalid-username") return "Username mesti 3–20 aksara dan hanya huruf, nombor atau underscore.";
+  if (error.message === "reserved-username") return "Username 'admin' tidak boleh digunakan untuk akaun player.";
+  const map = {
+    "auth/email-already-in-use":   "Username ini sudah digunakan. Pilih username lain.",
+    "auth/network-request-failed": "Tiada sambungan internet.",
+  };
+  return map[error.code] || "Ralat berlaku. Sila cuba lagi.";
+}
+
+/* ── Form submit ──────────────────────────── */
+form.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  clearErrors();
+
+  const name     = document.getElementById("inputName").value.trim();
+  const username = document.getElementById("inputUsername").value.trim();
+  const terms    = document.getElementById("chkTerms").checked;
+  let valid      = true;
+
+  if (!name)              { mark("inputName", "errName");          valid = false; }
+  if (!validUsername(username)) { mark("inputUsername", "errUsername"); valid = false; }
+  if (!terms)             { document.getElementById("errTerms").classList.add("show"); valid = false; }
+  if (!valid) return;
+
+  const originalHTML    = btnRegister.innerHTML;
+  btnRegister.disabled  = true;
+  btnRegister.innerHTML = '<span class="spinner"></span> Mendaftar...';
+
+  try {
+    const { playerId, generatedPassword } = await registerWithUsername(username, name);
+
+    /* Show credentials card */
+    document.getElementById("showPlayerId").textContent = playerId;
+    document.getElementById("showPassword").textContent = generatedPassword;
+    document.getElementById("formWrap").style.display    = "none";
+    document.getElementById("successWrap").style.display = "block";
+    document.getElementById("cardTitle").textContent     = "Pendaftaran Berjaya";
+    document.getElementById("cardSubtitle").textContent  = "Simpan maklumat di bawah sebelum teruskan";
+    document.getElementById("cardFooter").style.display  = "none";
+
+  } catch (error) {
+    showAlert(parseError(error));
+    btnRegister.disabled  = false;
+    btnRegister.innerHTML = originalHTML;
+  }
+});
+</script>
+</body>
+</html>

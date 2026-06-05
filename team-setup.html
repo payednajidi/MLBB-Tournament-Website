@@ -1,0 +1,3026 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Setup Pasukan - MLBB OPS</title>
+  <link rel="stylesheet" href="css/global.css">
+  <style>
+    /* ── Page Wallpaper ──────────────────────── */
+    body {
+      background-image:
+        /* Dark overlay — preserves readability */
+        linear-gradient(
+          to bottom,
+          rgba(5, 3, 14, .82) 0%,
+          rgba(5, 3, 14, .76) 40%,
+          rgba(5, 3, 14, .88) 100%
+        ),
+        url('assets/Teamsetup_page_wallpaper.png');
+      background-size: cover;
+      background-position: center top;
+      background-attachment: fixed;
+      background-repeat: no-repeat;
+    }
+
+    /* ── Page Layout ─────────────────────────── */
+    .setup-wrap {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 0 1.5rem 5rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* ── Tournament Banner ───────────────────── */
+    .tournament-banner {
+      background: linear-gradient(135deg, #0a0820 0%, #160e32 50%, #0a0620 100%);
+      border-bottom: 1px solid var(--border);
+      border-left: 3px solid var(--gold);
+      position: relative;
+      overflow: hidden;
+    }
+    .tournament-banner::before {
+      content: '';
+      position: absolute; inset: 0; pointer-events: none;
+      background:
+        linear-gradient(135deg, color-mix(in srgb, var(--gold) 5%, transparent) 0%, transparent 60%),
+        repeating-linear-gradient(45deg, transparent, transparent 20px,
+          rgba(240,165,0,.015) 20px, rgba(240,165,0,.015) 21px);
+    }
+    .tournament-banner-inner {
+      max-width: 1280px; margin: 0 auto;
+      padding: 1rem 1.5rem;
+      display: flex; align-items: center; gap: 1.5rem;
+      position: relative; flex-wrap: wrap;
+    }
+    .tnm-badge {
+      display: flex; align-items: center; gap: 7px;
+      background: color-mix(in srgb, var(--gold) 14%, transparent);
+      border: 1px solid color-mix(in srgb, var(--gold) 35%, transparent);
+      border-radius: 6px; padding: 4px 12px;
+      font-family: var(--font-mono); font-size: 10px;
+      letter-spacing: 2px; text-transform: uppercase;
+      color: var(--gold); white-space: nowrap; flex-shrink: 0;
+    }
+    .tnm-name {
+      font-family: var(--font-head); font-size: 17px;
+      font-weight: 700; letter-spacing: 1.5px; color: var(--txt); flex: 1;
+    }
+    .tnm-stats { display: flex; gap: 1.5rem; flex-wrap: wrap; }
+    .tnm-stat { display: flex; flex-direction: column; gap: 2px; }
+    .tnm-stat-lbl {
+      font-family: var(--font-mono); font-size: 9px;
+      letter-spacing: 2px; text-transform: uppercase; color: var(--txt3);
+    }
+    .tnm-stat-val {
+      font-family: var(--font-head); font-size: 13px;
+      font-weight: 700; letter-spacing: 1px; color: var(--txt);
+    }
+    .tnm-stat-val.gold { color: var(--gold); }
+    .tnm-stat-val.green { color: var(--green); }
+    .tnm-stat-val.blue { color: var(--blue2); }
+
+    /* ── Page Hero ───────────────────────────── */
+    .page-hero {
+      padding: 1.5rem 0 1.25rem;
+      display: flex; align-items: flex-end;
+      justify-content: space-between; gap: 1rem; flex-wrap: wrap;
+    }
+    .page-hero-title { display: flex; align-items: center; gap: 12px; }
+    .page-hero-icon {
+      width: 46px; height: 46px;
+      background: color-mix(in srgb, var(--gold) 14%, var(--bg3));
+      border: 1px solid color-mix(in srgb, var(--gold) 28%, transparent);
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px; flex-shrink: 0;
+    }
+    .page-hero-text h1 { font-size: clamp(20px, 3vw, 28px); letter-spacing: 2px; }
+    .page-hero-text p {
+      font-size: 12px; color: var(--txt2);
+      font-family: var(--font-mono); letter-spacing: 1px; margin-top: 3px;
+    }
+
+    /* ── Progress Steps ──────────────────────── */
+    .steps-wrap { margin-bottom: 1.5rem; }
+    .steps-header { display: flex; align-items: center; }
+    .step-connector {
+      flex: 1; height: 2px; background: var(--border);
+      transition: background .45s ease;
+    }
+    .step-connector.done { background: var(--gold); }
+    .step-item {
+      display: flex; flex-direction: column;
+      align-items: center; gap: 6px; cursor: pointer; flex-shrink: 0;
+    }
+    .step-circle {
+      width: 36px; height: 36px; border-radius: 50%;
+      border: 2px solid var(--border2); background: var(--bg3);
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--font-head); font-size: 14px; font-weight: 700;
+      color: var(--txt3); transition: all .3s; position: relative; z-index: 1;
+    }
+    .step-item.active .step-circle {
+      border-color: var(--gold);
+      background: color-mix(in srgb, var(--gold) 14%, var(--bg3));
+      color: var(--gold);
+      box-shadow: 0 0 0 3px color-mix(in srgb, var(--gold) 18%, transparent);
+    }
+    .step-item.done .step-circle {
+      border-color: var(--gold); background: var(--gold); color: #000;
+    }
+    .step-label {
+      font-family: var(--font-head); font-size: 11px; letter-spacing: 1px;
+      text-transform: uppercase; color: var(--txt3);
+      white-space: nowrap; transition: color .3s;
+    }
+    .step-item.active .step-label { color: var(--gold); }
+    .step-item.done .step-label { color: var(--txt2); }
+    .progress-bar-wrap {
+      margin-top: 1.1rem; background: var(--bg3);
+      border-radius: 3px; height: 3px; overflow: hidden;
+    }
+    .progress-bar-fill {
+      height: 100%; width: 0%;
+      background: linear-gradient(90deg, var(--gold) 0%, var(--gold2) 100%);
+      border-radius: 3px; transition: width .5s cubic-bezier(.4,0,.2,1);
+    }
+
+    /* ── Main Grid ───────────────────────────── */
+    .setup-grid {
+      display: grid;
+      grid-template-columns: 1fr 345px;
+      gap: 1.5rem; align-items: start;
+    }
+
+    /* ── Step Panels ─────────────────────────── */
+    .step-panel { display: none; }
+    .step-panel.active {
+      display: block;
+      animation: panelIn .3s ease both;
+    }
+    @keyframes panelIn {
+      from { opacity: 0; transform: translateX(18px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+
+    /* ── Esports Section Titles ──────────────── */
+    .esports-section {
+      display: flex; align-items: center; gap: 10px;
+      margin-bottom: 1.25rem; padding-bottom: .75rem;
+      border-bottom: 1px solid var(--border);
+      position: relative;
+    }
+    .esports-section::after {
+      content: ''; position: absolute; bottom: -1px; left: 0;
+      width: 44px; height: 2px;
+      background: var(--gold); border-radius: 1px;
+    }
+    .esports-section-icon {
+      width: 32px; height: 32px; flex-shrink: 0;
+      background: color-mix(in srgb, var(--gold) 11%, var(--bg3));
+      border: 1px solid color-mix(in srgb, var(--gold) 22%, transparent);
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 15px;
+    }
+    .esports-section-text h3 {
+      font-family: var(--font-head); font-size: 14px; font-weight: 700;
+      letter-spacing: 1.5px; text-transform: uppercase; color: var(--txt); line-height: 1;
+    }
+    .esports-section-text p {
+      font-family: var(--font-mono); font-size: 10px;
+      letter-spacing: 1px; color: var(--txt3); margin-top: 3px;
+    }
+
+    /* ── Role Chips ──────────────────────────── */
+    .role-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 4px; }
+    .role-chip {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 7px 15px;
+      background: var(--bg3); border: 1px solid var(--border);
+      border-radius: 20px; cursor: pointer;
+      font-family: var(--font-head); font-size: 13px; font-weight: 600;
+      letter-spacing: 1px; text-transform: uppercase; color: var(--txt2);
+      user-select: none; transition: all .18s;
+    }
+    .role-chip:hover {
+      border-color: var(--border2); color: var(--txt);
+      transform: translateY(-1px);
+    }
+    .role-chip.active {
+      border-color: var(--gold); color: var(--gold);
+      background: color-mix(in srgb, var(--gold) 11%, var(--bg3));
+      box-shadow: 0 0 0 1px color-mix(in srgb, var(--gold) 35%, transparent),
+                  0 4px 12px color-mix(in srgb, var(--gold) 14%, transparent);
+    }
+    .role-chip-icon { font-size: 14px; }
+
+    /* Allow rank dropdowns to overflow card */
+    #teamForm .card { overflow: visible; }
+
+    /* ── Rank Select ─────────────────────────── */
+    .rank-select { position: relative; user-select: none; }
+    .rank-select-trigger {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 10px; padding: 8px 14px; min-height: 52px;
+      background: var(--bg3); border: 1px solid var(--border);
+      border-radius: var(--radius); cursor: pointer;
+      transition: border-color .2s, box-shadow .2s;
+    }
+    .rank-select-trigger:hover { border-color: var(--border2); }
+    .rank-select-trigger.open {
+      border-color: var(--blue);
+      border-radius: var(--radius) var(--radius) 0 0;
+      box-shadow: 0 0 0 3px rgba(61,142,240,.12);
+    }
+    .rank-select-left { display: flex; align-items: center; gap: 10px; }
+    .rank-select-img { width: 36px; height: 36px; object-fit: fill; display: none; }
+    .rank-select-img.visible { display: block; }
+    .rank-select-name {
+      font-family: var(--font-head); font-size: 14px;
+      letter-spacing: 1px; text-transform: uppercase;
+    }
+    .rank-select-name.placeholder { color: var(--txt3); font-size: 13px; }
+    .rank-select-arrow {
+      color: var(--txt3); font-size: 11px;
+      transition: transform .2s; flex-shrink: 0;
+    }
+    .rank-select-trigger.open .rank-select-arrow { transform: rotate(180deg); }
+    .rank-select-panel {
+      position: absolute; left: 0; right: 0; top: 100%;
+      background: var(--bg2); border: 1px solid var(--blue);
+      border-top: none; border-radius: 0 0 var(--radius) var(--radius);
+      z-index: 500; padding: 10px;
+      box-shadow: 0 8px 28px rgba(0,0,0,.5); display: none;
+    }
+    .rank-select-panel.open { display: block; }
+    .rank-option-grid { display: flex; flex-wrap: wrap; gap: 7px; }
+    .rank-option {
+      display: flex; flex-direction: column;
+      align-items: center; gap: 4px;
+      padding: 8px 5px 6px; width: 72px;
+      background: var(--bg3); border: 2px solid transparent;
+      border-radius: var(--radius); cursor: pointer;
+      transition: border-color .12s, background .12s; text-align: center;
+    }
+    .rank-option img {
+      width: 42px; height: 42px; object-fit: fill;
+      transition: transform .12s; pointer-events: none;
+    }
+    .rank-option span {
+      font-family: var(--font-head); font-size: 9px;
+      letter-spacing: 1px; text-transform: uppercase;
+      color: var(--txt2); line-height: 1.3; pointer-events: none;
+    }
+    .rank-option:hover { border-color: var(--border2); }
+    .rank-option:hover img { transform: scale(1.08); }
+    .rank-option.selected {
+      border-color: var(--gold);
+      background: color-mix(in srgb, var(--gold) 10%, var(--bg3));
+    }
+    .rank-option.selected span { color: var(--gold); }
+
+    /* ── Tag Preview ─────────────────────────── */
+    .tag-preview {
+      font-family: var(--font-mono); font-size: 13px;
+      color: var(--gold); margin-top: 6px;
+      min-height: 18px; letter-spacing: 1px;
+    }
+
+    /* ── Stars wrap ──────────────────────────── */
+    .stars-wrap { margin-top: 10px; }
+
+    /* ── Member Blocks ───────────────────────── */
+    .member-block {
+      background: var(--bg3); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1rem; margin-bottom: 10px;
+      transition: border-color .2s;
+    }
+    .member-block:last-child { margin-bottom: 0; }
+    .member-block:hover { border-color: var(--border2); }
+    .member-block-header {
+      display: flex; align-items: center;
+      justify-content: space-between; margin-bottom: 10px;
+    }
+    .member-num {
+      display: flex; align-items: center; gap: 8px;
+      font-family: var(--font-head); font-size: 12px;
+      font-weight: 700; letter-spacing: 1.5px;
+      text-transform: uppercase; color: var(--txt2);
+    }
+    .member-num-badge {
+      width: 24px; height: 24px; border-radius: 50%;
+      background: var(--border); display: flex;
+      align-items: center; justify-content: center;
+      font-family: var(--font-mono); font-size: 11px; color: var(--txt3);
+      transition: all .3s;
+    }
+    .member-num-badge.filled {
+      background: color-mix(in srgb, var(--gold) 18%, var(--bg3));
+      border: 1px solid color-mix(in srgb, var(--gold) 38%, transparent);
+      color: var(--gold);
+    }
+    .member-optional-badge {
+      font-family: var(--font-mono); font-size: 9px;
+      letter-spacing: 1.5px; text-transform: uppercase; color: var(--txt3);
+      background: var(--bg); border: 1px solid var(--border);
+      border-radius: 3px; padding: 2px 6px;
+    }
+    .member-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr 150px;
+      gap: 10px;
+    }
+
+    /* ── Reserve Player Section ─────────────── */
+    .reserve-section-divider {
+      border-top: 1px dashed var(--border);
+      padding-top: 20px; margin-top: 24px; margin-bottom: 16px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .reserve-section-icon {
+      width: 32px; height: 32px; flex-shrink: 0;
+      background: rgba(99,102,241,.14);
+      border: 1px solid rgba(99,102,241,.3);
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px;
+    }
+    .reserve-section-text h4 {
+      font-family: var(--font-head); font-size: 13px;
+      letter-spacing: 1px; color: var(--txt); margin: 0;
+    }
+    .reserve-section-text p {
+      font-size: 11px; color: var(--txt3); margin: 2px 0 0;
+    }
+    .reserve-block { margin-bottom: 20px; }
+    .reserve-block:last-child { margin-bottom: 0; }
+    .reserve-block-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 10px;
+    }
+    .reserve-num { display: flex; align-items: center; gap: 8px; font-family: var(--font-head); font-size: 13px; letter-spacing: 1px; color: var(--txt2); }
+    .reserve-num-badge {
+      width: 28px; height: 28px; border-radius: 50%;
+      border: 2px solid rgba(99,102,241,.4);
+      background: rgba(99,102,241,.12);
+      color: #818cf8; font-family: var(--font-mono);
+      font-size: 11px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      transition: all .2s;
+    }
+    .reserve-num-badge.filled {
+      background: rgba(99,102,241,.28);
+      border-color: rgba(99,102,241,.7);
+    }
+    .reserve-tag {
+      display: inline-flex; align-items: center; gap: 4px;
+      background: rgba(99,102,241,.1);
+      border: 1px solid rgba(99,102,241,.25);
+      border-radius: 10px; padding: 2px 9px;
+      font-family: var(--font-mono); font-size: 9px;
+      letter-spacing: 1.5px; text-transform: uppercase; color: #818cf8;
+    }
+
+    /* ── Team Strength ───────────────────────── */
+    .strength-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; }
+    .strength-item {
+      background: var(--bg3); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 12px; text-align: center;
+    }
+    .strength-item-lbl {
+      font-family: var(--font-mono); font-size: 9px;
+      letter-spacing: 2px; text-transform: uppercase;
+      color: var(--txt3); margin-bottom: 6px;
+    }
+    .strength-item-val {
+      font-family: var(--font-head); font-size: 16px;
+      font-weight: 700; letter-spacing: 1px; color: var(--txt2);
+    }
+    .strength-item-val.hi { color: var(--gold); }
+
+    /* ── Trust Badges ────────────────────────── */
+    .trust-badges { display: flex; flex-wrap: wrap; gap: 8px; }
+    .trust-badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 5px 11px; border-radius: 6px;
+      font-family: var(--font-mono); font-size: 9px;
+      letter-spacing: 1.5px; text-transform: uppercase;
+    }
+    .trust-badge.gold {
+      background: color-mix(in srgb, var(--gold) 9%, transparent);
+      border: 1px solid color-mix(in srgb, var(--gold) 28%, transparent);
+      color: var(--gold);
+    }
+    .trust-badge.green {
+      background: color-mix(in srgb, var(--green) 9%, transparent);
+      border: 1px solid color-mix(in srgb, var(--green) 28%, transparent);
+      color: var(--green);
+    }
+    .trust-badge.blue {
+      background: color-mix(in srgb, var(--blue) 9%, transparent);
+      border: 1px solid color-mix(in srgb, var(--blue) 28%, transparent);
+      color: var(--blue2);
+    }
+
+    /* ── Step Navigation ─────────────────────── */
+    .step-nav { display: flex; gap: 10px; margin-top: 1.25rem; }
+    .btn-back {
+      background: transparent; border: 1px solid var(--border2);
+      color: var(--txt2); padding: 11px 20px;
+      font-family: var(--font-head); font-size: 13px;
+      font-weight: 600; letter-spacing: 1px; text-transform: uppercase;
+      border-radius: var(--radius); cursor: pointer;
+      transition: all .2s; display: flex; align-items: center; gap: 6px;
+      flex-shrink: 0;
+    }
+    .btn-back:hover { border-color: var(--txt2); color: var(--txt); }
+    .btn-next {
+      flex: 1; background: var(--gold); color: #000;
+      padding: 12px 22px;
+      font-family: var(--font-head); font-size: 14px;
+      font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase;
+      border: none; border-radius: var(--radius); cursor: pointer;
+      transition: all .2s;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+    }
+    .btn-next:hover { background: var(--gold2); transform: translateY(-1px); }
+
+    /* ── Review Grid ─────────────────────────── */
+    .review-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .review-item {
+      padding: 10px 12px; background: var(--bg3);
+      border: 1px solid var(--border); border-radius: var(--radius);
+    }
+    .review-item-lbl {
+      font-family: var(--font-mono); font-size: 9px;
+      letter-spacing: 2px; text-transform: uppercase;
+      color: var(--txt3); margin-bottom: 4px;
+    }
+    .review-item-val {
+      font-family: var(--font-head); font-size: 15px;
+      font-weight: 600; letter-spacing: 0.5px; color: var(--txt);
+    }
+    .review-item-val.empty {
+      color: var(--txt3); font-style: italic; font-size: 13px;
+    }
+    .review-item-val.gold { color: var(--gold); }
+
+    /* ── Submit CTA ──────────────────────────── */
+    .submit-cta {
+      background: linear-gradient(135deg, var(--bg3) 0%,
+        color-mix(in srgb, var(--gold) 5%, var(--bg3)) 100%);
+      border: 1px solid color-mix(in srgb, var(--gold) 22%, transparent);
+      border-radius: var(--radius-lg); padding: 1.5rem;
+      margin-top: 1rem; text-align: center;
+    }
+    .readiness-bar {
+      display: flex; align-items: center;
+      justify-content: space-between; gap: 12px; margin-bottom: 1rem;
+    }
+    .readiness-lbl {
+      font-family: var(--font-mono); font-size: 10px;
+      letter-spacing: 2px; text-transform: uppercase;
+      color: var(--txt3); white-space: nowrap;
+    }
+    .readiness-track {
+      flex: 1; height: 6px; background: var(--border);
+      border-radius: 3px; overflow: hidden;
+    }
+    .readiness-fill {
+      height: 100%; width: 0%;
+      background: linear-gradient(90deg, var(--red) 0%, var(--gold) 55%, var(--green) 100%);
+      border-radius: 3px; transition: width .5s;
+    }
+    .readiness-pct {
+      font-family: var(--font-mono); font-size: 12px;
+      color: var(--gold); white-space: nowrap; min-width: 38px; text-align: right;
+    }
+    .readiness-checks {
+      display: flex; flex-wrap: wrap; gap: 8px;
+      margin-bottom: 1.25rem; justify-content: center;
+    }
+    .r-check {
+      display: inline-flex; align-items: center; gap: 5px;
+      font-family: var(--font-mono); font-size: 10px;
+      letter-spacing: 1px; color: var(--txt3);
+    }
+    .r-check.ok { color: var(--green); }
+    .r-dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--border2); flex-shrink: 0;
+    }
+    .r-check.ok .r-dot { background: var(--green); }
+    .btn-submit {
+      width: 100%; position: relative; overflow: hidden;
+      background: linear-gradient(135deg, var(--gold) 0%, var(--gold2) 100%);
+      color: #000; padding: 17px 32px;
+      font-family: var(--font-head); font-size: 16px;
+      font-weight: 700; letter-spacing: 2px; text-transform: uppercase;
+      border: none; border-radius: var(--radius); cursor: pointer;
+      transition: all .25s;
+    }
+    .btn-submit::after {
+      content: ''; position: absolute; inset: 0; pointer-events: none;
+      background: linear-gradient(135deg, rgba(255,255,255,.1) 0%, transparent 50%);
+    }
+    .btn-submit:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 28px color-mix(in srgb, var(--gold) 32%, transparent);
+    }
+    .btn-submit:disabled { opacity: .45; cursor: not-allowed; transform: none; }
+
+    /* ── Live Preview Card ───────────────────── */
+    .preview-sticky { position: sticky; top: 76px; }
+    .preview-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: var(--radius-lg); overflow: hidden;
+    }
+    .preview-card-hd {
+      background: linear-gradient(135deg, var(--bg3) 0%,
+        color-mix(in srgb, var(--gold) 6%, var(--bg3)) 100%);
+      border-bottom: 1px solid var(--border);
+      padding: 1rem 1.1rem; position: relative;
+    }
+    .preview-card-hd::before {
+      content: ''; position: absolute;
+      left: 0; top: 0; bottom: 0; width: 3px;
+      background: var(--gold);
+    }
+    .prev-live-row {
+      display: flex; align-items: center; gap: 6px;
+      font-family: var(--font-mono); font-size: 9px;
+      letter-spacing: 2.5px; text-transform: uppercase;
+      color: var(--txt3); margin-bottom: 8px;
+    }
+    .live-dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--green);
+      animation: pulse-dot 1.4s ease-in-out infinite;
+    }
+    .prev-tag {
+      font-family: var(--font-mono); font-size: 11px;
+      color: var(--gold); letter-spacing: 2px; margin-bottom: 2px;
+    }
+    .prev-name {
+      font-family: var(--font-head); font-size: 20px;
+      font-weight: 700; letter-spacing: 1px;
+      color: var(--txt); line-height: 1.2;
+    }
+    .prev-info-grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 6px; margin-top: 8px;
+    }
+    .prev-info-item { display: flex; flex-direction: column; gap: 2px; }
+    .prev-info-lbl {
+      font-family: var(--font-mono); font-size: 8px;
+      letter-spacing: 1.5px; text-transform: uppercase; color: var(--txt3);
+    }
+    .prev-info-val {
+      font-family: var(--font-head); font-size: 12px;
+      font-weight: 600; color: var(--txt2);
+    }
+    /* Completion bar */
+    .prev-completion {
+      padding: .7rem 1.1rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .prev-comp-row {
+      display: flex; align-items: center;
+      justify-content: space-between; margin-bottom: 5px;
+    }
+    .prev-comp-lbl {
+      font-family: var(--font-mono); font-size: 9px;
+      letter-spacing: 1.5px; text-transform: uppercase; color: var(--txt3);
+    }
+    .prev-comp-pct {
+      font-family: var(--font-mono); font-size: 11px; color: var(--gold);
+    }
+    .prev-comp-track {
+      width: 100%; height: 4px; background: var(--border);
+      border-radius: 2px; overflow: hidden;
+    }
+    .prev-comp-fill {
+      height: 100%; width: 0%;
+      background: linear-gradient(90deg, var(--blue2) 0%, var(--gold) 100%);
+      border-radius: 2px; transition: width .5s;
+    }
+    /* Roster */
+    .prev-body { padding: .9rem 1.1rem; }
+    .prev-roster-hd {
+      display: flex; align-items: center;
+      justify-content: space-between; margin-bottom: 8px;
+      font-family: var(--font-mono); font-size: 9px;
+      letter-spacing: 2px; text-transform: uppercase; color: var(--txt3);
+    }
+    .prev-roster-count { font-size: 10px; }
+    .prev-member {
+      display: flex; align-items: center;
+      justify-content: space-between;
+      padding: 6px 0; border-bottom: 1px solid var(--border); gap: 8px;
+    }
+    .prev-member:last-child { border-bottom: none; }
+    .prev-member-l { min-width: 0; flex: 1; }
+    .prev-member-name {
+      font-size: 13px; font-weight: 600; color: var(--txt);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .prev-captain-badge {
+      font-family: var(--font-mono); font-size: 8px;
+      letter-spacing: 1.5px; color: var(--gold); text-transform: uppercase;
+    }
+    .prev-role-pill {
+      font-family: var(--font-head); font-size: 11px;
+      color: var(--txt2); white-space: nowrap; flex-shrink: 0;
+    }
+    .prev-slot-empty {
+      display: flex; align-items: center; gap: 8px;
+      padding: 6px 0; border-bottom: 1px solid var(--border);
+    }
+    .prev-slot-empty:last-child { border-bottom: none; }
+    .prev-slot-line { flex: 1; height: 1px; background: var(--border); }
+    .prev-slot-lbl {
+      font-family: var(--font-mono); font-size: 9px;
+      letter-spacing: 1px; color: var(--txt3);
+    }
+    /* Strength in preview */
+    .prev-strength {
+      padding: .7rem 1.1rem;
+      border-top: 1px solid var(--border);
+    }
+    .prev-strength-lbl {
+      font-family: var(--font-mono); font-size: 9px;
+      letter-spacing: 2px; text-transform: uppercase;
+      color: var(--txt3); margin-bottom: 8px;
+    }
+    .prev-strength-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 6px; }
+    .prev-strength-item {
+      background: var(--bg3); border: 1px solid var(--border);
+      border-radius: 6px; padding: 6px 4px; text-align: center;
+    }
+    .prev-strength-val {
+      font-family: var(--font-head); font-size: 13px;
+      font-weight: 700; color: var(--txt2); letter-spacing: .5px;
+    }
+    .prev-strength-val.hi { color: var(--gold); }
+    .prev-strength-key {
+      font-family: var(--font-mono); font-size: 8px;
+      letter-spacing: 1px; text-transform: uppercase;
+      color: var(--txt3); margin-top: 2px;
+    }
+    .prev-footer {
+      padding: .6rem 1.1rem; border-top: 1px solid var(--border);
+      font-family: var(--font-mono); font-size: 9px; color: var(--txt3);
+      letter-spacing: 1.5px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+
+    /* ── Navbar ──────────────────────────────── */
+    .home-nav {
+      position: sticky; top: 0; z-index: 100;
+      background: color-mix(in srgb, var(--bg) 94%, transparent);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+    }
+    .home-nav-inner {
+      max-width: 1400px; margin: 0 auto;
+      padding: 14px 1.5rem;
+      display: flex; align-items: center;
+      justify-content: space-between; gap: 12px; flex-wrap: nowrap;
+    }
+    .home-links {
+      display: flex; align-items: center; justify-content: center;
+      gap: 2px; flex-wrap: nowrap; list-style: none; flex: 1 1 auto;
+      overflow: hidden;
+    }
+    .home-links a {
+      display: inline-flex; align-items: center; min-height: 44px;
+      padding: 9px 10px; border-radius: var(--radius); color: var(--txt2);
+      font-family: var(--font-head); font-size: 15px; font-weight: 700;
+      letter-spacing: 1.5px; text-transform: uppercase;
+      white-space: nowrap; transition: all .2s;
+    }
+    .home-links a:hover, .home-links a.active {
+      color: var(--gold);
+      background: color-mix(in srgb, var(--gold) 12%, transparent);
+    }
+    .home-actions {
+      display: flex; gap: 8px; align-items: center;
+      flex-shrink: 0; justify-content: flex-end;
+    }
+
+    /* ── Validation Summary (Step 4) ────────── */
+    .val-summary {
+      background: rgba(244,63,94,.08);
+      border: 1px solid rgba(244,63,94,.28);
+      border-radius: var(--radius);
+      padding: 1rem 1.1rem;
+      margin-bottom: 1rem;
+      display: none;
+      animation: panelIn .25s ease both;
+    }
+    .val-summary.show { display: block; }
+
+    .val-summary-title {
+      font-family: var(--font-head);
+      font-size: 13px; font-weight: 700;
+      letter-spacing: 1.2px; text-transform: uppercase;
+      color: #ff6b8a;
+      margin-bottom: 10px;
+      display: flex; align-items: center; gap: 7px;
+    }
+
+    .val-step-group { margin-bottom: 10px; }
+    .val-step-group:last-child { margin-bottom: 0; }
+
+    .val-step-row {
+      display: flex; align-items: center;
+      justify-content: space-between;
+      margin-bottom: 6px;
+    }
+    .val-step-name {
+      font-family: var(--font-mono); font-size: 9px;
+      letter-spacing: 2px; text-transform: uppercase; color: var(--txt3);
+    }
+    .val-goto-btn {
+      font-family: var(--font-mono); font-size: 9px;
+      letter-spacing: 1.5px; text-transform: uppercase;
+      color: var(--blue2); background: none; border: none;
+      cursor: pointer; padding: 0; transition: color .15s;
+    }
+    .val-goto-btn:hover { color: var(--gold); }
+
+    .val-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+
+    .val-chip {
+      display: inline-flex; align-items: center; gap: 5px;
+      background: rgba(244,63,94,.1);
+      border: 1px solid rgba(244,63,94,.22);
+      border-radius: 20px; padding: 4px 11px;
+      font-family: var(--font-head); font-size: 12px;
+      font-weight: 600; color: #ff6b8a;
+      cursor: pointer; transition: all .15s;
+    }
+    .val-chip:hover {
+      background: rgba(244,63,94,.2);
+      border-color: rgba(244,63,94,.4);
+    }
+
+    /* Make step circles clickable */
+    .step-item { cursor: pointer; }
+    .step-item:hover .step-circle {
+      border-color: var(--gold);
+      color: var(--gold);
+    }
+    .step-item.active:hover .step-circle,
+    .step-item.done:hover .step-circle { border-color: inherit; }
+
+    /* ── Responsive ──────────────────────────── */
+    /* Readability pass for setup form and live preview */
+    .setup-wrap .card,
+    .preview-card {
+      background: #1b2434;
+      border-color: #40506a;
+      box-shadow: 0 14px 36px rgba(0, 0, 0, .22);
+    }
+
+    .page-hero-text h1 {
+      font-size: clamp(28px, 4vw, 42px);
+      color: #ffffff;
+      letter-spacing: 1.3px;
+    }
+
+    .page-hero-text p {
+      color: #d6deeb;
+      font-size: 14px;
+      font-weight: 600;
+      line-height: 1.45;
+    }
+
+    .page-hero-icon {
+      border-color: rgba(240, 165, 0, .45);
+      background: rgba(240, 165, 0, .16);
+    }
+
+    .tournament-banner {
+      border-bottom-color: #40506a;
+    }
+
+    .tnm-badge {
+      color: #ffd166;
+      border-color: rgba(240, 165, 0, .48);
+      background: rgba(240, 165, 0, .16);
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .tnm-name {
+      color: #ffffff;
+      font-size: 20px;
+    }
+
+    .tnm-stat-lbl {
+      color: #c9d4e4;
+      font-size: 10px;
+      font-weight: 700;
+    }
+
+    .tnm-stat-val {
+      color: #ffffff;
+      font-size: 15px;
+    }
+
+    .step-circle {
+      color: #d8e2f1;
+      background: #182130;
+      border-color: #53647d;
+      font-size: 15px;
+    }
+
+    .step-label {
+      color: #c9d4e4;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .step-item.done .step-label {
+      color: #e2e9f5;
+    }
+
+    .esports-section {
+      border-bottom-color: #40506a;
+      gap: 12px;
+    }
+
+    .esports-section-icon {
+      width: 38px;
+      height: 38px;
+      border-color: rgba(240, 165, 0, .42);
+      background: rgba(240, 165, 0, .14);
+      font-size: 18px;
+    }
+
+    .esports-section-text h3 {
+      color: #ffffff;
+      font-size: 18px;
+      letter-spacing: 1.15px;
+      line-height: 1.15;
+    }
+
+    .esports-section-text p {
+      color: #d6deeb;
+      font-size: 12px;
+      font-weight: 600;
+      line-height: 1.45;
+    }
+
+    #teamForm .form-label {
+      color: #f3f7ff;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 1.25px;
+      margin-bottom: 8px;
+    }
+
+    #teamForm .form-label span {
+      color: #cbd5e4 !important;
+      font-weight: 600 !important;
+    }
+
+    #teamForm .form-input,
+    #teamForm .form-select {
+      min-height: 50px;
+      background-color: #101722;
+      border-color: #4b5c76;
+      color: #ffffff;
+      font-size: 16px;
+      font-weight: 500;
+      line-height: 1.45;
+    }
+
+    #teamForm .form-input:hover,
+    #teamForm .form-select:hover {
+      border-color: #647690;
+    }
+
+    #teamForm .form-input:focus,
+    #teamForm .form-select:focus {
+      border-color: var(--gold);
+      box-shadow: 0 0 0 3px rgba(240, 165, 0, .2);
+    }
+
+    #teamForm .form-input::placeholder {
+      color: #aeb8c9;
+      opacity: 1;
+      font-weight: 400;
+    }
+
+    #teamForm .form-error {
+      color: #ff8b8b;
+      font-size: 14px;
+      font-weight: 700;
+      line-height: 1.4;
+      margin-top: 7px;
+    }
+
+    .rank-select-trigger {
+      background: #101722;
+      border-color: #4b5c76;
+      min-height: 54px;
+    }
+
+    .rank-select-trigger:hover {
+      border-color: #647690;
+    }
+
+    .rank-select-name {
+      color: #f3f7ff;
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .rank-select-name.placeholder,
+    .rank-select-arrow {
+      color: #b8c4d5;
+    }
+
+    .rank-select-panel {
+      background: #111925;
+      border-color: var(--blue2);
+    }
+
+    .rank-option {
+      background: #182130;
+      border-color: #34445a;
+    }
+
+    .rank-option span {
+      color: #d8e2f1;
+      font-size: 10px;
+      font-weight: 700;
+    }
+
+    .tag-preview {
+      color: #ffd166;
+      font-size: 14px;
+      font-weight: 700;
+      min-height: 22px;
+    }
+
+    .role-chip {
+      background: #182130;
+      border-color: #53647d;
+      color: #e2e9f5;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .role-chip:hover {
+      border-color: var(--gold);
+      color: #ffffff;
+    }
+
+    .member-block,
+    .strength-item,
+    .review-item {
+      background: #182130;
+      border-color: #40506a;
+    }
+
+    .member-num {
+      color: #f3f7ff;
+      font-size: 14px;
+    }
+
+    .member-num-badge {
+      background: #263348;
+      color: #e2e9f5;
+      border: 1px solid #53647d;
+      font-weight: 700;
+    }
+
+    .member-optional-badge,
+    .trust-badge,
+    .r-check {
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .member-optional-badge {
+      color: #cbd5e4;
+      border-color: #53647d;
+      background: #101722;
+    }
+
+    .strength-item-lbl,
+    .review-item-lbl,
+    .readiness-lbl {
+      color: #cbd5e4;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .strength-item-val {
+      color: #ffffff;
+      font-size: 20px;
+    }
+
+    .review-item-val {
+      color: #ffffff;
+      font-size: 17px;
+    }
+
+    .review-item-val.empty {
+      color: #b8c4d5;
+      font-size: 15px;
+    }
+
+    .submit-cta {
+      background: linear-gradient(135deg, #182130 0%, #222638 100%);
+      border-color: rgba(240, 165, 0, .38);
+    }
+
+    .submit-cta p {
+      color: #cbd5e4 !important;
+      font-size: 11px !important;
+      line-height: 1.45;
+    }
+
+    .readiness-pct {
+      color: #ffd166;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .r-check {
+      color: #cbd5e4;
+    }
+
+    .preview-card-hd {
+      background: linear-gradient(135deg, #182130 0%, #22283a 100%);
+      border-bottom-color: #40506a;
+    }
+
+    .prev-live-row,
+    .prev-info-lbl,
+    .prev-comp-lbl,
+    .prev-roster-hd,
+    .prev-strength-lbl,
+    .prev-strength-key,
+    .prev-slot-lbl,
+    .prev-footer {
+      color: #cbd5e4;
+      font-weight: 700;
+    }
+
+    .prev-live-row {
+      font-size: 10px;
+    }
+
+    .prev-tag {
+      color: #ffd166;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .prev-name {
+      color: #ffffff;
+      font-size: 24px;
+    }
+
+    .prev-info-val {
+      color: #f3f7ff;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .prev-comp-pct {
+      color: #ffd166;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .prev-member {
+      border-bottom-color: #40506a;
+      padding: 8px 0;
+    }
+
+    .prev-member-name {
+      color: #ffffff;
+      font-size: 15px;
+      font-weight: 700;
+    }
+
+    .prev-captain-badge {
+      color: #ffd166;
+      font-size: 9px;
+      font-weight: 700;
+    }
+
+    .prev-role-pill {
+      color: #d8e2f1;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .prev-strength-item {
+      background: #182130;
+      border-color: #40506a;
+    }
+
+    .prev-strength-val {
+      color: #ffffff;
+      font-size: 15px;
+    }
+
+    .prev-footer {
+      border-top-color: #40506a;
+      font-size: 10px;
+    }
+
+    .home-links a {
+      color: #cbd5e4;
+    }
+
+    @media (max-width: 1020px) {
+      .setup-grid { grid-template-columns: 1fr; }
+      .preview-sticky { position: static; }
+    }
+    @media (max-width: 900px) {
+      .step-label { display: none; }
+    }
+    @media (max-width: 640px) {
+      body { overflow-x: hidden; }
+      .setup-grid,
+      #teamForm,
+      .step-panel,
+      .card,
+      .card-body,
+      .preview-card,
+      .esports-section-text {
+        min-width: 0;
+      }
+      .member-row { grid-template-columns: 1fr 1fr; }
+      .member-row > :last-child { grid-column: span 2; }
+      .review-grid { grid-template-columns: 1fr; }
+      .strength-grid { grid-template-columns: 1fr 1fr; }
+      .tnm-stats { gap: 1rem; }
+      .setup-wrap { padding: 0 1rem 4rem; }
+      .page-hero { padding-top: 1.15rem; }
+      .page-hero-text h1 { font-size: 30px; }
+      .page-hero-text p { font-size: 13px; }
+      .esports-section-text h3 { font-size: 17px; }
+      #teamForm .form-label { font-size: 12px; }
+      #teamForm .form-input,
+      #teamForm .form-select { font-size: 15px; }
+      .rank-select-name { font-size: 15px; }
+      .prev-name { font-size: 22px; }
+    }
+    @media (max-width: 560px) {
+      html,
+      body {
+        width: 100%;
+        max-width: 100vw;
+        overflow-x: hidden;
+      }
+
+      .home-nav,
+      .home-nav-inner,
+      .setup-wrap,
+      .setup-grid,
+      #teamForm {
+        width: 100%;
+        max-width: 100vw;
+      }
+
+      #teamForm [style*="grid-template-columns:1fr 140px"],
+      #teamForm [style*="grid-template-columns:1fr 1fr"] {
+        grid-template-columns: 1fr !important;
+      }
+
+      .member-row {
+        grid-template-columns: 1fr;
+      }
+
+      .member-row > :last-child {
+        grid-column: auto;
+      }
+
+      .home-nav-inner {
+        max-width: 100%;
+        min-width: 0;
+        padding: 12px 1rem;
+      }
+
+      .navbar-logo {
+        flex-basis: 100%;
+      }
+
+      .home-links {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 4px;
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+        flex: 1 1 100%;
+        overflow: visible;
+        justify-content: stretch;
+      }
+
+      .home-links a {
+        justify-content: center;
+        min-height: 34px;
+        font-size: 11px;
+        padding: 5px 7px;
+        text-align: center;
+        white-space: normal;
+        line-height: 1.2;
+        overflow-wrap: anywhere;
+      }
+
+      .page-hero-title,
+      .page-hero-text {
+        min-width: 0;
+      }
+
+      .page-hero-title {
+        width: 100%;
+      }
+
+      .page-hero-text {
+        flex: 1 1 0;
+        width: auto;
+      }
+
+      .page-hero-title {
+        align-items: flex-start;
+      }
+
+      .esports-section {
+        align-items: flex-start;
+      }
+
+      .esports-section-text {
+        min-width: 0;
+        flex: 1 1 0;
+        max-width: none;
+      }
+
+      .page-hero-text p,
+      .esports-section-text h3,
+      .esports-section-text p {
+        overflow-wrap: anywhere;
+      }
+    }
+    @media (max-width: 1100px) {
+      .home-nav-inner { flex-wrap: wrap; justify-content: center; gap: 8px; }
+      .navbar-logo    { flex: 1 1 100%; justify-content: center; }
+      .home-links     { flex-wrap: wrap; flex: 1 1 100%; overflow: visible; justify-content: center; }
+      .home-actions   { justify-content: center; width: 100%; }
+    }
+    @media (max-width: 640px) {
+      .home-nav-inner { padding: 12px 1rem; }
+      .home-links a   { font-size: 12px; padding: 7px 10px; }
+      .home-actions   { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ── Navbar ──────────────────────────────── -->
+  <header class="home-nav">
+    <div class="home-nav-inner">
+      <a href="index.html" class="navbar-logo">
+        <img src="assets/logo_organizer.png" alt="HC" class="logo-img">
+        <span class="logo-name">Tournament <span>Organizer</span></span>
+      </a>
+      <ul class="home-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="index.html#tournaments">Tournaments</a></li>
+        <li><a href="index.html#teams">Teams</a></li>
+        <li><a href="standing.html">Standing</a></li>
+        <li><a href="schedule.html">Schedule</a></li>
+        <li><a class="active" href="team-setup.html">Registration</a></li>
+      </ul>
+      <div class="home-actions" id="navActions" style="visibility:hidden"></div>
+    </div>
+  </header>
+
+  <!-- ── Tournament Banner ───────────────────── -->
+  <div class="tournament-banner" id="tournamentBanner" style="display:none">
+    <div class="tournament-banner-inner">
+      <div class="tnm-badge">
+        <span class="live-dot"></span>
+        <span id="tnmStatus">Pendaftaran Dibuka</span>
+      </div>
+      <div class="tnm-name" id="tnmName">MLBB OPS Tournament</div>
+      <div class="tnm-stats">
+        <div class="tnm-stat">
+          <span class="tnm-stat-lbl">Format</span>
+          <span class="tnm-stat-val" id="tnmFormat">—</span>
+        </div>
+        <div class="tnm-stat">
+          <span class="tnm-stat-lbl">Hadiah</span>
+          <span class="tnm-stat-val gold" id="tnmPrize">—</span>
+        </div>
+        <div class="tnm-stat">
+          <span class="tnm-stat-lbl">Kapasiti</span>
+          <span class="tnm-stat-val blue" id="tnmSlots">—</span>
+        </div>
+        <div class="tnm-stat">
+          <span class="tnm-stat-lbl">Status</span>
+          <span class="tnm-stat-val green" id="tnmRemaining">—</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Main Content ────────────────────────── -->
+  <main class="setup-wrap">
+
+    <div class="page-hero">
+      <div class="page-hero-title">
+        <div class="page-hero-icon">🏆</div>
+        <div class="page-hero-text">
+          <h1>Setup Pasukan</h1>
+          <p>Lengkapkan profil pasukan untuk menyertai pertandingan rasmi</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="alert alert-error" id="alertError"><span id="errMsg"></span></div>
+    <div class="alert alert-success" id="alertSuccess">✓ Profil pasukan berjaya disimpan!</div>
+
+    <!-- ── Step Progress ────────────────────── -->
+    <div class="steps-wrap">
+      <div class="steps-header">
+        <div class="step-item active" id="si1" onclick="goStep(1)" title="Pergi ke Langkah 1">
+          <div class="step-circle" id="sc1">1</div>
+          <span class="step-label">Pasukan</span>
+        </div>
+        <div class="step-connector" id="scon1"></div>
+        <div class="step-item" id="si2" onclick="goStep(2)" title="Pergi ke Langkah 2">
+          <div class="step-circle" id="sc2">2</div>
+          <span class="step-label">Kapten</span>
+        </div>
+        <div class="step-connector" id="scon2"></div>
+        <div class="step-item" id="si3" onclick="goStep(3)" title="Pergi ke Langkah 3">
+          <div class="step-circle" id="sc3">3</div>
+          <span class="step-label">Ahli</span>
+        </div>
+        <div class="step-connector" id="scon3"></div>
+        <div class="step-item" id="si4" onclick="goStep(4)" title="Pergi ke Langkah 4">
+          <div class="step-circle" id="sc4">4</div>
+          <span class="step-label">Hantar</span>
+        </div>
+      </div>
+      <div class="progress-bar-wrap">
+        <div class="progress-bar-fill" id="progressFill"></div>
+      </div>
+    </div>
+
+    <!-- ── Grid ─────────────────────────────── -->
+    <div class="setup-grid">
+
+      <!-- FORM ─────────────────────────────── -->
+      <form id="teamForm" novalidate>
+
+        <!-- ═══ STEP 1: TEAM INFO ════════════ -->
+        <div class="step-panel active" id="panel1">
+          <div class="card mb-2">
+            <div class="card-body">
+
+              <div class="esports-section">
+                <div class="esports-section-icon">🛡️</div>
+                <div class="esports-section-text">
+                  <h3>Identiti Pasukan</h3>
+                  <p>Nama dan tag yang mewakili pasukan anda dalam pertandingan</p>
+                </div>
+              </div>
+
+              <div style="display:grid;grid-template-columns:1fr 140px;gap:12px" class="mb-2">
+                <div class="form-group" style="margin-bottom:0">
+                  <label class="form-label" for="teamName">Nama Pasukan</label>
+                  <input class="form-input" id="teamName" type="text" maxlength="40"
+                         placeholder="Shadow Wolves" autocomplete="off">
+                  <span class="form-error" id="errTeamName">Nama pasukan diperlukan.</span>
+                </div>
+                <div class="form-group" style="margin-bottom:0">
+                  <label class="form-label" for="teamTag">Tag <span style="color:var(--txt3)">(maks 5)</span></label>
+                  <input class="form-input" id="teamTag" type="text" maxlength="5"
+                         placeholder="SHDW" autocomplete="off"
+                         style="text-transform:uppercase;letter-spacing:3px;font-family:var(--font-mono)">
+                  <span class="form-error" id="errTeamTag">Tag diperlukan.</span>
+                </div>
+              </div>
+              <div class="tag-preview" id="tagPreview"></div>
+
+              <div class="esports-section mt-3">
+                <div class="esports-section-icon">🌐</div>
+                <div class="esports-section-text">
+                  <h3>Server Region</h3>
+                  <p>Pilih pelayan utama pasukan anda</p>
+                </div>
+              </div>
+
+              <div class="form-group" style="margin-bottom:0">
+                <label class="form-label" for="serverRegion">Region</label>
+                <select class="form-select" id="serverRegion">
+                  <option value="MY/SG">🇲🇾 MY/SG — Malaysia / Singapore</option>
+                  <option value="ID">🇮🇩 ID — Indonesia</option>
+                  <option value="TH">🇹🇭 TH — Thailand</option>
+                  <option value="PH">🇵🇭 PH — Philippines</option>
+                  <option value="INT">🌐 INT — International</option>
+                </select>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- Trust badges -->
+          <div class="card mb-2">
+            <div class="card-body" style="padding:.9rem 1.25rem">
+              <div class="trust-badges">
+                <span class="trust-badge gold">🏆 Tournament Verified</span>
+                <span class="trust-badge gold">✓ Organizer Verified</span>
+                <span class="trust-badge green">🔒 Secure Registration</span>
+                <span class="trust-badge blue">💾 Auto-Save Enabled</span>
+                <span class="trust-badge green">🛡️ Registration Protected</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="step-nav">
+            <button type="button" class="btn-next" id="next1">
+              Seterusnya: Maklumat Kapten <span>→</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- ═══ STEP 2: CAPTAIN ══════════════ -->
+        <div class="step-panel" id="panel2">
+          <div class="card mb-2">
+            <div class="card-body">
+
+              <div class="esports-section">
+                <div class="esports-section-icon">👑</div>
+                <div class="esports-section-text">
+                  <h3>Maklumat Kapten</h3>
+                  <p>Profil pemimpin dan ketua pasukan</p>
+                </div>
+              </div>
+
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px" class="mb-3">
+                <div class="form-group" style="margin-bottom:0">
+                  <label class="form-label" for="displayName">Nama In-Game Kapten</label>
+                  <input class="form-input" id="displayName" type="text" maxlength="30"
+                         placeholder="ShadowX" autocomplete="off">
+                  <span class="form-error" id="errDisplayName">Nama kapten diperlukan.</span>
+                </div>
+                <div class="form-group" style="margin-bottom:0">
+                  <label class="form-label" for="mlId">ML ID Kapten</label>
+                  <input class="form-input" id="mlId" type="text" maxlength="25"
+                         placeholder="123456789 (1234)" autocomplete="off">
+                  <span class="form-error" id="errMlId">ML ID diperlukan.</span>
+                </div>
+              </div>
+
+              <div class="esports-section">
+                <div class="esports-section-icon">⚔️</div>
+                <div class="esports-section-text">
+                  <h3>Peranan In-Game</h3>
+                  <p>Pilih peranan utama kapten dalam perlawanan</p>
+                </div>
+              </div>
+
+              <div class="form-group" style="margin-bottom:0">
+                <div class="role-chips" id="roleGrid">
+                  <div class="role-chip" data-role="Hyper"><span class="role-chip-icon">⚡</span>Hyper</div>
+                  <div class="role-chip" data-role="Roamer"><span class="role-chip-icon">🗺️</span>Roamer</div>
+                  <div class="role-chip" data-role="EXPlaner"><span class="role-chip-icon">⚔️</span>EXPlaner</div>
+                  <div class="role-chip" data-role="Goldlaner"><span class="role-chip-icon">🏅</span>Goldlaner</div>
+                  <div class="role-chip" data-role="Midlaner"><span class="role-chip-icon">🔮</span>Midlaner</div>
+                </div>
+                <span class="form-error" id="errRole">Sila pilih peranan kapten.</span>
+              </div>
+
+            </div>
+          </div>
+
+          <div class="card mb-2">
+            <div class="card-body">
+
+              <div class="esports-section">
+                <div class="esports-section-icon">📊</div>
+                <div class="esports-section-text">
+                  <h3>Rank Kapten</h3>
+                  <p>Rank semasa dan pencapaian tertinggi musim ini</p>
+                </div>
+              </div>
+
+              <div class="form-group mb-2">
+                <label class="form-label">Rank Semasa</label>
+                <div class="rank-select" id="rankSelect">
+                  <div class="rank-select-trigger" id="rankTrigger">
+                    <div class="rank-select-left">
+                      <img class="rank-select-img" id="rankTriggerImg" src="" alt="">
+                      <span class="rank-select-name placeholder" id="rankTriggerName">— Pilih Rank Semasa —</span>
+                    </div>
+                    <span class="rank-select-arrow">▼</span>
+                  </div>
+                  <div class="rank-select-panel" id="rankPanel">
+                    <div class="rank-option-grid" id="rankOptionGrid">
+                      <div class="rank-option" data-rank="Warrior"        data-img="assets/warrior_Rank.png"><img src="assets/warrior_Rank.png" alt="Warrior"><span>Warrior</span></div>
+                      <div class="rank-option" data-rank="Elite"          data-img="assets/silver_Rank.png"><img src="assets/silver_Rank.png" alt="Elite"><span>Elite</span></div>
+                      <div class="rank-option" data-rank="Master"         data-img="assets/master_Rank.png"><img src="assets/master_Rank.png" alt="Master"><span>Master</span></div>
+                      <div class="rank-option" data-rank="Grandmaster"    data-img="assets/grandmaster_Rank.png"><img src="assets/grandmaster_Rank.png" alt="Grandmaster"><span>Grandmaster</span></div>
+                      <div class="rank-option" data-rank="Epic"           data-img="assets/epic_Rank.png"><img src="assets/epic_Rank.png" alt="Epic"><span>Epic</span></div>
+                      <div class="rank-option" data-rank="Legend"         data-img="assets/legend_Rank.png"><img src="assets/legend_Rank.png" alt="Legend"><span>Legend</span></div>
+                      <div class="rank-option" data-rank="Mythic"         data-img="assets/mythic_Rank.png"><img src="assets/mythic_Rank.png" alt="Mythic"><span>Mythic</span></div>
+                      <div class="rank-option" data-rank="Mythic Honor"   data-img="assets/mythichonor_Rank.png"><img src="assets/mythichonor_Rank.png" alt="Mythic Honor"><span>Mythic Honor</span></div>
+                      <div class="rank-option" data-rank="Mythic Glory"   data-img="assets/mythicimmortal_Rank.png"><img src="assets/mythicimmortal_Rank.png" alt="Mythic Glory" style="opacity:.75"><span>Mythic Glory</span></div>
+                      <div class="rank-option" data-rank="Mythic Immortal" data-img="assets/mythicimmortal_Rank.png"><img src="assets/mythicimmortal_Rank.png" alt="Mythic Immortal"><span>Mythic Immortal</span></div>
+                    </div>
+                  </div>
+                </div>
+                <div class="stars-wrap" id="rankStarsWrap" style="display:none">
+                  <label class="form-label mt-1" id="rankStarsLabel">Bilangan Bintang</label>
+                  <input class="form-input" id="rankStarsInput" type="number" min="1" max="5"
+                         placeholder="Contoh: 3" style="width:140px">
+                </div>
+                <span class="form-error" id="errRank">Sila pilih rank kapten.</span>
+              </div>
+
+              <div class="form-group" style="margin-bottom:0">
+                <label class="form-label">Rank Tertinggi <span style="color:var(--txt3);font-weight:400">(Pilihan)</span></label>
+                <div class="rank-select" id="highestRankSelect">
+                  <div class="rank-select-trigger" id="highestRankTrigger">
+                    <div class="rank-select-left">
+                      <img class="rank-select-img" id="highestRankTriggerImg" src="" alt="">
+                      <span class="rank-select-name placeholder" id="highestRankTriggerName">— Pilih Rank Tertinggi —</span>
+                    </div>
+                    <span class="rank-select-arrow">▼</span>
+                  </div>
+                  <div class="rank-select-panel" id="highestRankPanel">
+                    <div class="rank-option-grid" id="highestRankOptionGrid">
+                      <div class="rank-option" data-rank="Warrior"        data-img="assets/warrior_Rank.png"><img src="assets/warrior_Rank.png" alt="Warrior"><span>Warrior</span></div>
+                      <div class="rank-option" data-rank="Elite"          data-img="assets/silver_Rank.png"><img src="assets/silver_Rank.png" alt="Elite"><span>Elite</span></div>
+                      <div class="rank-option" data-rank="Master"         data-img="assets/master_Rank.png"><img src="assets/master_Rank.png" alt="Master"><span>Master</span></div>
+                      <div class="rank-option" data-rank="Grandmaster"    data-img="assets/grandmaster_Rank.png"><img src="assets/grandmaster_Rank.png" alt="Grandmaster"><span>Grandmaster</span></div>
+                      <div class="rank-option" data-rank="Epic"           data-img="assets/epic_Rank.png"><img src="assets/epic_Rank.png" alt="Epic"><span>Epic</span></div>
+                      <div class="rank-option" data-rank="Legend"         data-img="assets/legend_Rank.png"><img src="assets/legend_Rank.png" alt="Legend"><span>Legend</span></div>
+                      <div class="rank-option" data-rank="Mythic"         data-img="assets/mythic_Rank.png"><img src="assets/mythic_Rank.png" alt="Mythic"><span>Mythic</span></div>
+                      <div class="rank-option" data-rank="Mythic Honor"   data-img="assets/mythichonor_Rank.png"><img src="assets/mythichonor_Rank.png" alt="Mythic Honor"><span>Mythic Honor</span></div>
+                      <div class="rank-option" data-rank="Mythic Glory"   data-img="assets/mythicimmortal_Rank.png"><img src="assets/mythicimmortal_Rank.png" alt="Mythic Glory" style="opacity:.75"><span>Mythic Glory</span></div>
+                      <div class="rank-option" data-rank="Mythic Immortal" data-img="assets/mythicimmortal_Rank.png"><img src="assets/mythicimmortal_Rank.png" alt="Mythic Immortal"><span>Mythic Immortal</span></div>
+                    </div>
+                  </div>
+                </div>
+                <div class="stars-wrap" id="highestRankStarsWrap" style="display:none">
+                  <label class="form-label mt-1" id="highestRankStarsLabel">Bilangan Bintang</label>
+                  <input class="form-input" id="highestRankStarsInput" type="number" min="1" max="5"
+                         placeholder="Contoh: 5" style="width:140px">
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <div class="step-nav">
+            <button type="button" class="btn-back" id="prev2">← Kembali</button>
+            <button type="button" class="btn-next" id="next2">
+              Seterusnya: Ahli Pasukan <span>→</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- ═══ STEP 3: MEMBERS ══════════════ -->
+        <div class="step-panel" id="panel3">
+          <div class="card mb-2">
+            <div class="card-body">
+
+              <div class="esports-section">
+                <div class="esports-section-icon">👥</div>
+                <div class="esports-section-text">
+                  <h3>Ahli Pasukan</h3>
+                  <p>Minimum 3 ahli aktif wajib. Ahli ke-4 dan ke-5 adalah pilihan. Boleh tambah sehingga 2 pemain rizab</p>
+                </div>
+              </div>
+
+              <!-- Member 2 -->
+              <div class="member-block">
+                <div class="member-block-header">
+                  <div class="member-num">
+                    <div class="member-num-badge" id="badge2">2</div>Ahli 2
+                  </div>
+                </div>
+                <div class="member-row">
+                  <div>
+                    <label class="form-label" for="m2name">Nama In-Game</label>
+                    <input class="form-input" id="m2name" type="text" maxlength="30" placeholder="PlayerTwo" autocomplete="off">
+                  </div>
+                  <div>
+                    <label class="form-label" for="m2id">ML ID</label>
+                    <input class="form-input" id="m2id" type="text" maxlength="25" placeholder="123456789" autocomplete="off">
+                  </div>
+                  <div>
+                    <label class="form-label" for="m2role">Peranan</label>
+                    <select class="form-select" id="m2role">
+                      <option value="">— Pilih —</option>
+                      <option value="Hyper">⚡ Hyper</option>
+                      <option value="Roamer">🗺️ Roamer</option>
+                      <option value="EXPlaner">⚔️ EXPlaner</option>
+                      <option value="Goldlaner">🏅 Goldlaner</option>
+                      <option value="Midlaner">🔮 Midlaner</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="form-group mt-2" style="margin-bottom:0">
+                  <label class="form-label">Rank Semasa</label>
+                  <div class="rank-select" id="m2rankSelect">
+                    <div class="rank-select-trigger" id="m2rankTrigger">
+                      <div class="rank-select-left">
+                        <img class="rank-select-img" id="m2rankTriggerImg" src="" alt="">
+                        <span class="rank-select-name placeholder" id="m2rankTriggerName">— Pilih Rank —</span>
+                      </div>
+                      <span class="rank-select-arrow">▼</span>
+                    </div>
+                    <div class="rank-select-panel" id="m2rankPanel">
+                      <div class="rank-option-grid" id="m2rankOptionGrid">
+                        <div class="rank-option" data-rank="Warrior"        data-img="assets/warrior_Rank.png"><img src="assets/warrior_Rank.png" alt="Warrior"><span>Warrior</span></div>
+                        <div class="rank-option" data-rank="Elite"          data-img="assets/silver_Rank.png"><img src="assets/silver_Rank.png" alt="Elite"><span>Elite</span></div>
+                        <div class="rank-option" data-rank="Master"         data-img="assets/master_Rank.png"><img src="assets/master_Rank.png" alt="Master"><span>Master</span></div>
+                        <div class="rank-option" data-rank="Grandmaster"    data-img="assets/grandmaster_Rank.png"><img src="assets/grandmaster_Rank.png" alt="Grandmaster"><span>Grandmaster</span></div>
+                        <div class="rank-option" data-rank="Epic"           data-img="assets/epic_Rank.png"><img src="assets/epic_Rank.png" alt="Epic"><span>Epic</span></div>
+                        <div class="rank-option" data-rank="Legend"         data-img="assets/legend_Rank.png"><img src="assets/legend_Rank.png" alt="Legend"><span>Legend</span></div>
+                        <div class="rank-option" data-rank="Mythic"         data-img="assets/mythic_Rank.png"><img src="assets/mythic_Rank.png" alt="Mythic"><span>Mythic</span></div>
+                        <div class="rank-option" data-rank="Mythic Honor"   data-img="assets/mythichonor_Rank.png"><img src="assets/mythichonor_Rank.png" alt="Mythic Honor"><span>Mythic Honor</span></div>
+                        <div class="rank-option" data-rank="Mythic Glory"   data-img="assets/mythicimmortal_Rank.png"><img src="assets/mythicimmortal_Rank.png" alt="Mythic Glory" style="opacity:.75"><span>Mythic Glory</span></div>
+                        <div class="rank-option" data-rank="Mythic Immortal" data-img="assets/mythicimmortal_Rank.png"><img src="assets/mythicimmortal_Rank.png" alt="Mythic Immortal"><span>Mythic Immortal</span></div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="stars-wrap" id="m2rankStarsWrap" style="display:none">
+                    <label class="form-label mt-1" id="m2rankStarsLabel">Bilangan Bintang</label>
+                    <input class="form-input" id="m2rankStarsInput" type="number" min="1" max="5"
+                           placeholder="Contoh: 3" style="width:140px">
+                  </div>
+                </div>
+              </div>
+
+              <!-- Member 3 -->
+              <div class="member-block">
+                <div class="member-block-header">
+                  <div class="member-num">
+                    <div class="member-num-badge" id="badge3">3</div>Ahli 3
+                  </div>
+                </div>
+                <div class="member-row">
+                  <div>
+                    <label class="form-label" for="m3name">Nama In-Game</label>
+                    <input class="form-input" id="m3name" type="text" maxlength="30" placeholder="PlayerThree" autocomplete="off">
+                  </div>
+                  <div>
+                    <label class="form-label" for="m3id">ML ID</label>
+                    <input class="form-input" id="m3id" type="text" maxlength="25" placeholder="123456789" autocomplete="off">
+                  </div>
+                  <div>
+                    <label class="form-label" for="m3role">Peranan</label>
+                    <select class="form-select" id="m3role">
+                      <option value="">— Pilih —</option>
+                      <option value="Hyper">⚡ Hyper</option>
+                      <option value="Roamer">🗺️ Roamer</option>
+                      <option value="EXPlaner">⚔️ EXPlaner</option>
+                      <option value="Goldlaner">🏅 Goldlaner</option>
+                      <option value="Midlaner">🔮 Midlaner</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="form-group mt-2" style="margin-bottom:0">
+                  <label class="form-label">Rank Semasa</label>
+                  <div class="rank-select" id="m3rankSelect">
+                    <div class="rank-select-trigger" id="m3rankTrigger">
+                      <div class="rank-select-left">
+                        <img class="rank-select-img" id="m3rankTriggerImg" src="" alt="">
+                        <span class="rank-select-name placeholder" id="m3rankTriggerName">— Pilih Rank —</span>
+                      </div>
+                      <span class="rank-select-arrow">▼</span>
+                    </div>
+                    <div class="rank-select-panel" id="m3rankPanel">
+                      <div class="rank-option-grid" id="m3rankOptionGrid">
+                        <div class="rank-option" data-rank="Warrior"        data-img="assets/warrior_Rank.png"><img src="assets/warrior_Rank.png" alt="Warrior"><span>Warrior</span></div>
+                        <div class="rank-option" data-rank="Elite"          data-img="assets/silver_Rank.png"><img src="assets/silver_Rank.png" alt="Elite"><span>Elite</span></div>
+                        <div class="rank-option" data-rank="Master"         data-img="assets/master_Rank.png"><img src="assets/master_Rank.png" alt="Master"><span>Master</span></div>
+                        <div class="rank-option" data-rank="Grandmaster"    data-img="assets/grandmaster_Rank.png"><img src="assets/grandmaster_Rank.png" alt="Grandmaster"><span>Grandmaster</span></div>
+                        <div class="rank-option" data-rank="Epic"           data-img="assets/epic_Rank.png"><img src="assets/epic_Rank.png" alt="Epic"><span>Epic</span></div>
+                        <div class="rank-option" data-rank="Legend"         data-img="assets/legend_Rank.png"><img src="assets/legend_Rank.png" alt="Legend"><span>Legend</span></div>
+                        <div class="rank-option" data-rank="Mythic"         data-img="assets/mythic_Rank.png"><img src="assets/mythic_Rank.png" alt="Mythic"><span>Mythic</span></div>
+                        <div class="rank-option" data-rank="Mythic Honor"   data-img="assets/mythichonor_Rank.png"><img src="assets/mythichonor_Rank.png" alt="Mythic Honor"><span>Mythic Honor</span></div>
+                        <div class="rank-option" data-rank="Mythic Glory"   data-img="assets/mythicimmortal_Rank.png"><img src="assets/mythicimmortal_Rank.png" alt="Mythic Glory" style="opacity:.75"><span>Mythic Glory</span></div>
+                        <div class="rank-option" data-rank="Mythic Immortal" data-img="assets/mythicimmortal_Rank.png"><img src="assets/mythicimmortal_Rank.png" alt="Mythic Immortal"><span>Mythic Immortal</span></div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="stars-wrap" id="m3rankStarsWrap" style="display:none">
+                    <label class="form-label mt-1" id="m3rankStarsLabel">Bilangan Bintang</label>
+                    <input class="form-input" id="m3rankStarsInput" type="number" min="1" max="5"
+                           placeholder="Contoh: 3" style="width:140px">
+                  </div>
+                </div>
+              </div>
+
+              <!-- Member 4 -->
+              <div class="member-block">
+                <div class="member-block-header">
+                  <div class="member-num">
+                    <div class="member-num-badge" id="badge4">4</div>Ahli 4
+                  </div>
+                  <span class="member-optional-badge">Pilihan</span>
+                </div>
+                <div class="member-row">
+                  <div>
+                    <label class="form-label" for="m4name">Nama In-Game</label>
+                    <input class="form-input" id="m4name" type="text" maxlength="30" placeholder="PlayerFour" autocomplete="off">
+                  </div>
+                  <div>
+                    <label class="form-label" for="m4id">ML ID</label>
+                    <input class="form-input" id="m4id" type="text" maxlength="25" placeholder="123456789" autocomplete="off">
+                  </div>
+                  <div>
+                    <label class="form-label" for="m4role">Peranan</label>
+                    <select class="form-select" id="m4role">
+                      <option value="">— Pilih —</option>
+                      <option value="Hyper">⚡ Hyper</option>
+                      <option value="Roamer">🗺️ Roamer</option>
+                      <option value="EXPlaner">⚔️ EXPlaner</option>
+                      <option value="Goldlaner">🏅 Goldlaner</option>
+                      <option value="Midlaner">🔮 Midlaner</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="form-group mt-2" style="margin-bottom:0">
+                  <label class="form-label">Rank Semasa <span style="color:var(--txt3);font-weight:400">(Pilihan)</span></label>
+                  <div class="rank-select" id="m4rankSelect">
+                    <div class="rank-select-trigger" id="m4rankTrigger">
+                      <div class="rank-select-left">
+                        <img class="rank-select-img" id="m4rankTriggerImg" src="" alt="">
+                        <span class="rank-select-name placeholder" id="m4rankTriggerName">— Pilih Rank —</span>
+                      </div>
+                      <span class="rank-select-arrow">▼</span>
+                    </div>
+                    <div class="rank-select-panel" id="m4rankPanel">
+                      <div class="rank-option-grid" id="m4rankOptionGrid">
+                        <div class="rank-option" data-rank="Warrior"        data-img="assets/warrior_Rank.png"><img src="assets/warrior_Rank.png" alt="Warrior"><span>Warrior</span></div>
+                        <div class="rank-option" data-rank="Elite"          data-img="assets/silver_Rank.png"><img src="assets/silver_Rank.png" alt="Elite"><span>Elite</span></div>
+                        <div class="rank-option" data-rank="Master"         data-img="assets/master_Rank.png"><img src="assets/master_Rank.png" alt="Master"><span>Master</span></div>
+                        <div class="rank-option" data-rank="Grandmaster"    data-img="assets/grandmaster_Rank.png"><img src="assets/grandmaster_Rank.png" alt="Grandmaster"><span>Grandmaster</span></div>
+                        <div class="rank-option" data-rank="Epic"           data-img="assets/epic_Rank.png"><img src="assets/epic_Rank.png" alt="Epic"><span>Epic</span></div>
+                        <div class="rank-option" data-rank="Legend"         data-img="assets/legend_Rank.png"><img src="assets/legend_Rank.png" alt="Legend"><span>Legend</span></div>
+                        <div class="rank-option" data-rank="Mythic"         data-img="assets/mythic_Rank.png"><img src="assets/mythic_Rank.png" alt="Mythic"><span>Mythic</span></div>
+                        <div class="rank-option" data-rank="Mythic Honor"   data-img="assets/mythichonor_Rank.png"><img src="assets/mythichonor_Rank.png" alt="Mythic Honor"><span>Mythic Honor</span></div>
+                        <div class="rank-option" data-rank="Mythic Glory"   data-img="assets/mythicimmortal_Rank.png"><img src="assets/mythicimmortal_Rank.png" alt="Mythic Glory" style="opacity:.75"><span>Mythic Glory</span></div>
+                        <div class="rank-option" data-rank="Mythic Immortal" data-img="assets/mythicimmortal_Rank.png"><img src="assets/mythicimmortal_Rank.png" alt="Mythic Immortal"><span>Mythic Immortal</span></div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="stars-wrap" id="m4rankStarsWrap" style="display:none">
+                    <label class="form-label mt-1" id="m4rankStarsLabel">Bilangan Bintang</label>
+                    <input class="form-input" id="m4rankStarsInput" type="number" min="1" max="5"
+                           placeholder="Contoh: 3" style="width:140px">
+                  </div>
+                </div>
+              </div>
+
+              <!-- Member 5 -->
+              <div class="member-block">
+                <div class="member-block-header">
+                  <div class="member-num">
+                    <div class="member-num-badge" id="badge5">5</div>Ahli 5
+                  </div>
+                  <span class="member-optional-badge">Pilihan</span>
+                </div>
+                <div class="member-row">
+                  <div>
+                    <label class="form-label" for="m5name">Nama In-Game</label>
+                    <input class="form-input" id="m5name" type="text" maxlength="30" placeholder="PlayerFive" autocomplete="off">
+                  </div>
+                  <div>
+                    <label class="form-label" for="m5id">ML ID</label>
+                    <input class="form-input" id="m5id" type="text" maxlength="25" placeholder="123456789" autocomplete="off">
+                  </div>
+                  <div>
+                    <label class="form-label" for="m5role">Peranan</label>
+                    <select class="form-select" id="m5role">
+                      <option value="">— Pilih —</option>
+                      <option value="Hyper">⚡ Hyper</option>
+                      <option value="Roamer">🗺️ Roamer</option>
+                      <option value="EXPlaner">⚔️ EXPlaner</option>
+                      <option value="Goldlaner">🏅 Goldlaner</option>
+                      <option value="Midlaner">🔮 Midlaner</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="form-group mt-2" style="margin-bottom:0">
+                  <label class="form-label">Rank Semasa <span style="color:var(--txt3);font-weight:400">(Pilihan)</span></label>
+                  <div class="rank-select" id="m5rankSelect">
+                    <div class="rank-select-trigger" id="m5rankTrigger">
+                      <div class="rank-select-left">
+                        <img class="rank-select-img" id="m5rankTriggerImg" src="" alt="">
+                        <span class="rank-select-name placeholder" id="m5rankTriggerName">— Pilih Rank —</span>
+                      </div>
+                      <span class="rank-select-arrow">▼</span>
+                    </div>
+                    <div class="rank-select-panel" id="m5rankPanel">
+                      <div class="rank-option-grid" id="m5rankOptionGrid">
+                        <div class="rank-option" data-rank="Warrior"        data-img="assets/warrior_Rank.png"><img src="assets/warrior_Rank.png" alt="Warrior"><span>Warrior</span></div>
+                        <div class="rank-option" data-rank="Elite"          data-img="assets/silver_Rank.png"><img src="assets/silver_Rank.png" alt="Elite"><span>Elite</span></div>
+                        <div class="rank-option" data-rank="Master"         data-img="assets/master_Rank.png"><img src="assets/master_Rank.png" alt="Master"><span>Master</span></div>
+                        <div class="rank-option" data-rank="Grandmaster"    data-img="assets/grandmaster_Rank.png"><img src="assets/grandmaster_Rank.png" alt="Grandmaster"><span>Grandmaster</span></div>
+                        <div class="rank-option" data-rank="Epic"           data-img="assets/epic_Rank.png"><img src="assets/epic_Rank.png" alt="Epic"><span>Epic</span></div>
+                        <div class="rank-option" data-rank="Legend"         data-img="assets/legend_Rank.png"><img src="assets/legend_Rank.png" alt="Legend"><span>Legend</span></div>
+                        <div class="rank-option" data-rank="Mythic"         data-img="assets/mythic_Rank.png"><img src="assets/mythic_Rank.png" alt="Mythic"><span>Mythic</span></div>
+                        <div class="rank-option" data-rank="Mythic Honor"   data-img="assets/mythichonor_Rank.png"><img src="assets/mythichonor_Rank.png" alt="Mythic Honor"><span>Mythic Honor</span></div>
+                        <div class="rank-option" data-rank="Mythic Glory"   data-img="assets/mythicimmortal_Rank.png"><img src="assets/mythicimmortal_Rank.png" alt="Mythic Glory" style="opacity:.75"><span>Mythic Glory</span></div>
+                        <div class="rank-option" data-rank="Mythic Immortal" data-img="assets/mythicimmortal_Rank.png"><img src="assets/mythicimmortal_Rank.png" alt="Mythic Immortal"><span>Mythic Immortal</span></div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="stars-wrap" id="m5rankStarsWrap" style="display:none">
+                    <label class="form-label mt-1" id="m5rankStarsLabel">Bilangan Bintang</label>
+                    <input class="form-input" id="m5rankStarsInput" type="number" min="1" max="5"
+                           placeholder="Contoh: 3" style="width:140px">
+                  </div>
+                </div>
+              </div>
+
+              <!-- ── Reserve Players ──────────────────── -->
+              <div class="reserve-section-divider">
+                <div class="reserve-section-icon">🔄</div>
+                <div class="reserve-section-text">
+                  <h4>Pemain Rizab <span style="color:var(--txt3);font-weight:400">(Pilihan — Maks 2)</span></h4>
+                  <p>Pemain rizab boleh menggantikan ahli aktif semasa pertandingan</p>
+                </div>
+              </div>
+
+              <!-- Reserve 1 -->
+              <div class="reserve-block">
+                <div class="reserve-block-header">
+                  <div class="reserve-num">
+                    <div class="reserve-num-badge" id="badge_r1">R1</div>Rizab 1
+                  </div>
+                  <span class="reserve-tag">Pilihan</span>
+                </div>
+                <div class="member-row">
+                  <div>
+                    <label class="form-label" for="r1name">Nama In-Game</label>
+                    <input class="form-input" id="r1name" type="text" maxlength="30" placeholder="ReserveOne" autocomplete="off">
+                  </div>
+                  <div>
+                    <label class="form-label" for="r1id">ML ID</label>
+                    <input class="form-input" id="r1id" type="text" maxlength="25" placeholder="123456789" autocomplete="off">
+                  </div>
+                  <div>
+                    <label class="form-label" for="r1role">Peranan</label>
+                    <select class="form-select" id="r1role">
+                      <option value="">— Pilih —</option>
+                      <option value="Hyper">⚡ Hyper</option>
+                      <option value="Roamer">🗺️ Roamer</option>
+                      <option value="EXPlaner">⚔️ EXPlaner</option>
+                      <option value="Goldlaner">🏅 Goldlaner</option>
+                      <option value="Midlaner">🔮 Midlaner</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="form-group mt-2" style="margin-bottom:0">
+                  <label class="form-label">Rank Semasa <span style="color:var(--txt3);font-weight:400">(Pilihan)</span></label>
+                  <div class="rank-select" id="r1rankSelect">
+                    <div class="rank-select-trigger" id="r1rankTrigger">
+                      <div class="rank-select-left">
+                        <img class="rank-select-img" id="r1rankTriggerImg" src="" alt="">
+                        <span class="rank-select-name placeholder" id="r1rankTriggerName">— Pilih Rank —</span>
+                      </div>
+                      <span class="rank-select-arrow">▼</span>
+                    </div>
+                    <div class="rank-select-panel" id="r1rankPanel">
+                      <div class="rank-option-grid" id="r1rankOptionGrid">
+                        <div class="rank-option" data-rank="Warrior"         data-img="assets/warrior_Rank.png"><img src="assets/warrior_Rank.png" alt="Warrior"><span>Warrior</span></div>
+                        <div class="rank-option" data-rank="Elite"           data-img="assets/silver_Rank.png"><img src="assets/silver_Rank.png" alt="Elite"><span>Elite</span></div>
+                        <div class="rank-option" data-rank="Master"          data-img="assets/master_Rank.png"><img src="assets/master_Rank.png" alt="Master"><span>Master</span></div>
+                        <div class="rank-option" data-rank="Grandmaster"     data-img="assets/grandmaster_Rank.png"><img src="assets/grandmaster_Rank.png" alt="Grandmaster"><span>Grandmaster</span></div>
+                        <div class="rank-option" data-rank="Epic"            data-img="assets/epic_Rank.png"><img src="assets/epic_Rank.png" alt="Epic"><span>Epic</span></div>
+                        <div class="rank-option" data-rank="Legend"          data-img="assets/legend_Rank.png"><img src="assets/legend_Rank.png" alt="Legend"><span>Legend</span></div>
+                        <div class="rank-option" data-rank="Mythic"          data-img="assets/mythic_Rank.png"><img src="assets/mythic_Rank.png" alt="Mythic"><span>Mythic</span></div>
+                        <div class="rank-option" data-rank="Mythic Honor"    data-img="assets/mythichonor_Rank.png"><img src="assets/mythichonor_Rank.png" alt="Mythic Honor"><span>Mythic Honor</span></div>
+                        <div class="rank-option" data-rank="Mythic Glory"    data-img="assets/mythicimmortal_Rank.png"><img src="assets/mythicimmortal_Rank.png" alt="Mythic Glory" style="opacity:.75"><span>Mythic Glory</span></div>
+                        <div class="rank-option" data-rank="Mythic Immortal" data-img="assets/mythicimmortal_Rank.png"><img src="assets/mythicimmortal_Rank.png" alt="Mythic Immortal"><span>Mythic Immortal</span></div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="stars-wrap" id="r1rankStarsWrap" style="display:none">
+                    <label class="form-label mt-1" id="r1rankStarsLabel">Bilangan Bintang</label>
+                    <input class="form-input" id="r1rankStarsInput" type="number" min="1" max="5" placeholder="Contoh: 3" style="width:140px">
+                  </div>
+                </div>
+              </div>
+
+              <!-- Reserve 2 -->
+              <div class="reserve-block">
+                <div class="reserve-block-header">
+                  <div class="reserve-num">
+                    <div class="reserve-num-badge" id="badge_r2">R2</div>Rizab 2
+                  </div>
+                  <span class="reserve-tag">Pilihan</span>
+                </div>
+                <div class="member-row">
+                  <div>
+                    <label class="form-label" for="r2name">Nama In-Game</label>
+                    <input class="form-input" id="r2name" type="text" maxlength="30" placeholder="ReserveTwo" autocomplete="off">
+                  </div>
+                  <div>
+                    <label class="form-label" for="r2id">ML ID</label>
+                    <input class="form-input" id="r2id" type="text" maxlength="25" placeholder="123456789" autocomplete="off">
+                  </div>
+                  <div>
+                    <label class="form-label" for="r2role">Peranan</label>
+                    <select class="form-select" id="r2role">
+                      <option value="">— Pilih —</option>
+                      <option value="Hyper">⚡ Hyper</option>
+                      <option value="Roamer">🗺️ Roamer</option>
+                      <option value="EXPlaner">⚔️ EXPlaner</option>
+                      <option value="Goldlaner">🏅 Goldlaner</option>
+                      <option value="Midlaner">🔮 Midlaner</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="form-group mt-2" style="margin-bottom:0">
+                  <label class="form-label">Rank Semasa <span style="color:var(--txt3);font-weight:400">(Pilihan)</span></label>
+                  <div class="rank-select" id="r2rankSelect">
+                    <div class="rank-select-trigger" id="r2rankTrigger">
+                      <div class="rank-select-left">
+                        <img class="rank-select-img" id="r2rankTriggerImg" src="" alt="">
+                        <span class="rank-select-name placeholder" id="r2rankTriggerName">— Pilih Rank —</span>
+                      </div>
+                      <span class="rank-select-arrow">▼</span>
+                    </div>
+                    <div class="rank-select-panel" id="r2rankPanel">
+                      <div class="rank-option-grid" id="r2rankOptionGrid">
+                        <div class="rank-option" data-rank="Warrior"         data-img="assets/warrior_Rank.png"><img src="assets/warrior_Rank.png" alt="Warrior"><span>Warrior</span></div>
+                        <div class="rank-option" data-rank="Elite"           data-img="assets/silver_Rank.png"><img src="assets/silver_Rank.png" alt="Elite"><span>Elite</span></div>
+                        <div class="rank-option" data-rank="Master"          data-img="assets/master_Rank.png"><img src="assets/master_Rank.png" alt="Master"><span>Master</span></div>
+                        <div class="rank-option" data-rank="Grandmaster"     data-img="assets/grandmaster_Rank.png"><img src="assets/grandmaster_Rank.png" alt="Grandmaster"><span>Grandmaster</span></div>
+                        <div class="rank-option" data-rank="Epic"            data-img="assets/epic_Rank.png"><img src="assets/epic_Rank.png" alt="Epic"><span>Epic</span></div>
+                        <div class="rank-option" data-rank="Legend"          data-img="assets/legend_Rank.png"><img src="assets/legend_Rank.png" alt="Legend"><span>Legend</span></div>
+                        <div class="rank-option" data-rank="Mythic"          data-img="assets/mythic_Rank.png"><img src="assets/mythic_Rank.png" alt="Mythic"><span>Mythic</span></div>
+                        <div class="rank-option" data-rank="Mythic Honor"    data-img="assets/mythichonor_Rank.png"><img src="assets/mythichonor_Rank.png" alt="Mythic Honor"><span>Mythic Honor</span></div>
+                        <div class="rank-option" data-rank="Mythic Glory"    data-img="assets/mythicimmortal_Rank.png"><img src="assets/mythicimmortal_Rank.png" alt="Mythic Glory" style="opacity:.75"><span>Mythic Glory</span></div>
+                        <div class="rank-option" data-rank="Mythic Immortal" data-img="assets/mythicimmortal_Rank.png"><img src="assets/mythicimmortal_Rank.png" alt="Mythic Immortal"><span>Mythic Immortal</span></div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="stars-wrap" id="r2rankStarsWrap" style="display:none">
+                    <label class="form-label mt-1" id="r2rankStarsLabel">Bilangan Bintang</label>
+                    <input class="form-input" id="r2rankStarsInput" type="number" min="1" max="5" placeholder="Contoh: 3" style="width:140px">
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- Team Strength -->
+          <div class="card mb-2">
+            <div class="card-body">
+              <div class="esports-section">
+                <div class="esports-section-icon">📈</div>
+                <div class="esports-section-text">
+                  <h3>Team Strength Summary</h3>
+                  <p>Analisis tahap persaingan berdasarkan rank keseluruhan ahli pasukan</p>
+                </div>
+              </div>
+              <div class="strength-grid">
+                <div class="strength-item">
+                  <div class="strength-item-lbl">Rank Purata</div>
+                  <div class="strength-item-val" id="strengthAvg">—</div>
+                </div>
+                <div class="strength-item">
+                  <div class="strength-item-lbl">Rank Tertinggi</div>
+                  <div class="strength-item-val" id="strengthTop">—</div>
+                </div>
+                <div class="strength-item">
+                  <div class="strength-item-lbl">Kategori</div>
+                  <div class="strength-item-val hi" id="strengthTier">—</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="step-nav">
+            <button type="button" class="btn-back" id="prev3">← Kembali</button>
+            <button type="button" class="btn-next" id="next3">
+              Semak &amp; Hantar <span>→</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- ═══ STEP 4: REVIEW & SUBMIT ══════ -->
+        <div class="step-panel" id="panel4">
+          <div class="card mb-2">
+            <div class="card-body">
+              <div class="esports-section">
+                <div class="esports-section-icon">📋</div>
+                <div class="esports-section-text">
+                  <h3>Semak Pendaftaran</h3>
+                  <p>Pastikan semua maklumat tepat sebelum menghantar</p>
+                </div>
+              </div>
+              <div class="review-grid" id="reviewGrid"></div>
+            </div>
+          </div>
+
+          <!-- Validation summary — appears only on failed submit -->
+          <div class="val-summary" id="valSummary">
+            <div class="val-summary-title">⚠ Sila lengkapkan maklumat berikut sebelum mendaftar:</div>
+            <div id="valSummaryBody"></div>
+          </div>
+
+          <!-- Submit CTA -->
+          <div class="submit-cta">
+            <div class="readiness-bar">
+              <span class="readiness-lbl">Kesediaan</span>
+              <div class="readiness-track">
+                <div class="readiness-fill" id="readinessFill"></div>
+              </div>
+              <span class="readiness-pct" id="readinessPct">0%</span>
+            </div>
+            <div class="readiness-checks" id="readinessChecks"></div>
+
+            <button class="btn-submit" type="submit" id="submitBtn">
+              🏆 &nbsp;Daftar Pasukan — Sertai Tournament
+            </button>
+            <p style="font-family:var(--font-mono);font-size:9px;color:var(--txt3);margin-top:10px;letter-spacing:1px">
+              Data anda disimpan dengan selamat melalui Firebase Realtime Database
+            </p>
+          </div>
+
+          <div class="step-nav" style="margin-top:.75rem">
+            <button type="button" class="btn-back" id="prev4" style="width:100%">← Kembali Semak Ahli</button>
+          </div>
+        </div>
+
+      </form>
+
+      <!-- ══ LIVE PREVIEW ════════════════════ -->
+      <div class="preview-sticky">
+        <div class="preview-card fade-in">
+
+          <div class="preview-card-hd">
+            <div class="prev-live-row">
+              <div class="live-dot"></div>
+              Pratonton Langsung
+            </div>
+            <div class="prev-tag" id="prevTag">[ — ]</div>
+            <div class="prev-name" id="prevName">Nama Pasukan</div>
+            <div class="prev-info-grid">
+              <div class="prev-info-item">
+                <span class="prev-info-lbl">Kapten</span>
+                <span class="prev-info-val" id="prevCaptain">—</span>
+              </div>
+              <div class="prev-info-item">
+                <span class="prev-info-lbl">Rank Semasa</span>
+                <span class="prev-info-val" id="prevCurrentRank">—</span>
+              </div>
+              <div class="prev-info-item">
+                <span class="prev-info-lbl">Rank Tertinggi</span>
+                <span class="prev-info-val" id="prevHighestRank">—</span>
+              </div>
+              <div class="prev-info-item">
+                <span class="prev-info-lbl">Server</span>
+                <span class="prev-info-val" id="prevServer">MY/SG</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="prev-completion">
+            <div class="prev-comp-row">
+              <span class="prev-comp-lbl">Completion</span>
+              <span class="prev-comp-pct" id="prevCompPct">0%</span>
+            </div>
+            <div class="prev-comp-track">
+              <div class="prev-comp-fill" id="prevCompFill"></div>
+            </div>
+          </div>
+
+          <div class="prev-body">
+            <div class="prev-roster-hd">
+              <span>Roster</span>
+              <span class="prev-roster-count" id="prevRosterCount">0 / 5</span>
+            </div>
+            <div id="prevReserveRoster"></div>
+            <div id="prevRoster"></div>
+          </div>
+
+          <div class="prev-strength">
+            <div class="prev-strength-lbl">Kekuatan Pasukan</div>
+            <div class="prev-strength-grid">
+              <div class="prev-strength-item">
+                <div class="prev-strength-val" id="prevSAvg">—</div>
+                <div class="prev-strength-key">Purata</div>
+              </div>
+              <div class="prev-strength-item">
+                <div class="prev-strength-val hi" id="prevSTop">—</div>
+                <div class="prev-strength-key">Tertinggi</div>
+              </div>
+              <div class="prev-strength-item">
+                <div class="prev-strength-val" id="prevSTier" style="font-size:11px">—</div>
+                <div class="prev-strength-key">Kategori</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="prev-footer">
+            <span>🌐 <span id="prevRegionFooter">MY/SG</span></span>
+            <span id="prevStepLabel">Langkah 1 / 4</span>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <script type="module">
+    import { requirePlayer } from "./js/auth.js";
+    import { auth, db } from "./js/firebase-config.js";
+    import { ref, set, get, query, orderByChild, equalTo }
+      from "https://www.gstatic.com/firebasejs/12.14.0/firebase-database.js";
+    import { signOut }
+      from "https://www.gstatic.com/firebasejs/12.14.0/firebase-auth.js";
+
+    /* ── Constants ──────────────────────────── */
+    const ROLE_ICONS = {
+      Hyper:"⚡", Roamer:"🗺️", EXPlaner:"⚔️",
+      Goldlaner:"🏅", Midlaner:"🔮"
+    };
+    const RANK_COLORS = {
+      "Warrior":"#9e9e9e","Elite":"#4caf50","Master":"#2196f3",
+      "Grandmaster":"#9c27b0","Epic":"#f44336","Legend":"#ffc107",
+      "Mythic":"#009688","Mythic Honor":"#00bcd4",
+      "Mythic Glory":"#ff5722","Mythic Immortal":"#e91e63"
+    };
+    const RANK_WEIGHTS = {
+      "Warrior":10,"Elite":20,"Master":30,"Grandmaster":40,
+      "Epic":50,"Legend":60,"Mythic":70,"Mythic Honor":80,
+      "Mythic Glory":90,"Mythic Immortal":100
+    };
+    // Configurable tier thresholds — adjust min/max here without touching calc logic
+    const TIER_CONFIG = [
+      { min:10,  max:29,  label:"Newbie"   },
+      { min:30,  max:49,  label:"Elite"    },
+      { min:50,  max:59,  label:"Hard"     },
+      { min:60,  max:69,  label:"Advanced" },
+      { min:70,  max:100, label:"Semi-Pro" }
+    ];
+    const RANK_TIERS = TIER_CONFIG;
+    const RANK_STAR_RANGES = {
+      "Warrior":{min:1,max:5,label:"1–5"},
+      "Elite":{min:1,max:5,label:"1–5"},
+      "Master":{min:1,max:5,label:"1–5"},
+      "Grandmaster":{min:1,max:5,label:"1–5"},
+      "Epic":{min:1,max:5,label:"1–5"},
+      "Legend":{min:1,max:5,label:"1–5"},
+      "Mythic":{min:1,max:24,label:"1–24"},
+      "Mythic Honor":{min:25,max:49,label:"25–49"},
+      "Mythic Glory":{min:50,max:99,label:"50–99"},
+      "Mythic Immortal":{min:100,max:9999,label:"100+"}
+    };
+    const RANKS_WITH_STARS = ["Warrior","Elite","Master","Grandmaster","Epic","Legend"];
+
+    /* ── State ──────────────────────────────── */
+    let currentStep  = 1;
+    let furthestStep = 1;   // tracks the highest step the user has visited
+    let selectedRole = "";
+    let selectedRank = "";
+    let selectedRankStars = 0;
+    let selectedHighestRank = "";
+    let selectedHighestRankStars = 0;
+    // Member ranks (2–5)
+    let selectedM2Rank = ""; let selectedM2RankStars = 0;
+    let selectedM3Rank = ""; let selectedM3RankStars = 0;
+    let selectedM4Rank = ""; let selectedM4RankStars = 0;
+    let selectedM5Rank = ""; let selectedM5RankStars = 0;
+    // Reserve player ranks (R1–R2)
+    let selectedR1Rank = ""; let selectedR1RankStars = 0;
+    let selectedR2Rank = ""; let selectedR2RankStars = 0;
+    let existingCreatedAt = null;
+
+    /* ── Expose goStep globally (called from onclick) ── */
+    window.goStep = goStep;
+
+    /* ── Tournament Banner ──────────────────── */
+    async function loadTournamentBanner() {
+      try {
+        const snap = await get(ref(db, "tournaments"));
+        if (!snap.exists()) return;
+        const all = Object.entries(snap.val());
+        const active = all.find(([, t]) =>
+          t.status === "upcoming" || t.status === "registration" || !t.status
+        );
+        if (!active) return;
+        const [, t] = active;
+        document.getElementById("tournamentBanner").style.display = "";
+        document.getElementById("tnmName").textContent = t.name || "MLBB OPS Tournament";
+        document.getElementById("tnmFormat").textContent =
+          t.format === "double" ? "Double Elimination" :
+          t.format === "single" ? "Single Elimination" : (t.format || "—");
+        document.getElementById("tnmPrize").textContent =
+          t.prize ? `RM ${Number(t.prize).toLocaleString("en-MY")}` : "—";
+        document.getElementById("tnmSlots").textContent =
+          t.slotCount ? `${t.slotCount} Pasukan` : "—";
+        document.getElementById("tnmStatus").textContent = "Pendaftaran Dibuka";
+        const registeredCount = t.registeredTeams
+          ? Object.keys(t.registeredTeams).length : 0;
+        document.getElementById("tnmRemaining").textContent =
+          t.slotCount ? `${t.slotCount - registeredCount} Tinggal` : "Dibuka";
+      } catch { /* banner is non-critical */ }
+    }
+
+    requirePlayer(async (user) => {
+
+      /* ── Navbar ─────────────────────────── */
+      const navActions = document.getElementById("navActions");
+      navActions.innerHTML = `
+        <span class="btn btn-primary btn-sm"
+          style="cursor:default;user-select:none;pointer-events:none;">Player</span>
+        <button class="btn btn-secondary btn-sm" id="logoutBtn">Log Keluar</button>`;
+      navActions.style.visibility = "visible";
+      document.getElementById("logoutBtn").addEventListener("click", async () => {
+        await signOut(auth);
+        window.location.href = "login.html";
+      });
+
+      /* ── Load tournament banner ─────────── */
+      loadTournamentBanner();
+
+      /* ── Load existing data ─────────────── */
+      const snap = await get(ref(db, `teams/${user.uid}`));
+      if (snap.exists()) {
+        const d = snap.val();
+        existingCreatedAt = d.createdAt || null;
+        setValue("teamName",    d.teamName);
+        setValue("teamTag",     d.teamTag);
+        setValue("displayName", d.displayName);
+        setValue("mlId",        d.mlId);
+        setValue("serverRegion", d.serverRegion || "MY/SG");
+        if (d.captainRole) {
+          selectedRole = d.captainRole;
+          document.querySelector(`.role-chip[data-role="${d.captainRole}"]`)
+            ?.classList.add("active");
+        }
+        if (d.captainRank) {
+          selectedRank = d.captainRank;
+          preselectRankFn("rankOptionGrid","rankTriggerImg","rankTriggerName", d.captainRank);
+          applyStarRange("rankStarsWrap","rankStarsLabel","rankStarsInput", d.captainRank);
+          if (d.captainRankStars) {
+            selectedRankStars = d.captainRankStars;
+            document.getElementById("rankStarsInput").value = selectedRankStars;
+          }
+        }
+        if (d.captainHighestRank) {
+          selectedHighestRank = d.captainHighestRank;
+          preselectRankFn("highestRankOptionGrid","highestRankTriggerImg","highestRankTriggerName", d.captainHighestRank);
+          applyStarRange("highestRankStarsWrap","highestRankStarsLabel","highestRankStarsInput", d.captainHighestRank);
+          if (d.captainHighestRankStars) {
+            selectedHighestRankStars = d.captainHighestRankStars;
+            document.getElementById("highestRankStarsInput").value = selectedHighestRankStars;
+          }
+        }
+        const members = d.members || [];
+        const memberRankState = {
+          2:{ setRank:v=>{selectedM2Rank=v;}, setStars:v=>{selectedM2RankStars=v;} },
+          3:{ setRank:v=>{selectedM3Rank=v;}, setStars:v=>{selectedM3RankStars=v;} },
+          4:{ setRank:v=>{selectedM4Rank=v;}, setStars:v=>{selectedM4RankStars=v;} },
+          5:{ setRank:v=>{selectedM5Rank=v;}, setStars:v=>{selectedM5RankStars=v;} },
+        };
+        [2,3,4,5].forEach((n, i) => {
+          const m = members[i] || {};
+          setValue(`m${n}name`, m.name);
+          setValue(`m${n}id`,   m.mlId);
+          setValue(`m${n}role`, m.role);
+          // Restore member rank if previously saved
+          if (m.rank) {
+            const { setRank, setStars } = memberRankState[n];
+            setRank(m.rank);
+            preselectRankFn(`m${n}rankOptionGrid`,`m${n}rankTriggerImg`,`m${n}rankTriggerName`, m.rank);
+            applyStarRange(`m${n}rankStarsWrap`,`m${n}rankStarsLabel`,`m${n}rankStarsInput`, m.rank);
+            if (m.rankStars) {
+              setStars(m.rankStars);
+              const inp = document.getElementById(`m${n}rankStarsInput`);
+              if (inp) inp.value = m.rankStars;
+            }
+          }
+        });
+        // Restore reserve players
+        const reserveRankState = {
+          1: { setRank:v=>{selectedR1Rank=v;}, setStars:v=>{selectedR1RankStars=v;} },
+          2: { setRank:v=>{selectedR2Rank=v;}, setStars:v=>{selectedR2RankStars=v;} },
+        };
+        const reserves = d.reserves || [];
+        [1,2].forEach((n, i) => {
+          const r = reserves[i] || {};
+          setValue(`r${n}name`, r.name);
+          setValue(`r${n}id`,   r.mlId);
+          setValue(`r${n}role`, r.role);
+          if (r.rank) {
+            const { setRank, setStars } = reserveRankState[n];
+            setRank(r.rank);
+            preselectRankFn(`r${n}rankOptionGrid`,`r${n}rankTriggerImg`,`r${n}rankTriggerName`, r.rank);
+            applyStarRange(`r${n}rankStarsWrap`,`r${n}rankStarsLabel`,`r${n}rankStarsInput`, r.rank);
+            if (r.rankStars) {
+              setStars(r.rankStars);
+              const inp = document.getElementById(`r${n}rankStarsInput`);
+              if (inp) inp.value = r.rankStars;
+            }
+          }
+        });
+      }
+      updateAll();
+
+      /* ── Step navigation buttons ────────── */
+      document.getElementById("next1").onclick = () => goStep(2);
+      document.getElementById("prev2").onclick = () => goStep(1);
+      document.getElementById("next2").onclick = () => goStep(3);
+      document.getElementById("prev3").onclick = () => goStep(2);
+      document.getElementById("next3").onclick = () => goStep(4);
+      document.getElementById("prev4").onclick = () => goStep(3);
+
+      /* ── Role chip selection ────────────── */
+      document.getElementById("roleGrid").addEventListener("click", e => {
+        const chip = e.target.closest(".role-chip");
+        if (!chip) return;
+        document.querySelectorAll(".role-chip").forEach(c => c.classList.remove("active"));
+        chip.classList.add("active");
+        selectedRole = chip.dataset.role;
+        document.getElementById("errRole").classList.remove("show");
+        updateAll();
+      });
+
+      /* ── Current rank dropdown ──────────── */
+      setupRankDropdown({
+        triggerId: "rankTrigger", triggerImgId: "rankTriggerImg",
+        triggerNameId: "rankTriggerName", panelId: "rankPanel",
+        optionGridId: "rankOptionGrid",
+        starsWrapId: "rankStarsWrap", starsLabelId: "rankStarsLabel",
+        starsInputId: "rankStarsInput", errId: "errRank",
+        setSelected: v => { selectedRank = v; },
+        setStars:    v => { selectedRankStars = v; }
+      });
+
+      /* ── Highest rank dropdown ──────────── */
+      setupRankDropdown({
+        triggerId: "highestRankTrigger", triggerImgId: "highestRankTriggerImg",
+        triggerNameId: "highestRankTriggerName", panelId: "highestRankPanel",
+        optionGridId: "highestRankOptionGrid",
+        starsWrapId: "highestRankStarsWrap", starsLabelId: "highestRankStarsLabel",
+        starsInputId: "highestRankStarsInput", errId: null,
+        setSelected: v => { selectedHighestRank = v; },
+        setStars:    v => { selectedHighestRankStars = v; }
+      });
+
+      /* ── Stars / Mythic-points inputs ──────────────────────────
+         Clamp max on every keystroke so the user can never exceed it.
+         Clamp min only on blur — otherwise typing "200" is impossible
+         because the "2" keystroke would instantly jump to 100, then the
+         "00" suffix pushes it to "10000" → clamped to 9999.
+      ─────────────────────────────────────────────────────────── */
+      function wireStarsInput(inputId, getRange, setVal) {
+        const el = document.getElementById(inputId);
+        if (!el) return;
+
+        el.addEventListener("input", e => {
+          const r = getRange();
+          let v = parseInt(e.target.value);
+          // Only cap at max while typing — never force min mid-keystroke
+          if (r && !isNaN(v) && v > r.max) { e.target.value = r.max; v = r.max; }
+          setVal(isNaN(v) ? 0 : v);
+          updateAll();
+        });
+
+        el.addEventListener("blur", e => {
+          const r = getRange();
+          let v = parseInt(e.target.value);
+          if (r) {
+            // On leaving the field, enforce the full range
+            if (isNaN(v) || v < r.min) { v = r.min; }
+            if (v > r.max)             { v = r.max; }
+            e.target.value = v;
+          }
+          setVal(isNaN(v) ? 0 : v);
+          updateAll();
+        });
+      }
+
+      wireStarsInput(
+        "rankStarsInput",
+        () => RANK_STAR_RANGES[selectedRank],
+        v  => { selectedRankStars = v; }
+      );
+      wireStarsInput(
+        "highestRankStarsInput",
+        () => RANK_STAR_RANGES[selectedHighestRank],
+        v  => { selectedHighestRankStars = v; }
+      );
+
+      // ── Member rank dropdowns (2–5) ───────────────────────
+      [
+        { n:2, get:()=>selectedM2Rank, set:v=>{selectedM2Rank=v;}, setS:v=>{selectedM2RankStars=v;}, getS:()=>selectedM2Rank },
+        { n:3, get:()=>selectedM3Rank, set:v=>{selectedM3Rank=v;}, setS:v=>{selectedM3RankStars=v;}, getS:()=>selectedM3Rank },
+        { n:4, get:()=>selectedM4Rank, set:v=>{selectedM4Rank=v;}, setS:v=>{selectedM4RankStars=v;}, getS:()=>selectedM4Rank },
+        { n:5, get:()=>selectedM5Rank, set:v=>{selectedM5Rank=v;}, setS:v=>{selectedM5RankStars=v;}, getS:()=>selectedM5Rank },
+      ].forEach(({ n, set, setS, getS }) => {
+        setupRankDropdown({
+          triggerId:     `m${n}rankTrigger`,
+          triggerImgId:  `m${n}rankTriggerImg`,
+          triggerNameId: `m${n}rankTriggerName`,
+          panelId:       `m${n}rankPanel`,
+          optionGridId:  `m${n}rankOptionGrid`,
+          starsWrapId:   `m${n}rankStarsWrap`,
+          starsLabelId:  `m${n}rankStarsLabel`,
+          starsInputId:  `m${n}rankStarsInput`,
+          errId:         null,
+          setSelected:   set,
+          setStars:      setS,
+        });
+        wireStarsInput(
+          `m${n}rankStarsInput`,
+          () => RANK_STAR_RANGES[getS()],
+          setS
+        );
+      });
+
+      // ── Reserve rank dropdowns (R1–R2) ───────────────────
+      [
+        { n:1, set:v=>{selectedR1Rank=v;}, setS:v=>{selectedR1RankStars=v;}, getS:()=>selectedR1Rank },
+        { n:2, set:v=>{selectedR2Rank=v;}, setS:v=>{selectedR2RankStars=v;}, getS:()=>selectedR2Rank },
+      ].forEach(({ n, set, setS, getS }) => {
+        setupRankDropdown({
+          triggerId:     `r${n}rankTrigger`,
+          triggerImgId:  `r${n}rankTriggerImg`,
+          triggerNameId: `r${n}rankTriggerName`,
+          panelId:       `r${n}rankPanel`,
+          optionGridId:  `r${n}rankOptionGrid`,
+          starsWrapId:   `r${n}rankStarsWrap`,
+          starsLabelId:  `r${n}rankStarsLabel`,
+          starsInputId:  `r${n}rankStarsInput`,
+          errId:         null,
+          setSelected:   set,
+          setStars:      setS,
+        });
+        wireStarsInput(
+          `r${n}rankStarsInput`,
+          () => RANK_STAR_RANGES[getS()],
+          setS
+        );
+      });
+
+      /* ── Team tag — force uppercase ─────── */
+      document.getElementById("teamTag").addEventListener("input", e => {
+        const pos = e.target.selectionStart;
+        e.target.value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g,"");
+        e.target.setSelectionRange(pos, pos);
+        updateAll();
+      });
+
+      /* ── Generic live listeners ─────────── */
+      ["teamName","displayName","mlId","serverRegion",
+       "m2name","m2role","m3name","m3role",
+       "m4name","m4role","m5name","m5role",
+       "r1name","r1role","r2name","r2role"
+      ].forEach(id => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.addEventListener("input",  updateAll);
+        el.addEventListener("change", updateAll);
+      });
+
+      /* ── Member badge fill ──────────────── */
+      [2,3,4,5].forEach(n => {
+        document.getElementById(`m${n}name`).addEventListener("input", () => {
+          const filled = !!document.getElementById(`m${n}name`).value.trim();
+          document.getElementById(`badge${n}`).classList.toggle("filled", filled);
+        });
+      });
+      /* ── Reserve badge fill ─────────────── */
+      [1,2].forEach(n => {
+        const el = document.getElementById(`r${n}name`);
+        if (!el) return;
+        el.addEventListener("input", () => {
+          document.getElementById(`badge_r${n}`)?.classList.toggle("filled", !!el.value.trim());
+        });
+      });
+
+      /* ── Form submit ────────────────────── */
+      document.getElementById("teamForm").addEventListener("submit", async e => {
+        e.preventDefault();
+        const teamName    = document.getElementById("teamName").value.trim();
+        const teamTag     = document.getElementById("teamTag").value.trim();
+        const displayName = document.getElementById("displayName").value.trim();
+        const mlId        = document.getElementById("mlId").value.trim();
+
+        // Full cross-step validation — only enforced at submit
+        const isValid = updateValidationSummary(true);
+        if (!isValid) {
+          // Make sure user is on Step 4 to see the error summary
+          if (currentStep !== 4) goStep(4);
+          return;
+        }
+        // Clear summary on success
+        updateValidationSummary(false);
+
+        const btn = document.getElementById("submitBtn");
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner"></span> Menyimpan...';
+        document.getElementById("alertError").classList.remove("show");
+
+        const mRanks = {
+          2:{ rank:selectedM2Rank, rankStars:selectedM2RankStars },
+          3:{ rank:selectedM3Rank, rankStars:selectedM3RankStars },
+          4:{ rank:selectedM4Rank, rankStars:selectedM4RankStars },
+          5:{ rank:selectedM5Rank, rankStars:selectedM5RankStars },
+        };
+        const members = [2,3,4,5].map(n => ({
+          name:      document.getElementById(`m${n}name`).value.trim(),
+          mlId:      document.getElementById(`m${n}id`).value.trim(),
+          role:      document.getElementById(`m${n}role`).value,
+          rank:      mRanks[n].rank,
+          rankStars: mRanks[n].rankStars,
+        }));
+        const rRanks = {
+          1:{ rank:selectedR1Rank, rankStars:selectedR1RankStars },
+          2:{ rank:selectedR2Rank, rankStars:selectedR2RankStars },
+        };
+        const reserves = [1,2].map(n => ({
+          name:      document.getElementById(`r${n}name`).value.trim(),
+          mlId:      document.getElementById(`r${n}id`).value.trim(),
+          role:      document.getElementById(`r${n}role`).value,
+          rank:      rRanks[n].rank,
+          rankStars: rRanks[n].rankStars,
+        })).filter(r => r.name);
+
+        try {
+          await set(ref(db, `teams/${user.uid}`), {
+            teamName, teamTag, displayName, mlId,
+            captainRole:             selectedRole,
+            captainRank:             selectedRank,
+            captainRankStars:        selectedRankStars,
+            captainHighestRank:      selectedHighestRank,
+            captainHighestRankStars: selectedHighestRankStars,
+            serverRegion: document.getElementById("serverRegion").value,
+            members,
+            reserves,
+            uid: user.uid,
+            createdAt: existingCreatedAt || Date.now()
+          });
+          existingCreatedAt = existingCreatedAt || Date.now();
+          document.getElementById("alertSuccess").classList.add("show");
+          setTimeout(() =>
+            document.getElementById("alertSuccess").classList.remove("show"), 3500);
+        } catch {
+          document.getElementById("errMsg").textContent =
+            "Ralat menyimpan data. Sila cuba lagi.";
+          document.getElementById("alertError").classList.add("show");
+        } finally {
+          btn.disabled = false;
+          btn.innerHTML = "🏆 &nbsp;Daftar Pasukan — Sertai Tournament";
+        }
+      });
+
+    }); // end requirePlayer
+
+    /* ── goStep — free navigation, no validation gate ── */
+    function goStep(n) {
+      if (n < 1 || n > 4) return;
+
+      // Track furthest step reached for progress indicator
+      if (n > furthestStep) furthestStep = n;
+
+      document.getElementById(`panel${currentStep}`).classList.remove("active");
+      document.getElementById(`panel${n}`).classList.add("active");
+      currentStep = n;
+      updateStepUI();
+      updateAll();
+      if (n === 4) { buildReview(); updateValidationSummary(false); }
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function updateStepUI() {
+      [1,2,3,4].forEach(i => {
+        const item   = document.getElementById(`si${i}`);
+        const circle = document.getElementById(`sc${i}`);
+        item.classList.remove("active","done");
+        if (i === currentStep) {
+          item.classList.add("active");
+          circle.textContent = i;
+        } else if (i <= furthestStep) {
+          // Show ✓ for every step the user has already visited
+          item.classList.add("done");
+          circle.textContent = "✓";
+        } else {
+          circle.textContent = i;
+        }
+      });
+      [1,2,3].forEach(i => {
+        const conn = document.getElementById(`scon${i}`);
+        conn.classList.toggle("done", i < furthestStep);
+      });
+      // Progress bar reflects furthest step reached
+      const pct = ((furthestStep - 1) / 3) * 100;
+      document.getElementById("progressFill").style.width = pct + "%";
+      document.getElementById("prevStepLabel").textContent =
+        `Langkah ${currentStep} / 4`;
+    }
+
+    /* ── validateAll — full cross-step validation for submit ── */
+    function validateAll() {
+      const errors = { 1: [], 2: [], 3: [] };
+
+      // Step 1
+      if (!document.getElementById("teamName").value.trim())
+        errors[1].push({ label: "Nama Pasukan", field: "teamName", err: "errTeamName" });
+      if (!document.getElementById("teamTag").value.trim())
+        errors[1].push({ label: "Team Tag", field: "teamTag", err: "errTeamTag" });
+
+      // Step 2
+      if (!document.getElementById("displayName").value.trim())
+        errors[2].push({ label: "Nama Kapten", field: "displayName", err: "errDisplayName" });
+      if (!document.getElementById("mlId").value.trim())
+        errors[2].push({ label: "ML ID Kapten", field: "mlId", err: "errMlId" });
+      if (!selectedRole)
+        errors[2].push({ label: "Peranan Kapten", field: null, err: "errRole" });
+      if (!selectedRank)
+        errors[2].push({ label: "Rank Kapten", field: null, err: "errRank" });
+
+      return errors;
+    }
+
+    /* ── updateValidationSummary — render errors in Step 4 ── */
+    function updateValidationSummary(showErrors) {
+      const summary = document.getElementById("valSummary");
+      const body    = document.getElementById("valSummaryBody");
+
+      if (!showErrors) { summary.classList.remove("show"); return; }
+
+      const errors = validateAll();
+      const stepLabels = { 1: "Langkah 1 — Identiti Pasukan", 2: "Langkah 2 — Maklumat Kapten" };
+      let hasAny = false;
+      let html = "";
+
+      [1,2].forEach(s => {
+        if (!errors[s].length) return;
+        hasAny = true;
+        html += `
+          <div class="val-step-group">
+            <div class="val-step-row">
+              <span class="val-step-name">${stepLabels[s]}</span>
+              <button type="button" class="val-goto-btn" onclick="goStep(${s})">
+                → Pergi ke Langkah ${s}
+              </button>
+            </div>
+            <div class="val-chips">
+              ${errors[s].map(e => `
+                <span class="val-chip" onclick="goStep(${s})">
+                  ✕ ${e.label}
+                </span>`).join("")}
+            </div>
+          </div>`;
+      });
+
+      if (hasAny) {
+        body.innerHTML = html;
+        summary.classList.add("show");
+
+        // Also highlight the actual inline errors so they're visible when user jumps back
+        [1,2].forEach(s => {
+          errors[s].forEach(e => {
+            if (e.field)  validateField(e.field, e.err, true);
+            else if (e.err) document.getElementById(e.err)?.classList.add("show");
+          });
+        });
+      } else {
+        summary.classList.remove("show");
+      }
+
+      return !hasAny;
+    }
+
+    /* ── updateAll: preview + strength ─────── */
+    function updateAll() {
+      updatePreview();
+      updateStrength();
+      updateCompletion();
+    }
+
+    /* ── updatePreview ──────────────────────── */
+    function updatePreview() {
+      const teamName    = document.getElementById("teamName").value.trim()    || "Nama Pasukan";
+      const teamTag     = document.getElementById("teamTag").value.trim();
+      const captainName = document.getElementById("displayName").value.trim() || "Kapten";
+      const region      = document.getElementById("serverRegion").value       || "MY/SG";
+
+      document.getElementById("prevName").textContent = teamName;
+      document.getElementById("prevTag").textContent  = teamTag ? `[ ${teamTag} ]` : "[ — ]";
+      document.getElementById("prevCaptain").textContent = captainName;
+      document.getElementById("prevServer").textContent  = region;
+      document.getElementById("prevRegionFooter").textContent = region;
+
+      /* Tag preview line */
+      const tagP = document.getElementById("tagPreview");
+      const raw  = document.getElementById("teamName").value.trim();
+      tagP.textContent = teamTag ? (raw ? `[ ${teamTag} ] ${raw}` : `[ ${teamTag} ]`) : "";
+
+      /* Rank info */
+      const rankColor = selectedRank ? (RANK_COLORS[selectedRank] || "#888") : null;
+      document.getElementById("prevCurrentRank").textContent = selectedRank || "—";
+      if (rankColor) {
+        document.getElementById("prevCurrentRank").style.color = rankColor;
+      } else {
+        document.getElementById("prevCurrentRank").style.color = "";
+      }
+      document.getElementById("prevHighestRank").textContent = selectedHighestRank || "—";
+
+      /* Roster */
+      const captainRoleIcon = selectedRole ? ROLE_ICONS[selectedRole] : "";
+      let rosterHtml = `
+        <div class="prev-member">
+          <div class="prev-member-l">
+            <div class="prev-member-name">${escHtml(captainName)}</div>
+            <div class="prev-captain-badge">Kapten</div>
+          </div>
+          <div class="prev-role-pill">${captainRoleIcon} ${selectedRole || "—"}</div>
+        </div>`;
+
+      let filledCount = 1;
+      [2,3,4,5].forEach(n => {
+        const name = document.getElementById(`m${n}name`)?.value.trim();
+        if (name) {
+          filledCount++;
+          const role = document.getElementById(`m${n}role`)?.value;
+          const icon = role ? ROLE_ICONS[role] : "";
+          rosterHtml += `
+            <div class="prev-member">
+              <div class="prev-member-l">
+                <div class="prev-member-name">${escHtml(name)}</div>
+              </div>
+              <div class="prev-role-pill">${icon} ${role || "—"}</div>
+            </div>`;
+        } else {
+          const label = n <= 3 ? `Ahli ${n}` : `Ahli ${n} (Pilihan)`;
+          rosterHtml += `
+            <div class="prev-slot-empty">
+              <div class="prev-slot-line"></div>
+              <span class="prev-slot-lbl">${label}</span>
+              <div class="prev-slot-line"></div>
+            </div>`;
+        }
+      });
+
+      document.getElementById("prevRoster").innerHTML = rosterHtml;
+      document.getElementById("prevRosterCount").textContent = `${filledCount} / 5`;
+
+      /* Reserve roster in preview */
+      let reserveHtml = "";
+      let reserveCount = 0;
+      [
+        { n:1, rank: selectedR1Rank },
+        { n:2, rank: selectedR2Rank },
+      ].forEach(({ n, rank }) => {
+        const name = document.getElementById(`r${n}name`)?.value.trim();
+        if (name) {
+          reserveCount++;
+          const role = document.getElementById(`r${n}role`)?.value;
+          const icon = role ? ROLE_ICONS[role] : "";
+          reserveHtml += `
+            <div class="prev-member" style="opacity:.85;border-left:2px solid rgba(99,102,241,.35);padding-left:8px;margin-left:4px">
+              <div class="prev-member-l">
+                <div class="prev-member-name" style="font-size:12px">${escHtml(name)}</div>
+                <div style="font-size:9px;letter-spacing:1.5px;color:#818cf8;font-family:var(--font-mono);text-transform:uppercase">Rizab</div>
+              </div>
+              <div class="prev-role-pill">${icon} ${role || "—"}</div>
+            </div>`;
+        }
+      });
+      const reserveEl = document.getElementById("prevReserveRoster");
+      if (reserveEl) {
+        reserveEl.innerHTML = reserveCount > 0
+          ? `<div style="font-size:9px;letter-spacing:1.5px;color:rgba(99,102,241,.7);font-family:var(--font-mono);text-transform:uppercase;margin:8px 0 4px;padding-top:6px;border-top:1px dashed rgba(99,102,241,.2)">Pemain Rizab</div>${reserveHtml}`
+          : "";
+      }
+    }
+
+    /* ── updateStrength ─────────────────────── */
+    function updateStrength() {
+      // Include ALL active members and reserve players in the calculation
+      const ranks = [
+        selectedRank,
+        selectedM2Rank, selectedM3Rank, selectedM4Rank, selectedM5Rank,
+        selectedR1Rank, selectedR2Rank
+      ];
+      const weights = ranks.filter(Boolean).map(r => RANK_WEIGHTS[r] || 0).filter(w => w > 0);
+
+      if (!weights.length) {
+        ["strengthAvg","strengthTop","strengthTier",
+         "prevSAvg","prevSTop","prevSTier"].forEach(id => {
+          document.getElementById(id).textContent = "—";
+        });
+        return;
+      }
+
+      const avg = weights.reduce((a,b) => a+b, 0) / weights.length;
+      const top = Math.max(...weights);
+      const topRank = Object.keys(RANK_WEIGHTS).find(k => RANK_WEIGHTS[k] === top) || "—";
+      const avgRank = Object.keys(RANK_WEIGHTS).reduce((best, k) => {
+        return Math.abs(RANK_WEIGHTS[k] - avg) < Math.abs(RANK_WEIGHTS[best] - avg) ? k : best;
+      }, "Warrior");
+      const tier = TIER_CONFIG.find(t => avg >= t.min && avg <= t.max)?.label || "—";
+
+      document.getElementById("strengthAvg").textContent = avgRank;
+      document.getElementById("strengthTop").textContent = topRank;
+      document.getElementById("strengthTier").textContent = tier;
+      document.getElementById("prevSAvg").textContent = avgRank;
+      document.getElementById("prevSTop").textContent  = topRank;
+      document.getElementById("prevSTier").textContent = tier;
+    }
+
+    /* ── updateCompletion ───────────────────── */
+    function updateCompletion() {
+      const checks = [
+        { label: "Nama Pasukan",  ok: !!document.getElementById("teamName").value.trim() },
+        { label: "Team Tag",      ok: !!document.getElementById("teamTag").value.trim() },
+        { label: "Nama Kapten",   ok: !!document.getElementById("displayName").value.trim() },
+        { label: "ML ID Kapten",  ok: !!document.getElementById("mlId").value.trim() },
+        { label: "Peranan",       ok: !!selectedRole },
+        { label: "Rank Kapten",   ok: !!selectedRank },
+        { label: "Ahli 2",        ok: !!document.getElementById("m2name").value.trim() },
+        { label: "Ahli 3",        ok: !!document.getElementById("m3name").value.trim() }
+      ];
+      const done  = checks.filter(c => c.ok).length;
+      const total = checks.length;
+      const pct   = Math.round((done / total) * 100);
+
+      document.getElementById("prevCompPct").textContent  = pct + "%";
+      document.getElementById("prevCompFill").style.width = pct + "%";
+
+      /* Readiness (step 4) */
+      document.getElementById("readinessPct").textContent  = pct + "%";
+      document.getElementById("readinessFill").style.width = pct + "%";
+      document.getElementById("readinessChecks").innerHTML = checks.map(c => `
+        <span class="r-check${c.ok ? " ok" : ""}">
+          <span class="r-dot"></span>${c.label}
+        </span>`).join("");
+    }
+
+    /* ── buildReview ────────────────────────── */
+    function buildReview() {
+      const teamName    = document.getElementById("teamName").value.trim();
+      const teamTag     = document.getElementById("teamTag").value.trim();
+      const displayName = document.getElementById("displayName").value.trim();
+      const mlId        = document.getElementById("mlId").value.trim();
+      const region      = document.getElementById("serverRegion").value || "MY/SG";
+
+      const rows = [
+        { lbl:"Nama Pasukan",   val: teamName    || "(belum diisi)", empty: !teamName },
+        { lbl:"Team Tag",       val: teamTag      ? `[ ${teamTag} ]` : "(belum diisi)", empty: !teamTag, gold: !!teamTag },
+        { lbl:"Nama Kapten",    val: displayName  || "(belum diisi)", empty: !displayName },
+        { lbl:"ML ID Kapten",   val: mlId         || "(belum diisi)", empty: !mlId },
+        { lbl:"Peranan Kapten", val: selectedRole ? `${ROLE_ICONS[selectedRole]} ${selectedRole}` : "(belum dipilih)", empty: !selectedRole },
+        { lbl:"Rank Semasa",    val: selectedRank || "(belum dipilih)", empty: !selectedRank },
+        { lbl:"Rank Tertinggi", val: selectedHighestRank || "—", empty: false },
+        { lbl:"Server Region",  val: region, empty: false }
+      ];
+
+      document.getElementById("reviewGrid").innerHTML = rows.map(r => `
+        <div class="review-item">
+          <div class="review-item-lbl">${r.lbl}</div>
+          <div class="review-item-val${r.empty ? " empty" : ""}${r.gold ? " gold" : ""}">${escHtml(r.val)}</div>
+        </div>`).join("");
+    }
+
+    /* ── Rank dropdown helper ───────────────── */
+    function setupRankDropdown({ triggerId, triggerImgId, triggerNameId, panelId,
+                                  optionGridId, starsWrapId, starsLabelId, starsInputId,
+                                  errId, setSelected, setStars }) {
+      const trigger = document.getElementById(triggerId);
+      const panel   = document.getElementById(panelId);
+      const grid    = document.getElementById(optionGridId);
+      const trigImg = document.getElementById(triggerImgId);
+      const trigNm  = document.getElementById(triggerNameId);
+
+      trigger.addEventListener("click", () => {
+        const open = panel.classList.contains("open");
+        closeAllPanels();
+        if (!open) {
+          trigger.classList.add("open");
+          panel.classList.add("open");
+        }
+      });
+
+      grid.addEventListener("click", e => {
+        const opt = e.target.closest(".rank-option");
+        if (!opt) return;
+        const rank = opt.dataset.rank;
+        grid.querySelectorAll(".rank-option").forEach(o => o.classList.remove("selected"));
+        opt.classList.add("selected");
+        setSelected(rank);
+        trigImg.src = opt.dataset.img;
+        trigImg.classList.add("visible");
+        trigNm.textContent = rank;
+        trigNm.classList.remove("placeholder");
+        setStars(0);
+        applyStarRange(starsWrapId, starsLabelId, starsInputId, rank);
+        if (starsInputId) document.getElementById(starsInputId).value = "";
+        if (errId) document.getElementById(errId)?.classList.remove("show");
+        trigger.classList.remove("open");
+        panel.classList.remove("open");
+        updateAll();
+      });
+
+      document.addEventListener("click", e => {
+        const wrap = trigger.closest(".rank-select");
+        if (wrap && !wrap.contains(e.target)) {
+          trigger.classList.remove("open");
+          panel.classList.remove("open");
+        }
+      });
+    }
+
+    function closeAllPanels() {
+      document.querySelectorAll(".rank-select-trigger.open").forEach(t => t.classList.remove("open"));
+      document.querySelectorAll(".rank-select-panel.open").forEach(p => p.classList.remove("open"));
+    }
+
+    /* ── preselectRankFn ────────────────────── */
+    function preselectRankFn(gridId, imgId, nameId, rank) {
+      const opt = document.querySelector(`#${gridId} .rank-option[data-rank="${rank}"]`);
+      if (!opt) return;
+      document.querySelectorAll(`#${gridId} .rank-option`).forEach(o => o.classList.remove("selected"));
+      opt.classList.add("selected");
+      const img = document.getElementById(imgId);
+      img.src = opt.dataset.img;
+      img.classList.add("visible");
+      const lbl = document.getElementById(nameId);
+      lbl.textContent = rank;
+      lbl.classList.remove("placeholder");
+    }
+
+    /* ── applyStarRange ─────────────────────── */
+    function applyStarRange(wrapId, labelId, inputId, rank) {
+      const range = RANK_STAR_RANGES[rank];
+      if (!range || !wrapId) {
+        if (wrapId) document.getElementById(wrapId).style.display = "none";
+        return;
+      }
+      document.getElementById(wrapId).style.display = "block";
+      const labelEl = document.getElementById(labelId);
+      if (labelEl) {
+        const word = RANKS_WITH_STARS.includes(rank) ? "Bintang" : "Poin Mythic";
+        labelEl.textContent = `Bilangan ${word} (${range.label})`;
+      }
+      const input = document.getElementById(inputId);
+      if (input) {
+        input.min = range.min;
+        input.max = range.max === 9999 ? "" : range.max;
+        input.placeholder = `${range.min}–${range.max === 9999 ? "∞" : range.max}`;
+      }
+    }
+
+    /* ── Helpers ────────────────────────────── */
+    function setValue(id, val) {
+      const el = document.getElementById(id);
+      if (el && val !== undefined && val !== null) el.value = val;
+    }
+
+    function validateField(inputId, errId, hasError) {
+      const input = document.getElementById(inputId);
+      const err   = document.getElementById(errId);
+      if (hasError) {
+        input?.classList.add("error");
+        err?.classList.add("show");
+        return false;
+      }
+      input?.classList.remove("error");
+      err?.classList.remove("show");
+      return true;
+    }
+
+    function escHtml(str) {
+      return String(str)
+        .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+    }
+
+    /* ── Init UI ────────────────────────────── */
+    updateStepUI();
+  </script>
+</body>
+</html>

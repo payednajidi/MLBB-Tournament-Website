@@ -1,0 +1,25 @@
+# k6 load test output
+k6-results-summary.json
+
+# Node / local dev server
+node_modules/
+.env
+.env.local
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor
+.vscode/
+.idea/
+
+# Firebase CLI cache
+.firebase/
+
+# Claude Code internal config
+.claude/
+
+# Chrome browser profiles (local only — all variants)
+.chrome-setup*/

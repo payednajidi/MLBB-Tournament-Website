@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tournament Details - MLBB OPS</title>
+  <link rel="stylesheet" href="css/global.css">
+  <style>
+    body {
+      background-image:
+        linear-gradient(to bottom, rgba(5,3,14,.85) 0%, rgba(5,3,14,.78) 40%, rgba(5,3,14,.92) 100%),
+        url('assets/Teamsetup_page_wallpaper.png');
+      background-size: cover; background-position: center top;
+      background-attachment: fixed; background-repeat: no-repeat;
+    }
+    .details-wrap { max-width: 1100px; margin: 0 auto; padding: 0 1.5rem 5rem; }
+
+    /* ── Hero poster ─────────────────────────── */
+    .hero-poster {
+      position: relative; width: 100%; min-height: 280px;
+      display: flex; align-items: flex-end;
+      overflow: hidden; border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+      margin-bottom: 1.5rem;
+    }
+    .hero-poster-img {
+      position: absolute; inset: 0;
+      width: 100%; height: 100%; object-fit: cover;
+    }
+    .hero-poster-gradient {
+      position: absolute; inset: 0;
+      background: linear-gradient(to bottom, rgba(0,0,0,.25) 0%, rgba(5,3,14,.92) 100%);
+    }
+    .hero-poster-placeholder {
+      position: absolute; inset: 0;
+      background: linear-gradient(135deg, #0a1220 0%, #14203a 100%);
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--font-head); font-size: 100px;
+      color: rgba(240,165,0,.08); letter-spacing: 4px;
+    }
+    .hero-content {
+      position: relative; z-index: 1;
+      padding: 2rem 2rem 1.75rem;
+      width: 100%;
+    }
+    .hero-badges { display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
+    .hero-badge {
+      font-family: var(--font-mono); font-size: 9px; letter-spacing: 1.5px;
+      text-transform: uppercase; padding: 4px 10px; border-radius: 4px; font-weight: 700;
+    }
+    .hero-badge.live     { background: rgba(239,68,68,.9); color:#fff; }
+    .hero-badge.reg      { background: rgba(34,197,94,.85); color:#fff; }
+    .hero-badge.upcoming { background: rgba(99,102,241,.85); color:#fff; }
+    .hero-badge.done     { background: rgba(100,100,100,.8); color:#ddd; }
+    .hero-badge.marhaen  { background: rgba(34,197,94,.85); color:#fff; }
+    .hero-badge.jaguh    { background: rgba(59,130,246,.85); color:#fff; }
+    .hero-badge.sultan   { background: rgba(234,179,8,.9);  color:#000; }
+    .hero-title {
+      font-family: var(--font-head); font-size: clamp(22px,4vw,38px);
+      font-weight: 800; letter-spacing: 2px; color: #fff;
+      text-shadow: 0 3px 12px rgba(0,0,0,.7); margin: 0;
+    }
+
+    /* ── Info grid ───────────────────────────── */
+    .info-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(160px,1fr));
+      gap: 10px; margin-bottom: 1.25rem;
+    }
+    .info-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 12px 14px;
+    }
+    .info-lbl {
+      font-family: var(--font-mono); font-size: 9px; letter-spacing: 2px;
+      text-transform: uppercase; color: var(--txt3); margin-bottom: 4px;
+    }
+    .info-val {
+      font-family: var(--font-head); font-size: 15px; font-weight: 700;
+      color: var(--txt); letter-spacing: .5px;
+    }
+    .info-val.gold  { color: var(--gold); }
+    .info-val.green { color: var(--green); }
+    .info-val.red   { color: var(--red); }
+
+    /* ── Section cards ──────────────────────── */
+    .section-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: var(--radius-lg); margin-bottom: 1rem; overflow: hidden;
+    }
+    .section-header {
+      padding: 14px 18px; border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; gap: 10px;
+    }
+    .section-icon {
+      width: 34px; height: 34px; flex-shrink: 0; border-radius: 8px;
+      display: flex; align-items: center; justify-content: center; font-size: 16px;
+      background: color-mix(in srgb, var(--gold) 12%, var(--bg3));
+      border: 1px solid color-mix(in srgb, var(--gold) 25%, transparent);
+    }
+    .section-title {
+      font-family: var(--font-head); font-size: 14px; letter-spacing: 1.2px;
+      color: var(--txt); font-weight: 700;
+    }
+    .section-body { padding: 18px; }
+
+    /* ── Stage format table ─────────────────── */
+    .stage-table { width: 100%; border-collapse: collapse; }
+    .stage-table th, .stage-table td {
+      padding: 9px 12px; text-align: left;
+      border-bottom: 1px solid var(--border);
+      font-size: 13px;
+    }
+    .stage-table th {
+      font-family: var(--font-mono); font-size: 9px; letter-spacing: 2px;
+      text-transform: uppercase; color: var(--txt3); background: var(--bg3);
+    }
+    .stage-table td { color: var(--txt2); }
+    .stage-table td strong {
+      font-family: var(--font-mono); color: var(--gold); font-size: 13px;
+    }
+    .stage-table tr:last-child td { border-bottom: none; }
+
+    /* ── Prize breakdown ────────────────────── */
+    .prize-row { display: flex; align-items: center; gap: 14px; padding: 10px 0; border-bottom: 1px solid var(--border); }
+    .prize-row:last-child { border-bottom: none; }
+    .prize-place {
+      font-family: var(--font-head); font-size: 18px; font-weight: 800;
+      color: var(--txt3); min-width: 32px; text-align: center;
+    }
+    .prize-place.p1 { color: var(--gold); }
+    .prize-place.p2 { color: #aaa; }
+    .prize-place.p3 { color: #c87941; }
+    .prize-name { flex: 1; font-size: 13px; color: var(--txt2); }
+    .prize-amount { font-family: var(--font-mono); font-size: 15px; font-weight: 700; color: var(--gold); }
+
+    /* ── Participant list ────────────────────── */
+    .participant-grid { display: grid; gap: 8px; }
+    .participant-chip {
+      display: flex; align-items: center; gap: 10px;
+      padding: 9px 12px; border: 1px solid var(--border);
+      background: var(--bg3); border-radius: var(--radius);
+    }
+    .participant-tag {
+      font-family: var(--font-mono); font-size: 11px; letter-spacing: 1px;
+      color: var(--gold); font-weight: 700;
+    }
+    .participant-name { font-size: 13px; color: var(--txt2); flex: 1; }
+    .participant-rank { font-size: 11px; color: var(--txt3); }
+
+    /* ── Rules ──────────────────────────────── */
+    .rules-body { font-size: 14px; color: var(--txt2); line-height: 1.75; white-space: pre-wrap; }
+
+    /* ── Bracket ─────────────────────────────── */
+    .bracket-scroll { overflow-x: auto; padding-bottom: 8px; }
+    .bracket-section { min-width: 700px; margin-bottom: 1.4rem; }
+    .bracket-title { color: var(--gold); font-size: 16px; margin-bottom: .6rem; font-family: var(--font-head); letter-spacing: 1px; }
+    .round-grid { display: grid; grid-auto-flow: column; grid-auto-columns: 210px; gap: 10px; align-items: start; }
+    .round { display: grid; gap: 8px; }
+    .round h4 { color: var(--txt3); font-size: 12px; margin-bottom: 2px; font-family: var(--font-mono); letter-spacing: 1.5px; text-transform: uppercase; }
+    .match-card { border: 1px solid var(--border); background: var(--bg3); border-radius: var(--radius); padding: 8px; display: grid; gap: 5px; }
+    .match-card.current { border-color: var(--gold); box-shadow: 0 0 0 2px color-mix(in srgb, var(--gold) 15%, transparent); }
+    .team-row { display: grid; grid-template-columns: 1fr auto; gap: 6px; align-items: center; color: var(--txt2); font-size: 12px; }
+    .team-row.winner { color: var(--gold); }
+    .team-row.loser  { color: var(--txt3); text-decoration: line-through; }
+    .team-score { font-family: var(--font-mono); color: var(--txt); font-size: 13px; }
+    .bye, .tbd { color: var(--txt3); }
+    .champion-box { border: 1px solid var(--gold); border-radius: var(--radius); padding: 1rem; background: var(--bg3); color: var(--gold); font-family: var(--font-head); letter-spacing: 1px; margin-top: .6rem; }
+
+    /* ── Application section ─────────────────── */
+    .apply-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: var(--radius-lg); padding: 22px; margin-bottom: 1rem;
+    }
+    .apply-status-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 7px 14px; border-radius: 6px;
+      font-family: var(--font-head); font-size: 13px; font-weight: 700; letter-spacing: 1px;
+      margin-bottom: 12px;
+    }
+    .apply-status-badge.pending_payment  { background: rgba(234,179,8,.12); color: var(--gold); border: 1px solid rgba(234,179,8,.3); }
+    .apply-status-badge.payment_submitted{ background: rgba(59,130,246,.12); color: #60a5fa; border: 1px solid rgba(59,130,246,.3); }
+    .apply-status-badge.pending_review   { background: rgba(99,102,241,.12); color: #a5b4fc; border: 1px solid rgba(99,102,241,.3); }
+    .apply-status-badge.approved         { background: rgba(34,197,94,.12); color: var(--green); border: 1px solid rgba(34,197,94,.3); }
+    .apply-status-badge.rejected         { background: rgba(239,68,68,.1); color: #f87171; border: 1px solid rgba(239,68,68,.25); }
+    .payment-proof-wrap { margin-top: 14px; }
+    .proof-preview { width: 100%; max-height: 200px; object-fit: contain; border-radius: var(--radius); border: 1px solid var(--border); margin-top: 8px; display: none; }
+
+    /* ── Loading ─────────────────────────────── */
+    .details-loading { text-align: center; padding: 4rem; color: var(--txt3); }
+
+    /* ── Nav ─────────────────────────────── */
+    .home-nav {
+      position: sticky; top: 0; z-index: 100;
+      background: color-mix(in srgb, var(--bg) 94%, transparent);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+    }
+    .home-nav-inner {
+      max-width: 1280px; margin: 0 auto; padding: 14px 1.5rem;
+      display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: nowrap;
+    }
+    .home-links {
+      display: flex; align-items: center; gap: 2px;
+      flex-wrap: nowrap; list-style: none; flex: 1 1 auto; overflow: hidden;
+    }
+    .home-links a {
+      display: inline-flex; align-items: center; min-height: 44px;
+      padding: 9px 10px; border-radius: var(--radius);
+      color: var(--txt2); font-family: var(--font-head); font-size: 14px;
+      font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; white-space: nowrap;
+      transition: all .2s;
+    }
+    .home-links a:hover, .home-links a.active { color: var(--gold); background: color-mix(in srgb, var(--gold) 12%, transparent); }
+    .home-actions { display: flex; gap: 8px; align-items: center; flex-shrink: 0; }
+
+    @media (max-width: 860px) {
+      .info-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 640px) {
+      .home-links a { font-size: 12px; padding: 7px 8px; }
+      .hero-content { padding: 1.5rem 1rem 1.25rem; }
+    }
+  </style>
+</head>
+<body>
+  <header class="home-nav">
+    <div class="home-nav-inner">
+      <a href="index.html" class="navbar-logo">
+        <img src="assets/logo_organizer.png" alt="HC" class="logo-img">
+        <span class="logo-name">Tournament <span>Organizer</span></span>
+      </a>
+      <ul class="home-links" id="navLinks">
+        <li><a href="index.html">Home</a></li>
+        <li><a class="active" href="schedule.html">Tournaments</a></li>
+        <li><a href="standing.html">Standing</a></li>
+        <li class="player-nav"><a href="team-setup.html">Daftar Pasukan</a></li>
+        <li class="admin-nav hidden"><a href="organizer.html">Dashboard</a></li>
+      </ul>
+      <div class="home-actions" id="navActions" style="visibility:hidden"></div>
+    </div>
+  </header>
+
+  <div class="details-wrap">
+    <div id="detailsRoot" class="details-loading"><span class="spinner"></span> Memuatkan...</div>
+  </div>
+
+  <script type="module">
+    import { auth, db } from "./js/firebase-config.js";
+    import { formatDate, formatPrize } from "./js/utils.js";
+    import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-auth.js";
+    import { ref, get, set, update, push } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-database.js";
+
+    const params = new URLSearchParams(location.search);
+    const tournamentId = params.get("id");
+    const root = document.getElementById("detailsRoot");
+
+    let currentUser = null;
+    let currentUserRole = "guest";
+    let currentTeam = null;
+    let tournament = null;
+    const teamNameCache = {};
+
+    // ── Auth state ──────────────────────────────────────────
+    onAuthStateChanged(auth, async (user) => {
+      const navActions = document.getElementById("navActions");
+      const adminNavItems = document.querySelectorAll(".admin-nav");
+      const playerNavItems = document.querySelectorAll(".player-nav");
+      currentUser = user;
+
+      if (!user) {
+        adminNavItems.forEach(n => n.classList.add("hidden"));
+        navActions.innerHTML = `<a class="btn btn-secondary btn-sm" href="login.html">Login</a><a class="btn btn-primary btn-sm" href="register.html">Sign Up</a>`;
+        navActions.style.visibility = "visible";
+        currentUserRole = "guest";
+      } else {
+        const roleSnap = await get(ref(db, `users/${user.uid}/role`));
+        currentUserRole = roleSnap.exists() ? roleSnap.val() : "player";
+        adminNavItems.forEach(n => n.classList.toggle("hidden", currentUserRole !== "organizer"));
+        playerNavItems.forEach(n => n.classList.toggle("hidden", currentUserRole === "organizer"));
+        navActions.innerHTML = `<span class="btn btn-primary btn-sm" style="cursor:default;pointer-events:none">${currentUserRole === "organizer" ? "Admin" : "Player"}</span><button class="btn btn-secondary btn-sm" id="logoutBtn">Log Keluar</button>`;
+        navActions.style.visibility = "visible";
+        document.getElementById("logoutBtn").addEventListener("click", async () => {
+          await signOut(auth); window.location.href = "login.html";
+        });
+        // Load player's team
+        if (currentUserRole === "player") {
+          const tSnap = await get(ref(db, `teams/${user.uid}`));
+          currentTeam = tSnap.exists() ? tSnap.val() : null;
+        }
+      }
+      // Re-render apply section after auth resolves
+      renderApplySection();
+    });
+
+    // ── Helpers ─────────────────────────────────────────────
+    function escHtml(str) {
+      return String(str || "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+    }
+
+    async function getTeamName(uid) {
+      if (!uid) return "TBD";
+      if (teamNameCache[uid]) return teamNameCache[uid];
+      const snap = await get(ref(db, `teams/${uid}/teamName`));
+      teamNameCache[uid] = snap.exists() ? snap.val() : "Pasukan Tidak Dikenali";
+      return teamNameCache[uid];
+    }
+
+    function stageFormatsHtml(sf, format) {
+      if (!sf) return '<p class="text-muted" style="font-size:13px">Format tidak ditetapkan</p>';
+      const rows = format === "single"
+        ? [
+            ["Pusingan Awal",    sf.earlyRounds   || "BO1"],
+            ["Quarter Final",    sf.quarterFinal  || "BO1"],
+            ["Semi Final",       sf.semiFinal     || "BO1"],
+            ["Grand Final",      sf.grandFinal    || "BO5"],
+          ]
+        : [
+            ["Upper Bracket",        sf.upperBracket       || "BO1"],
+            ["Upper Bracket Final",  sf.upperBracketFinal  || "BO3"],
+            ["Lower Bracket",        sf.lowerBracket       || "BO1"],
+            ["Lower Bracket Final",  sf.lowerBracketFinal  || "BO3"],
+            ["Grand Final",          sf.grandFinal         || "BO5"],
+          ];
+      return `<table class="stage-table">
+        <thead><tr><th>Peringkat</th><th>Format</th></tr></thead>
+        <tbody>
+          ${rows.map(([stage, fmt]) =>
+            `<tr><td>${stage}</td><td><strong>${fmt.toUpperCase()}</strong></td></tr>`
+          ).join("")}
+        </tbody>
+      </table>`;
+    }
+
+    // ── Bracket rendering ────────────────────────────────────
+    function renderTeamRow(uid, score, match) {
+      const isBye   = match.status === "bye" && !uid;
+      const label   = isBye ? "BYE" : (teamNameCache[uid] || "TBD");
+      const state   = match.winnerId === uid ? "winner" : match.loserId === uid ? "loser" : "";
+      const muted   = !uid ? (isBye ? "bye" : "tbd") : "";
+      return `<div class="team-row ${state} ${muted}"><span>${escHtml(label)}</span><span class="team-score">${Number(score)||0}</span></div>`;
+    }
+
+    function renderBracketSection(title, matches, bracket) {
+      const grouped = {};
+      Object.values(matches || {})
+        .filter(m => m.bracket === bracket)
+        .sort((a,b) => a.round - b.round || a.position - b.position)
+        .forEach(m => { grouped[m.round] ||= []; grouped[m.round].push(m); });
+      const rounds = Object.keys(grouped).map(Number).sort((a,b) => a-b);
+      if (!rounds.length) return "";
+      return `<div class="bracket-section">
+        <h3 class="bracket-title">${title}</h3>
+        <div class="round-grid">
+          ${rounds.map(r => `<div class="round">
+            <h4>Round ${r}</h4>
+            ${grouped[r].map(m => `<div class="match-card ${m.status==="upcoming"||m.status==="live"?"current":""}">
+              ${renderTeamRow(m.team1, m.score1, m)}
+              ${renderTeamRow(m.team2, m.score2, m)}
+            </div>`).join("")}
+          </div>`).join("")}
+        </div>
+      </div>`;
+    }
+
+    async function renderBracket(matches, format, winnerId) {
+      // Pre-load all team names
+      const allUids = new Set();
+      Object.values(matches||{}).forEach(m => {
+        if (m.team1) allUids.add(m.team1);
+        if (m.team2) allUids.add(m.team2);
+        if (m.winnerId) allUids.add(m.winnerId);
+      });
+      await Promise.all([...allUids].filter(u => !teamNameCache[u]).map(async u => {
+        teamNameCache[u] = await getTeamName(u);
+      }));
+
+      const allMatches = Object.values(matches||{});
+      if (!allMatches.length) return '<p class="text-muted">Bracket belum dijana.</p>';
+      return `<div class="bracket-scroll">
+        ${renderBracketSection("Winners Bracket", matches, "wb")}
+        ${format==="double" ? renderBracketSection("Losers Bracket", matches, "lb") : ""}
+        ${format==="double" ? renderBracketSection("Grand Final", matches, "gf") : ""}
+      </div>
+      <div class="champion-box">🏆 Champion: ${winnerId ? escHtml(teamNameCache[winnerId]||"—") : "Belum ditentukan"}</div>`;
+    }
+
+    // ── Application section ──────────────────────────────────
+    let existingApplication = null;
+
+    async function loadApplication() {
+      if (!currentUser || !tournamentId) return;
+      const snap = await get(ref(db, `applications/${tournamentId}/${currentUser.uid}`));
+      existingApplication = snap.exists() ? snap.val() : null;
+    }
+
+    const STATUS_LABELS = {
+      pending_payment:   "💳 Bayaran Diperlukan",
+      payment_submitted: "📤 Bukti Bayaran Dihantar",
+      pending_review:    "⏳ Menunggu Semakan",
+      approved:          "✅ Diluluskan",
+      rejected:          "❌ Ditolak",
+    };
+
+    function renderApplySection() {
+      const el = document.getElementById("applySection");
+      if (!el || !tournament) return;
+
+      const t = tournament;
+      const isFull = (t.teamCount||0) >= (t.maxTeams||1);
+      const isOpen = t.status === "registration";
+
+      // Guest
+      if (!currentUser) {
+        el.innerHTML = `<div class="apply-card">
+          <h3 style="margin-bottom:10px">Sertai Tournament</h3>
+          <p style="color:var(--txt2);font-size:14px;margin-bottom:14px">Log masuk untuk mendaftar pasukan anda dalam tournament ini.</p>
+          <a class="btn btn-primary" href="login.html">Log Masuk</a>
+        </div>`;
+        return;
+      }
+
+      // Admin view
+      if (currentUserRole === "organizer") {
+        el.innerHTML = `<div class="apply-card" style="background:rgba(240,165,0,.05);border-color:rgba(240,165,0,.2)">
+          <p style="font-family:var(--font-mono);font-size:11px;letter-spacing:2px;color:var(--gold);text-transform:uppercase">Admin View</p>
+          <p style="color:var(--txt2);font-size:13px;margin-top:6px">Urus pendaftaran pasukan dalam <a href="organizer.html" style="color:var(--gold)">Organizer Dashboard</a></p>
+        </div>`;
+        return;
+      }
+
+      // Player — no team registered
+      if (!currentTeam) {
+        el.innerHTML = `<div class="apply-card">
+          <h3 style="margin-bottom:10px">Daftar Masuk Tournament</h3>
+          <p style="color:var(--txt2);font-size:14px;margin-bottom:14px">Anda perlu mendaftarkan pasukan terlebih dahulu sebelum boleh menyertai tournament.</p>
+          <a class="btn btn-primary" href="team-setup.html">Daftar Pasukan →</a>
+        </div>`;
+        return;
+      }
+
+      // Already has application
+      if (existingApplication) {
+        const statusKey = existingApplication.status || "pending_review";
+        const statusLbl = STATUS_LABELS[statusKey] || statusKey;
+        el.innerHTML = `<div class="apply-card">
+          <h3 style="margin-bottom:12px">Status Permohonan Anda</h3>
+          <div class="apply-status-badge ${statusKey}">${statusLbl}</div>
+          <div style="margin-top:12px;font-size:13px;color:var(--txt2)">
+            <p><strong>Pasukan:</strong> [${escHtml(currentTeam.teamTag||"")}] ${escHtml(currentTeam.teamName||"")}</p>
+            <p style="margin-top:6px"><strong>Didaftar:</strong> ${formatDate(existingApplication.appliedAt)}</p>
+            ${existingApplication.status==="rejected" && existingApplication.rejectionReason
+              ? `<p style="margin-top:8px;color:var(--red)"><strong>Sebab Tolak:</strong> ${escHtml(existingApplication.rejectionReason)}</p>`
+              : ""}
+          </div>
+        </div>`;
+        return;
+      }
+
+      // Tournament closed / full
+      if (!isOpen) {
+        el.innerHTML = `<div class="apply-card">
+          <p style="color:var(--txt3);font-size:14px">Pendaftaran untuk tournament ini telah ditutup.</p>
+        </div>`;
+        return;
+      }
+      if (isFull) {
+        el.innerHTML = `<div class="apply-card">
+          <p style="color:var(--red);font-size:14px">Slot tournament telah penuh. Tiada tempat tersedia.</p>
+        </div>`;
+        return;
+      }
+
+      // Show apply form
+      const hasFee = (t.entryFee || 0) > 0;
+      el.innerHTML = `<div class="apply-card">
+        <h3 style="margin-bottom:6px">Daftar Masuk Tournament</h3>
+        <p style="color:var(--txt2);font-size:13px;margin-bottom:16px">Pasukan anda: <strong>[${escHtml(currentTeam.teamTag||"")}] ${escHtml(currentTeam.teamName||"")}</strong></p>
+
+        ${hasFee ? `
+        <div style="background:rgba(234,179,8,.08);border:1px solid rgba(234,179,8,.25);border-radius:var(--radius);padding:12px 14px;margin-bottom:16px">
+          <p style="font-family:var(--font-mono);font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:6px">💳 Bayaran Diperlukan</p>
+          <p style="font-size:14px;font-weight:700;color:var(--txt);">Yuran Penyertaan: ${formatPrize(t.entryFee)}</p>
+          <p style="font-size:12px;color:var(--txt3);margin-top:4px">Sila selesaikan pembayaran mengikut arahan dalam peraturan tournament, kemudian muat naik bukti bayaran.</p>
+        </div>
+        <div class="form-group payment-proof-wrap">
+          <label class="form-label" for="proofUrl">URL Bukti Pembayaran</label>
+          <input class="form-input" id="proofUrl" type="url" placeholder="https://i.imgur.com/... atau pautan imej lain">
+          <img id="proofPreview" class="proof-preview" src="" alt="Proof preview">
+          <p style="font-size:11px;color:var(--txt3);margin-top:4px">Muat naik imej ke Imgur/ImgBB dan tampal pautan terus imej di sini.</p>
+        </div>` : ""}
+
+        <div id="applyAlertError" class="alert alert-error" style="display:none"></div>
+        <button class="btn btn-primary btn-full" id="btnApply" style="margin-top:8px">
+          ${hasFee ? "📤 Hantar Permohonan & Bukti Bayaran" : "📝 Hantar Permohonan"}
+        </button>
+      </div>`;
+
+      // Proof URL preview
+      const proofInput = document.getElementById("proofUrl");
+      const proofPreview = document.getElementById("proofPreview");
+      if (proofInput && proofPreview) {
+        proofInput.addEventListener("input", () => {
+          const url = proofInput.value.trim();
+          if (url) {
+            proofPreview.src = url;
+            proofPreview.style.display = "block";
+            proofPreview.onerror = () => proofPreview.style.display = "none";
+          } else {
+            proofPreview.style.display = "none";
+          }
+        });
+      }
+
+      // Submit handler
+      document.getElementById("btnApply").addEventListener("click", async () => {
+        const errEl = document.getElementById("applyAlertError");
+        errEl.style.display = "none";
+        const proofUrl = document.getElementById("proofUrl")?.value.trim() || "";
+        if (hasFee && !proofUrl) {
+          errEl.textContent = "Sila masukkan URL bukti pembayaran.";
+          errEl.style.display = "block";
+          return;
+        }
+
+        const btn = document.getElementById("btnApply");
+        const origHtml = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner"></span> Menghantar...';
+
+        try {
+          const applicationData = {
+            teamUid:       currentUser.uid,
+            tournamentId,
+            teamName:      currentTeam.teamName || "",
+            teamTag:       currentTeam.teamTag  || "",
+            captainName:   currentTeam.displayName || "",
+            captainUid:    currentUser.uid,
+            status:        hasFee ? "payment_submitted" : "pending_review",
+            paymentProofUrl: proofUrl,
+            paymentAmount: t.entryFee || 0,
+            appliedAt:     Date.now(),
+            reviewedAt:    null,
+            reviewedBy:    null,
+            rejectionReason: null,
+          };
+
+          await set(ref(db, `applications/${tournamentId}/${currentUser.uid}`), applicationData);
+          existingApplication = applicationData;
+          renderApplySection(); // refresh
+        } catch (err) {
+          const errEl = document.getElementById("applyAlertError");
+          if (errEl) { errEl.textContent = "Ralat menghantar permohonan. Cuba lagi."; errEl.style.display = "block"; }
+          btn.disabled = false;
+          btn.innerHTML = origHtml;
+        }
+      });
+    }
+
+    // ── Main render ──────────────────────────────────────────
+    async function render() {
+      if (!tournamentId) {
+        root.innerHTML = '<div class="section-card"><div class="section-body empty-state">ID Tournament tidak ditemui.</div></div>';
+        return;
+      }
+
+      const snap = await get(ref(db, `tournaments/${tournamentId}`));
+      if (!snap.exists()) {
+        root.innerHTML = '<div class="section-card"><div class="section-body empty-state">Tournament tidak wujud.</div></div>';
+        return;
+      }
+      tournament = snap.val();
+      const t = tournament;
+
+      // Load application for current user
+      await loadApplication();
+
+      const isFull = (t.teamCount||0) >= (t.maxTeams||1);
+      const statusMap = {
+        live: ['live','🔴 LIVE'],
+        registration: ['reg','BUKA PENDAFTARAN'],
+        upcoming: ['upcoming','AKAN DATANG'],
+        done: ['done','SELESAI'],
+      };
+      const [statusCls, statusLbl] = statusMap[t.status] || ['upcoming', t.status||""];
+
+      // Pre-load approved participants
+      const approvedTeams = Object.entries(t.teams||{});
+      if (approvedTeams.length) {
+        await Promise.all(approvedTeams.map(([uid]) => getTeamName(uid)));
+      }
+
+      const bracketHtml = await renderBracket(t.matches, t.format, t.winnerId);
+
+      root.innerHTML = `
+      <!-- Hero poster -->
+      <div class="hero-poster" style="min-height:${t.posterUrl ? '360px' : '200px'}">
+        ${t.posterUrl
+          ? `<img class="hero-poster-img" src="${escHtml(t.posterUrl)}" alt="${escHtml(t.name)}" onerror="this.style.display='none'">`
+          : `<div class="hero-poster-placeholder">${escHtml((t.name||"?")[0])}</div>`
+        }
+        <div class="hero-poster-gradient"></div>
+        <div class="hero-content">
+          <div class="hero-badges">
+            <span class="hero-badge ${statusCls}">${statusLbl}</span>
+            <span class="hero-badge ${t.category||"marhaen"}">${(t.category||"").toUpperCase()}</span>
+          </div>
+          <h1 class="hero-title">${escHtml(t.name)}</h1>
+        </div>
+      </div>
+
+      <!-- Back link -->
+      <div style="margin-bottom:1rem">
+        <a href="schedule.html" style="font-family:var(--font-mono);font-size:12px;letter-spacing:1px;color:var(--txt3)">← Kembali ke Tournaments</a>
+      </div>
+
+      <!-- Key info grid -->
+      <div class="info-grid">
+        <div class="info-card">
+          <div class="info-lbl">Prize Pool</div>
+          <div class="info-val gold">${formatPrize(t.prizePool)}</div>
+        </div>
+        <div class="info-card">
+          <div class="info-lbl">Entry Fee</div>
+          <div class="info-val">${t.entryFee ? formatPrize(t.entryFee) : 'PERCUMA'}</div>
+        </div>
+        <div class="info-card">
+          <div class="info-lbl">Slots</div>
+          <div class="info-val ${isFull ? 'red' : 'green'}">${t.teamCount||0} / ${t.maxTeams||0}</div>
+        </div>
+        <div class="info-card">
+          <div class="info-lbl">Format Bracket</div>
+          <div class="info-val">${t.format==="double" ? "Double Elim" : "Single Elim"}</div>
+        </div>
+        <div class="info-card">
+          <div class="info-lbl">Daftar Buka</div>
+          <div class="info-val" style="font-size:12px">${formatDate(t.regOpenDate)}</div>
+        </div>
+        <div class="info-card">
+          <div class="info-lbl">Daftar Tutup</div>
+          <div class="info-val" style="font-size:12px">${formatDate(t.regCloseDate)}</div>
+        </div>
+        <div class="info-card">
+          <div class="info-lbl">Tarikh Mula</div>
+          <div class="info-val" style="font-size:12px">${formatDate(t.startDate)}</div>
+        </div>
+      </div>
+
+      <!-- Application section placeholder -->
+      <div id="applySection"></div>
+
+      ${t.description ? `
+      <div class="section-card">
+        <div class="section-header"><div class="section-icon">📋</div><span class="section-title">Deskripsi Tournament</span></div>
+        <div class="section-body"><p style="font-size:14px;color:var(--txt2);line-height:1.75;white-space:pre-wrap">${escHtml(t.description)}</p></div>
+      </div>` : ""}
+
+      <!-- Stage formats -->
+      <div class="section-card">
+        <div class="section-header"><div class="section-icon">🎮</div><span class="section-title">Format Perlawanan Setiap Peringkat</span></div>
+        <div class="section-body">${stageFormatsHtml(t.stageFormats, t.format)}</div>
+      </div>
+
+      <!-- Prize breakdown -->
+      ${(t.prizeBreakdown && (t.prizeBreakdown.first||t.prizeBreakdown.second||t.prizeBreakdown.third)) ? `
+      <div class="section-card">
+        <div class="section-header"><div class="section-icon">🏆</div><span class="section-title">Agihan Hadiah</span></div>
+        <div class="section-body">
+          ${t.prizeBreakdown.first  ? `<div class="prize-row"><div class="prize-place p1">🥇</div><div class="prize-name">Juara 1</div><div class="prize-amount">${formatPrize(t.prizeBreakdown.first)}</div></div>` : ""}
+          ${t.prizeBreakdown.second ? `<div class="prize-row"><div class="prize-place p2">🥈</div><div class="prize-name">Naib Juara</div><div class="prize-amount">${formatPrize(t.prizeBreakdown.second)}</div></div>` : ""}
+          ${t.prizeBreakdown.third  ? `<div class="prize-row"><div class="prize-place p3">🥉</div><div class="prize-name">Tempat 3</div><div class="prize-amount">${formatPrize(t.prizeBreakdown.third)}</div></div>` : ""}
+        </div>
+      </div>` : ""}
+
+      <!-- Rules -->
+      ${t.rules ? `
+      <div class="section-card">
+        <div class="section-header"><div class="section-icon">📜</div><span class="section-title">Peraturan & Syarat</span></div>
+        <div class="section-body"><p class="rules-body">${escHtml(t.rules)}</p></div>
+      </div>` : ""}
+
+      <!-- Community link -->
+      ${t.whatsappGroupId ? `
+      <div class="section-card">
+        <div class="section-header"><div class="section-icon">💬</div><span class="section-title">Komuniti / Kumpulan</span></div>
+        <div class="section-body">
+          <a href="${escHtml(t.whatsappGroupId)}" target="_blank" rel="noopener" class="btn btn-secondary">Sertai Kumpulan →</a>
+        </div>
+      </div>` : ""}
+
+      <!-- Approved participants -->
+      <div class="section-card">
+        <div class="section-header"><div class="section-icon">👥</div><span class="section-title">Peserta Diluluskan (${approvedTeams.length})</span></div>
+        <div class="section-body">
+          ${approvedTeams.length
+            ? `<div class="participant-grid">${approvedTeams.map(([uid]) =>
+                `<div class="participant-chip">
+                  <span class="participant-tag">[${escHtml(t.teams[uid]?.teamTag||"—")}]</span>
+                  <span class="participant-name">${escHtml(teamNameCache[uid]||"—")}</span>
+                </div>`
+              ).join("")}</div>`
+            : '<p style="color:var(--txt3);font-size:13px">Belum ada pasukan diluluskan.</p>'
+          }
+        </div>
+      </div>
+
+      <!-- Bracket -->
+      <div class="section-card">
+        <div class="section-header"><div class="section-icon">📊</div><span class="section-title">Bracket</span></div>
+        <div class="section-body">${bracketHtml}</div>
+      </div>
+      `;
+
+      // Render apply section now that DOM exists
+      renderApplySection();
+      document.title = `${t.name} - MLBB OPS`;
+    }
+
+    render();
+  </script>
+</body>
+</html>

@@ -1,0 +1,268 @@
+﻿<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Firebase Connection Test</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #0a0c10; color: #e8edf5;
+    font-family: 'Courier New', monospace;
+    min-height: 100vh;
+    display: flex; align-items: center; justify-content: center;
+    padding: 2rem;
+  }
+  .terminal {
+    width: 100%; max-width: 600px;
+    background: #0f1219;
+    border: 1px solid #2a3548;
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .terminal-bar {
+    background: #1a2030;
+    padding: 10px 16px;
+    display: flex; align-items: center; gap: 8px;
+    border-bottom: 1px solid #2a3548;
+  }
+  .dot { width: 12px; height: 12px; border-radius: 50%; }
+  .dot-red    { background: #e84040; }
+  .dot-yellow { background: #f0a500; }
+  .dot-green  { background: #25c97a; }
+  .terminal-title {
+    font-size: 12px; color: #8a98b0;
+    margin-left: 8px; letter-spacing: 1px;
+  }
+  .terminal-body { padding: 1.5rem; }
+  .line {
+    font-size: 13px; line-height: 1.8;
+    margin-bottom: 4px;
+  }
+  .line::before { content: '> '; color: #3d8ef0; }
+  .status {
+    display: flex; align-items: center; gap: 10px;
+    padding: 12px 16px;
+    border-radius: 6px;
+    margin: 8px 0;
+    font-size: 13px;
+  }
+  .status-pending { background: rgba(240,165,0,.1);  border: 1px solid rgba(240,165,0,.3);  color: #f0a500; }
+  .status-success { background: rgba(37,201,122,.1); border: 1px solid rgba(37,201,122,.3); color: #25c97a; }
+  .status-error   { background: rgba(232,64,64,.1);  border: 1px solid rgba(232,64,64,.3);  color: #e84040; }
+  .spinner {
+    width: 14px; height: 14px;
+    border: 2px solid rgba(240,165,0,.3);
+    border-top-color: #f0a500;
+    border-radius: 50%;
+    animation: spin .7s linear infinite;
+    flex-shrink: 0;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .icon { font-size: 16px; flex-shrink: 0; }
+  .divider { border: none; border-top: 1px solid #2a3548; margin: 1rem 0; }
+  .summary {
+    font-size: 12px; color: #8a98b0;
+    line-height: 1.7; margin-top: .5rem;
+  }
+  .summary b { color: #e8edf5; }
+  .next-steps {
+    margin-top: 1rem;
+    background: #161b26;
+    border: 1px solid #2a3548;
+    border-radius: 6px;
+    padding: 1rem;
+    font-size: 12px; line-height: 1.8;
+    color: #8a98b0;
+  }
+  .next-steps b { color: #f0a500; }
+  code {
+    background: #1a2030;
+    padding: 1px 6px; border-radius: 3px;
+    color: #5ba3ff; font-size: 11px;
+  }
+</style>
+</head>
+<body>
+
+<div class="terminal">
+  <div class="terminal-bar">
+    <div class="dot dot-red"></div>
+    <div class="dot dot-yellow"></div>
+    <div class="dot dot-green"></div>
+    <span class="terminal-title">firebase-connection-test.html</span>
+  </div>
+  <div class="terminal-body">
+
+    <div class="line">Memulakan Firebase Connection Test...</div>
+    <div class="line">Checking firebase-config.js...</div>
+
+    <hr class="divider">
+
+    <!-- Test 1: Config load -->
+    <div class="status status-pending" id="t1">
+      <div class="spinner" id="s1"></div>
+      <span id="m1">Memuatkan Firebase config...</span>
+    </div>
+
+    <!-- Test 2: Auth -->
+    <div class="status status-pending" id="t2">
+      <div class="spinner" id="s2"></div>
+      <span id="m2">Menguji Firebase Auth...</span>
+    </div>
+
+    <!-- Test 3: Realtime Database -->
+    <div class="status status-pending" id="t3">
+      <div class="spinner" id="s3"></div>
+      <span id="m3">Menguji Realtime Database...</span>
+    </div>
+
+    <!-- Test 4: Storage -->
+    <div class="status status-pending" id="t4">
+      <div class="spinner" id="s4"></div>
+      <span id="m4">Menguji Firebase Storage...</span>
+    </div>
+
+    <hr class="divider">
+
+    <!-- Result summary -->
+    <div class="summary" id="summary" style="display:none"></div>
+    <div class="next-steps" id="nextSteps" style="display:none"></div>
+
+  </div>
+</div>
+
+<script type="module">
+// â”€â”€ Import dari firebase-config.js kau â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+import { auth, db, storage } from "./js/firebase-config.js";
+import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-auth.js";
+import { ref, set, get, remove } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-database.js";
+import { ref as sRef, getDownloadURL } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-storage.js";
+
+let passed = 0;
+let failed = 0;
+
+// â”€â”€ Helper: update test status â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+function setResult(id, success, msg) {
+  const box  = document.getElementById(`t${id}`);
+  const spin = document.getElementById(`s${id}`);
+  const text = document.getElementById(`m${id}`);
+
+  box.className  = `status ${success ? 'status-success' : 'status-error'}`;
+  spin.outerHTML = `<span class="icon">${success ? 'âœ…' : 'âŒ'}</span>`;
+  text.textContent = msg;
+
+  if (success) passed++; else failed++;
+}
+
+function wait(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+// â”€â”€ Run tests â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+async function runTests() {
+
+  // TEST 1 â€” Config loaded
+  await wait(600);
+  try {
+    if (auth && db && storage) {
+      setResult(1, true, "firebase-config.js berjaya dimuatkan âœ“");
+    } else {
+      throw new Error("Objek Firebase null");
+    }
+  } catch (e) {
+    setResult(1, false, `Config gagal: ${e.message} â€” Semak firebase-config.js kau`);
+  }
+
+  // TEST 2 â€” Auth
+  await wait(700);
+  try {
+    await new Promise((resolve, reject) => {
+      const timer = setTimeout(() => reject(new Error("Timeout")), 5000);
+      onAuthStateChanged(auth, (user) => {
+        clearTimeout(timer);
+        resolve(user);
+      }, reject);
+    });
+    setResult(2, true, `Firebase Auth OK â€” ${auth.app.options.projectId}`);
+  } catch (e) {
+    setResult(2, false, `Auth gagal: ${e.message}`);
+  }
+
+  // TEST 3 â€” Realtime Database (tulis & baca test node)
+  await wait(600);
+  try {
+    const testRef = ref(db, "_connection_test");
+    const payload = { ts: Date.now(), msg: "hello from mlbb-ops" };
+    await set(testRef, payload);
+    const snap = await get(testRef);
+    if (!snap.exists()) throw new Error("Data tidak dapat dibaca semula");
+    await remove(testRef); // bersih balik
+    setResult(3, true, `Realtime Database OK â€” tulis & baca berjaya`);
+  } catch (e) {
+    const hint = e.message.includes("permission")
+      ? "Permission denied â€” semak Security Rules RTDB kau"
+      : e.message;
+    setResult(3, false, `RTDB gagal: ${hint}`);
+  }
+
+  // TEST 4 â€” Storage (check bucket wujud)
+  await wait(500);
+  try {
+    const testFileRef = sRef(storage, "_nonexistent_test_file.txt");
+    await getDownloadURL(testFileRef);
+    setResult(4, true, "Storage OK");
+  } catch (e) {
+    // storage/object-not-found = storage connected tapi file tak ada â€” ini OK
+    if (e.code === "storage/object-not-found") {
+      setResult(4, true, "Firebase Storage OK â€” bucket berjaya disambung");
+    } else if (e.code === "storage/unauthorized") {
+      setResult(4, false, "Storage: Permission denied â€” semak Storage Rules");
+    } else {
+      setResult(4, false, `Storage gagal: ${e.message}`);
+    }
+  }
+
+  // â”€â”€ Summary â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  await wait(300);
+  const sumEl   = document.getElementById("summary");
+  const nextEl  = document.getElementById("nextSteps");
+  sumEl.style.display  = "block";
+  nextEl.style.display = "block";
+
+  if (failed === 0) {
+    sumEl.innerHTML = `
+      <b>âœ… Semua ${passed}/4 ujian lulus!</b><br>
+      VS Code kau berjaya disambungkan ke Firebase. Kau boleh mula buat page seterusnya.
+    `;
+    nextEl.innerHTML = `
+      <b>Langkah seterusnya:</b><br>
+      1. Padam fail <code>test-connection.html</code> ini<br>
+      2. Sambung buat <code>team-setup.html</code><br>
+      3. Atau buka <code>login.html</code> untuk test auth flow
+    `;
+  } else {
+    sumEl.innerHTML = `
+      <b>âš ï¸ ${passed}/4 ujian lulus, ${failed} gagal.</b><br>
+      Tengok mesej error di atas untuk tahu apa yang perlu dibetulkan.
+    `;
+    nextEl.innerHTML = `
+      <b>Cara debug:</b><br>
+      1. Semak semua nilai dalam <code>js/firebase-config.js</code><br>
+      2. Pastikan Realtime Database dah diaktifkan di Firebase Console<br>
+      3. Semak Security Rules â€” mesti benarkan read/write untuk test<br>
+      4. Buka <code>F12 â†’ Console</code> untuk tengok error penuh
+    `;
+  }
+}
+
+runTests().catch(err => {
+  console.error("Test runner error:", err);
+  document.getElementById("summary").style.display = "block";
+  document.getElementById("summary").innerHTML =
+    `<b>âŒ Test gagal dijalankan.</b><br>
+     Kemungkinan besar <code>firebase-config.js</code> ada error syntax atau config salah.<br>
+     Buka F12 â†’ Console untuk tengok error penuh.`;
+});
+</script>
+
+</body>
+</html>

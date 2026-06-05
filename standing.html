@@ -1,0 +1,976 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Carta Peringkat - MLBB OPS</title>
+  <link rel="stylesheet" href="css/global.css">
+  <style>
+    /* ── Page Wallpaper ─────────────────────────── */
+    body {
+      background-image:
+        linear-gradient(
+          to bottom,
+          rgba(5, 3, 14, .82) 0%,
+          rgba(5, 3, 14, .76) 40%,
+          rgba(5, 3, 14, .88) 100%
+        ),
+        url('assets/Teamsetup_page_wallpaper.png');
+      background-size: cover;
+      background-position: center top;
+      background-attachment: fixed;
+      background-repeat: no-repeat;
+    }
+
+    /* ── Navbar (matches all other pages) ──────── */
+    .home-nav {
+      position: sticky; top: 0; z-index: 100;
+      background: color-mix(in srgb, var(--bg) 94%, transparent);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+    }
+    .home-nav-inner {
+      max-width: 1400px; margin: 0 auto;
+      padding: 14px 1.5rem;
+      display: flex; align-items: center;
+      justify-content: space-between;
+      gap: 12px; flex-wrap: nowrap;
+    }
+    .home-links {
+      display: flex; align-items: center;
+      justify-content: center; gap: 2px;
+      flex-wrap: nowrap; list-style: none;
+      flex: 1 1 auto; overflow: hidden;
+    }
+    .home-links a {
+      display: inline-flex; align-items: center;
+      min-height: 44px; padding: 9px 10px;
+      border-radius: var(--radius);
+      color: var(--txt2);
+      font-family: var(--font-head);
+      font-size: 15px; font-weight: 700;
+      letter-spacing: 1.5px; text-transform: uppercase;
+      white-space: nowrap; transition: all .2s;
+    }
+    .home-links a:hover,
+    .home-links a.active {
+      color: var(--gold);
+      background: color-mix(in srgb, var(--gold) 12%, transparent);
+    }
+    .home-actions {
+      display: flex; gap: 8px; align-items: center;
+      flex-shrink: 0; justify-content: flex-end;
+    }
+    @media (max-width: 1100px) {
+      .home-nav-inner { flex-wrap: wrap; justify-content: center; gap: 8px; }
+      .navbar-logo    { flex: 1 1 100%; justify-content: center; }
+      .home-links     { flex-wrap: wrap; flex: 1 1 100%; overflow: visible; justify-content: center; }
+      .home-actions   { justify-content: center; width: 100%; }
+    }
+    @media (max-width: 640px) {
+      .home-nav-inner { padding: 12px 1rem; }
+      .home-links a   { font-size: 12px; padding: 7px 10px; }
+    }
+
+    /* ── Page layout ────────────────────────────── */
+    .page-wrap { position: relative; z-index: 1; padding: 0 0 4rem; }
+    .container { max-width: 1200px; margin: 0 auto; padding: 0 1.5rem; }
+
+    .hero {
+      padding: 2.5rem 0 1.5rem;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 1.5rem;
+    }
+    .hero h1 { color: var(--gold); letter-spacing: 2px; }
+
+    /* ── Stats strip ────────────────────────────── */
+    .stats-strip {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px; margin-bottom: 1.5rem;
+    }
+    .stat-box {
+      background: var(--bg3); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 12px;
+    }
+    .stat-box strong {
+      display: block; color: var(--gold);
+      font-family: var(--font-mono); font-size: 22px;
+    }
+    .stat-box span { color: var(--txt2); font-size: 12px; }
+
+    /* ── Table ──────────────────────────────────── */
+    .standing-table {
+      width: 100%; border-collapse: collapse;
+    }
+    .standing-table th {
+      font-family: var(--font-mono); font-size: 10px;
+      letter-spacing: 2px; text-transform: uppercase;
+      color: var(--txt3); text-align: left;
+      padding: 10px 14px; border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+    }
+    .standing-table td {
+      padding: 12px 14px; border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+    }
+    .standing-table tr:last-child td { border-bottom: none; }
+    .standing-table tbody tr {
+      transition: background .15s; cursor: pointer;
+    }
+    .standing-table tbody tr:hover {
+      background: color-mix(in srgb, var(--gold) 4%, transparent);
+    }
+
+    .rank-cell {
+      font-family: var(--font-mono); font-size: 15px;
+      font-weight: 700; color: var(--txt2);
+      text-align: center; width: 48px;
+    }
+    .rank-cell.gold   { color: #ffd700; }
+    .rank-cell.silver { color: #c0c0c0; }
+    .rank-cell.bronze { color: #cd7f32; }
+
+    .team-tag-badge {
+      display: inline-flex; align-items: center;
+      justify-content: center;
+      background: color-mix(in srgb, var(--gold) 12%, var(--bg3));
+      border: 1px solid color-mix(in srgb, var(--gold) 30%, transparent);
+      color: var(--gold); font-family: var(--font-mono);
+      font-size: 11px; font-weight: 700; letter-spacing: 2px;
+      padding: 3px 8px; border-radius: 4px;
+      margin-right: 8px; white-space: nowrap;
+    }
+
+    .team-name-cell { font-weight: 600; color: var(--txt); font-size: 15px; }
+    .team-captain   { color: var(--txt2); font-size: 13px; }
+
+    .points-cell {
+      font-family: var(--font-mono); font-size: 20px;
+      font-weight: 700; color: var(--gold);
+      text-align: center;
+    }
+    .points-cell.zero { color: var(--txt3); font-size: 16px; }
+
+    .placements-cell { display: flex; gap: 5px; flex-wrap: wrap; }
+    .placement-pip {
+      display: inline-flex; align-items: center; gap: 3px;
+      font-family: var(--font-mono); font-size: 10px;
+      padding: 2px 6px; border-radius: 3px;
+      white-space: nowrap;
+    }
+    .pip-1    { background: rgba(255,215,0,.15);    color: #ffd700; border: 1px solid rgba(255,215,0,.3); }
+    .pip-2    { background: rgba(192,192,192,.12);  color: #c0c0c0; border: 1px solid rgba(192,192,192,.25); }
+    .pip-3    { background: rgba(205,127,50,.12);   color: #cd7f32; border: 1px solid rgba(205,127,50,.25); }
+    .pip-4    { background: rgba(180,120,80,.1);    color: #b4785a; border: 1px solid rgba(180,120,80,.22); }
+    .pip-top8 { background: rgba(99,102,241,.1);   color: #818cf8; border: 1px solid rgba(99,102,241,.22); }
+    .pip-top16{ background: rgba(100,100,120,.08); color: #8888aa; border: 1px solid rgba(100,100,120,.2); }
+
+    /* ── Tier badge ─────────────────────────────── */
+    .tier-badge {
+      display: inline-flex; align-items: center;
+      padding: 2px 8px; border-radius: 4px;
+      font-family: var(--font-mono); font-size: 9px;
+      font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase;
+      white-space: nowrap;
+    }
+    .tier-pemula   { background: rgba(158,158,158,.12); color: #9e9e9e; border: 1px solid rgba(158,158,158,.25); }
+    .tier-pejuang  { background: rgba(76,175,80,.12);   color: #4caf50; border: 1px solid rgba(76,175,80,.28); }
+    .tier-pahlawan { background: rgba(33,150,243,.12);  color: #2196f3; border: 1px solid rgba(33,150,243,.28); }
+    .tier-legenda  { background: rgba(255,152,0,.12);   color: #ff9800; border: 1px solid rgba(255,152,0,.28); }
+    .tier-maharaja { background: rgba(233,30,99,.1);    color: #e91e63; border: 1px solid rgba(233,30,99,.25); }
+    .tier-agung    { background: rgba(168,85,247,.12);  color: #a855f7; border: 1px solid rgba(168,85,247,.28); }
+
+    /* ── Season selector ────────────────────────── */
+    .season-bar {
+      display: flex; align-items: center; gap: 12px;
+      justify-content: space-between; flex-wrap: wrap;
+      margin-bottom: 1rem;
+    }
+    .season-select-wrap { display: flex; align-items: center; gap: 8px; }
+    .season-select-lbl {
+      font-family: var(--font-mono); font-size: 10px;
+      letter-spacing: 2px; text-transform: uppercase; color: var(--txt3);
+      white-space: nowrap;
+    }
+    .season-select {
+      background: var(--bg3); border: 1px solid var(--border);
+      color: var(--txt); border-radius: var(--radius);
+      padding: 7px 12px; font-family: var(--font-mono);
+      font-size: 12px; cursor: pointer; min-width: 160px;
+    }
+
+    .members-count {
+      font-family: var(--font-mono); font-size: 12px;
+      color: var(--txt2);
+    }
+
+    /* ── Table wrapper card ─────────────────────── */
+    .table-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: var(--radius-lg); overflow: hidden;
+    }
+    .table-card-header {
+      background: var(--bg3); border-bottom: 1px solid var(--border);
+      padding: .9rem 1.25rem;
+      display: flex; align-items: center;
+      justify-content: space-between; gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    /* ── Empty / loading ────────────────────────── */
+    .empty-state {
+      padding: 3rem; text-align: center; color: var(--txt2);
+    }
+
+    /* ── Team Detail Modal ──────────────────────── */
+    .modal-backdrop {
+      position: fixed; inset: 0;
+      background: color-mix(in srgb, var(--bg) 84%, transparent);
+      z-index: 1000; display: none;
+      place-items: center; padding: 1rem;
+      overflow-y: auto;
+    }
+    .modal-backdrop.show { display: grid; }
+
+    .detail-modal {
+      width: min(640px, 100%);
+      background: var(--card);
+      border: 1px solid var(--border2);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      animation: fadeIn .25s ease both;
+    }
+
+    .modal-hero {
+      background: var(--bg3);
+      border-bottom: 1px solid var(--border);
+      padding: 1.5rem 1.5rem 1.25rem;
+      display: flex; align-items: center; gap: 1rem;
+    }
+    .modal-hex {
+      width: 52px; height: 52px;
+      background: var(--gold);
+      clip-path: polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--font-mono); font-size: 13px;
+      font-weight: 700; color: #000; flex-shrink: 0;
+      letter-spacing: 1px;
+    }
+    .modal-team-title { flex: 1; }
+    .modal-team-name  { font-size: 22px; font-family: var(--font-head); color: var(--txt); }
+    .modal-team-tag   { font-family: var(--font-mono); font-size: 12px; color: var(--gold); letter-spacing: 2px; }
+    .modal-rank-badge {
+      font-family: var(--font-mono); font-size: 13px;
+      font-weight: 700; padding: 4px 12px;
+      border-radius: var(--radius); flex-shrink: 0;
+    }
+    .modal-rank-badge.r1 { background: rgba(255,215,0,.18); color: #ffd700; border: 1px solid rgba(255,215,0,.4); }
+    .modal-rank-badge.r2 { background: rgba(192,192,192,.12); color: #c0c0c0; border: 1px solid rgba(192,192,192,.3); }
+    .modal-rank-badge.r3 { background: rgba(205,127,50,.12); color: #cd7f32; border: 1px solid rgba(205,127,50,.3); }
+    .modal-rank-badge.rn { background: var(--bg3); color: var(--txt2); border: 1px solid var(--border); }
+
+    .modal-body { padding: 1.25rem 1.5rem; }
+
+    .modal-section-label {
+      font-family: var(--font-mono); font-size: 10px;
+      letter-spacing: 2px; text-transform: uppercase;
+      color: var(--txt3); margin-bottom: 8px;
+      padding-bottom: 5px; border-bottom: 1px solid var(--border);
+    }
+
+    .info-grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 10px; margin-bottom: 1.25rem;
+    }
+    .info-item-label { font-size: 11px; color: var(--txt3); font-family: var(--font-mono); letter-spacing: 1px; text-transform: uppercase; }
+    .info-item-value { font-size: 14px; color: var(--txt); font-weight: 500; margin-top: 2px; }
+
+    .member-row-detail {
+      display: flex; align-items: center;
+      justify-content: space-between; gap: 8px;
+      padding: 8px 0; border-bottom: 1px solid var(--border);
+    }
+    .member-row-detail:last-child { border-bottom: none; }
+    .member-name-detail { font-weight: 600; color: var(--txt); font-size: 14px; }
+    .member-sub { font-size: 12px; color: var(--txt2); font-family: var(--font-mono); }
+    .member-role-tag {
+      font-family: var(--font-head); font-size: 11px;
+      color: var(--txt2); background: var(--bg3);
+      border: 1px solid var(--border); border-radius: 4px;
+      padding: 2px 7px; white-space: nowrap; flex-shrink: 0;
+    }
+
+    .history-row {
+      display: flex; align-items: center;
+      justify-content: space-between; gap: 8px;
+      padding: 8px 0; border-bottom: 1px solid var(--border);
+      font-size: 13px;
+    }
+    .history-row:last-child { border-bottom: none; }
+    .history-name { color: var(--txt); }
+    .history-pts  { font-family: var(--font-mono); font-size: 11px; color: var(--txt3); }
+
+    .modal-footer {
+      padding: .85rem 1.5rem;
+      border-top: 1px solid var(--border);
+      background: var(--bg3);
+      display: flex; justify-content: space-between;
+      align-items: center; gap: 12px; flex-wrap: wrap;
+    }
+    .modal-pts-display {
+      font-family: var(--font-mono); font-size: 13px;
+      color: var(--txt2);
+    }
+    .modal-pts-display strong { color: var(--gold); font-size: 20px; }
+
+    /* ── Admin recalculate bar ──────────────────── */
+    .admin-bar {
+      background: color-mix(in srgb, var(--gold) 7%, var(--bg3));
+      border: 1px solid color-mix(in srgb, var(--gold) 25%, transparent);
+      border-radius: var(--radius);
+      padding: .75rem 1rem;
+      display: flex; align-items: center;
+      justify-content: space-between; gap: 12px;
+      flex-wrap: wrap; margin-bottom: 1rem;
+      font-size: 13px; color: var(--txt2);
+    }
+
+    @media (max-width: 720px) {
+      .stats-strip { grid-template-columns: repeat(2, 1fr); }
+      .info-grid { grid-template-columns: 1fr; }
+      /* Hide Ahli (4) and Tier (3) columns on mobile */
+      .standing-table th:nth-child(3),
+      .standing-table td:nth-child(3),
+      .standing-table th:nth-child(4),
+      .standing-table td:nth-child(4) { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <!-- ── Navbar ──────────────────────────────────── -->
+  <header class="home-nav">
+    <div class="home-nav-inner">
+      <a href="index.html" class="navbar-logo">
+        <img src="assets/logo_organizer.png" alt="HC" class="logo-img">
+        <span class="logo-name">Tournament <span>Organizer</span></span>
+      </a>
+      <ul class="home-links" id="navLinks">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="index.html#tournaments">Tournaments</a></li>
+        <li><a href="index.html#teams">Teams</a></li>
+        <li><a href="index.html#about">About</a></li>
+        <li><a href="index.html#contact">Contact</a></li>
+        <li><a class="active" href="standing.html">Standing</a></li>
+        <li><a href="schedule.html">Schedule</a></li>
+        <li class="player-nav"><a href="team-setup.html">Registration</a></li>
+        <li class="admin-nav hidden"><a href="organizer.html">Organizer Dashboard</a></li>
+      </ul>
+      <div class="home-actions" id="navActions" style="visibility:hidden"></div>
+    </div>
+  </header>
+
+  <!-- ── Main ────────────────────────────────────── -->
+  <main class="page-wrap">
+    <section class="hero">
+      <div class="container">
+        <h1>CARTA PERINGKAT</h1>
+        <p class="text-muted">Kedudukan dan mata terkumpul semua pasukan yang berdaftar</p>
+      </div>
+    </section>
+
+    <section style="padding: 1.5rem 0 4rem;">
+      <div class="container">
+
+        <!-- Admin bar (hidden for guests/players) -->
+        <div class="admin-bar hidden" id="adminBar">
+          <span>⚙️ Admin View — hanya admin boleh mengurus keputusan dan peringkat.</span>
+          <button class="btn btn-secondary btn-sm" id="btnRecalculate">
+            🔄 Kira Semula Peringkat
+          </button>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats-strip" id="statsStrip">
+          <div class="stat-box"><strong id="statTeams">—</strong><span>Pasukan Berdaftar</span></div>
+          <div class="stat-box"><strong id="statTournaments">—</strong><span>Tournament Selesai</span></div>
+          <div class="stat-box"><strong id="statChampions">—</strong><span>Juara Berbeza</span></div>
+          <div class="stat-box"><strong id="statMax">—</strong><span>Mata Tertinggi</span></div>
+        </div>
+
+        <!-- Season selector + standings table -->
+        <div class="season-bar">
+          <div class="season-select-wrap">
+            <span class="season-select-lbl">Musim</span>
+            <select class="season-select" id="seasonSelect">
+              <option value="all">Sepanjang Masa</option>
+            </select>
+          </div>
+          <span id="seasonInfo" style="font-family:var(--font-mono);font-size:11px;color:var(--txt3)"></span>
+        </div>
+
+        <div class="table-card">
+          <div class="table-card-header">
+            <h2>Kedudukan Pasukan</h2>
+            <span class="text-muted" style="font-size:12px" id="scoringLegend">
+              Sistem mata berdasarkan kategori &amp; saiz tournament
+            </span>
+          </div>
+          <div id="standingBody">
+            <div class="empty-state"><span class="spinner"></span></div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+  </main>
+
+  <!-- ── Team Detail Modal ───────────────────────── -->
+  <div class="modal-backdrop" id="detailModal">
+    <div class="detail-modal">
+      <div class="modal-hero">
+        <div class="modal-hex" id="detailHex">—</div>
+        <div class="modal-team-title">
+          <div class="modal-team-tag" id="detailTag">—</div>
+          <div class="modal-team-name" id="detailName">—</div>
+        </div>
+        <div class="modal-rank-badge rn" id="detailRankBadge">#—</div>
+      </div>
+
+      <div class="modal-body">
+        <!-- Info -->
+        <p class="modal-section-label" style="margin-top:0">Maklumat Pasukan</p>
+        <div class="info-grid">
+          <div>
+            <div class="info-item-label">Server Region</div>
+            <div class="info-item-value" id="detailRegion">—</div>
+          </div>
+          <div>
+            <div class="info-item-label">Rank Kapten</div>
+            <div class="info-item-value" id="detailRank">—</div>
+          </div>
+          <div>
+            <div class="info-item-label">ML ID Kapten</div>
+            <div class="info-item-value" id="detailMlId" style="font-family:var(--font-mono);font-size:13px">—</div>
+          </div>
+          <div>
+            <div class="info-item-label">Tier Kompetitif</div>
+            <div class="info-item-value" id="detailTier">—</div>
+          </div>
+          <div id="detailPlayerIdRow" class="hidden">
+            <div class="info-item-label">Player ID</div>
+            <div class="info-item-value" id="detailPlayerId" style="font-family:var(--font-mono);font-size:13px;color:var(--gold)">—</div>
+          </div>
+        </div>
+
+        <!-- Members -->
+        <p class="modal-section-label">Roster Pasukan</p>
+        <div id="detailRoster" style="margin-bottom:1.25rem"></div>
+
+        <!-- Tournament history -->
+        <p class="modal-section-label">Sejarah Tournament</p>
+        <div id="detailHistory"></div>
+      </div>
+
+      <div class="modal-footer">
+        <div class="modal-pts-display">
+          Jumlah Mata: <strong id="detailPts">0</strong>
+        </div>
+        <button class="btn btn-secondary btn-sm" id="btnCloseModal">Tutup</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { auth, db } from "./js/firebase-config.js";
+    import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-auth.js";
+    import { ref, get } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-database.js";
+    import { signOut as fbSignOut } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-auth.js";
+
+    const ROLE_ICONS = { Tank:"🛡️", Fighter:"⚔️", Assassin:"🗡️", Mage:"🔮", Marksman:"🏹", Support:"💚",
+                         Hyper:"⚡", Roamer:"🗺️", EXPlaner:"⚔️", Goldlaner:"🏅", Midlaner:"🔮" };
+    const MEDAL = { 1:"🥇", 2:"🥈", 3:"🥉" };
+
+    /* ── Points configuration (configurable) ─────── */
+    const POINTS_CONFIG = {
+      base: { 1:100, 2:60, 3:40, 4:25, 5:12, 9:5, 0:2 },
+      categoryMult: { marhaen:1.0, jaguh:1.5, sultan:2.5 },
+      sizeMult:     { 8:0.8, 16:1.0, 24:1.1, 32:1.2, 48:1.35, 64:1.5 },
+    };
+
+    /* ── Tier classification ─────────────────────── */
+    const TIER_CONFIG = [
+      { min:0,    max:49,       key:"pemula",   label:"Pemula",   color:"#9e9e9e" },
+      { min:50,   max:149,      key:"pejuang",  label:"Pejuang",  color:"#4caf50" },
+      { min:150,  max:349,      key:"pahlawan", label:"Pahlawan", color:"#2196f3" },
+      { min:350,  max:699,      key:"legenda",  label:"Legenda",  color:"#ff9800" },
+      { min:700,  max:1199,     key:"maharaja", label:"Maharaja", color:"#e91e63" },
+      { min:1200, max:Infinity, key:"agung",    label:"Agung",    color:"#a855f7" },
+    ];
+
+    let allStandings    = [];
+    let allTournaments  = [];  // all done tournaments (unfiltered)
+    let teamUsers       = {};  // uid → user record
+    let allSeasons      = {};  // id → season config
+    let activeSeason    = null; // null = all-time, else { startMs, endMs, label, prizeBonus }
+    let allTeamsRaw     = {};  // uid → team (unfiltered)
+
+    /* ── Nav auth ─────────────────────────────── */
+    onAuthStateChanged(auth, async (user) => {
+      const navActions = document.getElementById("navActions");
+      const adminNavItems = document.querySelectorAll(".admin-nav");
+      const playerNavItems = document.querySelectorAll(".player-nav");
+
+      if (!user) {
+        adminNavItems.forEach(n => n.classList.add("hidden"));
+        navActions.innerHTML = `
+          <a class="btn btn-secondary btn-sm" href="login.html">Login</a>
+          <a class="btn btn-primary btn-sm" href="register.html">Sign Up</a>`;
+        navActions.style.visibility = "visible";
+        return;
+      }
+
+      const roleSnap = await get(ref(db, `users/${user.uid}/role`));
+      const role = roleSnap.exists() ? roleSnap.val() : "player";
+      adminNavItems.forEach(n => n.classList.toggle("hidden", role !== "organizer"));
+      playerNavItems.forEach(n => n.classList.toggle("hidden", role === "organizer"));
+
+      if (role === "organizer") {
+        navActions.innerHTML = `<span class="btn btn-primary btn-sm" style="cursor:default;user-select:none;pointer-events:none;">Admin</span><button class="btn btn-secondary btn-sm" id="logoutBtn">Log Keluar</button>`;
+        document.getElementById("adminBar").classList.remove("hidden");
+        // Show Player IDs in modal for admin
+        document.getElementById("detailPlayerIdRow").classList.remove("hidden");
+      } else {
+        navActions.innerHTML = `<span class="btn btn-primary btn-sm" style="cursor:default;user-select:none;pointer-events:none;">Player</span><button class="btn btn-secondary btn-sm" id="logoutBtn">Log Keluar</button>`;
+      }
+      navActions.style.visibility = "visible";
+      document.getElementById("logoutBtn")?.addEventListener("click", async () => {
+        await fbSignOut(auth); window.location.href = "login.html";
+      });
+    });
+
+    /* ── Points formula ──────────────────────── */
+    function computePoints(placement, category, maxTeams, prizePool, prizeBonus) {
+      const base  = placement >= 9 ? POINTS_CONFIG.base[9]
+                  : placement >= 5 ? POINTS_CONFIG.base[5]
+                  : (POINTS_CONFIG.base[placement] ?? POINTS_CONFIG.base[0]);
+      const cMult = POINTS_CONFIG.categoryMult[category] ?? 1.0;
+      const sMult = POINTS_CONFIG.sizeMult[maxTeams]     ?? 1.0;
+      let pts = Math.round(base * cMult * sMult);
+      if (prizeBonus && placement === 1) {
+        pts += Math.min(30, Math.floor((prizePool || 0) / 1000) * 3);
+      }
+      return pts;
+    }
+
+    function getTier(points) {
+      return TIER_CONFIG.find(t => points >= t.min && points <= t.max) || TIER_CONFIG[0];
+    }
+
+    /* ── Placement logic ──────────────────────── */
+    function getTeamPlacement(tournament, uid) {
+      const matches = Object.values(tournament.matches || {});
+      if (!matches.length) return null;
+      const participated = matches.some(m => m.team1 === uid || m.team2 === uid);
+      if (!participated) return null;
+      // Only award placement points for fully finalised tournaments
+      if (tournament.status !== "done" || !tournament.finalizedAt) return 0;
+      if (tournament.winnerId === uid) return 1; // Champion
+
+      const isDone = m => m.status === "done" || m.status === "walkover";
+
+      if (tournament.format === "single") {
+        const wb = matches.filter(m => m.bracket === "wb" && isDone(m));
+        if (!wb.length) return 0;
+        const maxR = Math.max(...wb.map(m => m.round));
+        if (wb.find(m => m.round === maxR)?.loserId === uid) return 2;
+        if (maxR > 1 && wb.filter(m => m.round === maxR - 1).some(m => m.loserId === uid)) return 3;
+        // Both semi-final losers = 3rd in single-elim (no 3rd-place match)
+      } else {
+        // Double elimination
+        const gf = matches.filter(m => m.bracket === "gf" && isDone(m));
+        if (gf.length) {
+          const maxGf = Math.max(...gf.map(m => m.round));
+          if (gf.find(m => m.round === maxGf)?.loserId === uid) return 2;
+        }
+        const lb = matches.filter(m => m.bracket === "lb" && isDone(m));
+        if (lb.length) {
+          const maxLb = Math.max(...lb.map(m => m.round));
+          if (lb.find(m => m.round === maxLb)?.loserId === uid) return 3;   // LB Final loser = 3rd
+          if (maxLb > 1 && lb.filter(m => m.round === maxLb - 1).some(m => m.loserId === uid)) return 4; // 4th
+        }
+      }
+      return 0; // participated but unplaced
+    }
+
+    /* ── Participation tier (Top 8 / Top 16) ─── */
+    function resolveParticipationTier(uid, tournament) {
+      if (tournament.maxTeams < 16) return "participation";
+      const wins = Object.values(tournament.matches || {})
+        .filter(m => m.winnerId === uid && (m.status === "done" || m.status === "walkover"))
+        .length;
+      if (tournament.maxTeams >= 32 && wins === 0) return "top16";
+      if (wins > 0) return "top8";
+      return "participation";
+    }
+
+    /* ── Anti-abuse: must have played a real match ─ */
+    function playedRealMatch(uid, tournament) {
+      return Object.values(tournament.matches || {})
+        .some(m => (m.team1 === uid || m.team2 === uid) && m.status === "done");
+    }
+
+    /* ── True tie check ──────────────────────── */
+    function isTied(a, b) {
+      return a.points         === b.points
+          && a.wins1st        === b.wins1st
+          && a.wins2nd        === b.wins2nd
+          && a.wins3rd        === b.wins3rd
+          && a.wins4th        === b.wins4th
+          && a.tournamentsPlayed === b.tournamentsPlayed;
+    }
+
+    /* ── Build standings ──────────────────────── */
+    function buildStandings(teams, tournaments, seasonFilter) {
+      const filtered = seasonFilter
+        ? tournaments.filter(t => t.startDate >= seasonFilter.startMs && t.startDate <= seasonFilter.endMs)
+        : tournaments;
+
+      const prizeBonus = activeSeason?.prizeBonus ?? false;
+
+      const rows = Object.entries(teams).map(([uid, team]) => {
+        let points = 0;
+        let wins1st = 0, wins2nd = 0, wins3rd = 0, wins4th = 0, tournamentsPlayed = 0;
+        const history = [];
+
+        for (const t of filtered) {
+          const pl = getTeamPlacement(t, uid);
+          if (pl === null) continue; // didn't participate
+          if (!playedRealMatch(uid, t)) continue; // all byes/walkovers — no points
+          tournamentsPlayed++;
+
+          let effectivePl = pl;
+          if (pl === 0) {
+            const tier = resolveParticipationTier(uid, t);
+            effectivePl = tier === "top8" ? 5 : tier === "top16" ? 9 : 0;
+          }
+
+          const pts = computePoints(effectivePl, t.category, t.maxTeams, t.prizePool, prizeBonus);
+          points += pts;
+          if (pl === 1) wins1st++;
+          if (pl === 2) wins2nd++;
+          if (pl === 3) wins3rd++;
+          if (pl === 4) wins4th++;
+          history.push({ id: t.id, name: t.name, category: t.category, placement: effectivePl, pts });
+        }
+
+        history.sort((a, b) => b.pts - a.pts);
+        const tier = getTier(points);
+        return { uid, team, points, wins1st, wins2nd, wins3rd, wins4th, tournamentsPlayed, history, tier };
+      });
+
+      // 7-level sort
+      rows.sort((a, b) =>
+        b.points              - a.points              ||
+        b.wins1st             - a.wins1st             ||
+        b.wins2nd             - a.wins2nd             ||
+        b.wins3rd             - a.wins3rd             ||
+        b.wins4th             - a.wins4th             ||
+        b.tournamentsPlayed   - a.tournamentsPlayed   ||
+        (a.team.teamName || "").localeCompare(b.team.teamName || "")
+      );
+
+      // Rank with true-tie support
+      let rank = 1;
+      for (let i = 0; i < rows.length; i++) {
+        if (i > 0 && !isTied(rows[i], rows[i-1])) rank = i + 1;
+        rows[i].rank = rank;
+      }
+      return rows;
+    }
+
+    /* ── Render table ─────────────────────────── */
+    function placementPip(pl, name) {
+      if (pl === 1) return `<span class="placement-pip pip-1" title="${name}">${MEDAL[1]}</span>`;
+      if (pl === 2) return `<span class="placement-pip pip-2" title="${name}">${MEDAL[2]}</span>`;
+      if (pl === 3) return `<span class="placement-pip pip-3" title="${name}">🥉</span>`;
+      if (pl === 4) return `<span class="placement-pip pip-4" title="${name}">4th</span>`;
+      if (pl >= 5 && pl <= 8)  return `<span class="placement-pip pip-top8"  title="${name}">T8</span>`;
+      if (pl >= 9 && pl <= 16) return `<span class="placement-pip pip-top16" title="${name}">T16</span>`;
+      return "";
+    }
+
+    function renderTable(standings) {
+      const body = document.getElementById("standingBody");
+
+      if (!standings.length) {
+        body.innerHTML = '<div class="empty-state">Tiada pasukan berdaftar lagi.</div>';
+        return;
+      }
+
+      const rankClass = r => r === 1 ? "gold" : r === 2 ? "silver" : r === 3 ? "bronze" : "";
+      const rankLabel = r => r <= 3 ? MEDAL[r] : `#${r}`;
+
+      body.innerHTML = `
+        <table class="standing-table">
+          <thead>
+            <tr>
+              <th style="text-align:center">#</th>
+              <th>Pasukan</th>
+              <th>Tier</th>
+              <th>Ahli</th>
+              <th style="text-align:center">Mata</th>
+              <th>Sejarah</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${standings.map(row => {
+              const tag     = row.team.teamTag  || "—";
+              const name    = row.team.teamName || "Tanpa Nama";
+              const members = (row.team.members || []).filter(m => m.name).length;
+              const pips    = row.history.map(h => placementPip(h.placement, h.name)).join("");
+
+              return `
+                <tr data-uid="${row.uid}">
+                  <td class="rank-cell ${rankClass(row.rank)}">${rankLabel(row.rank)}</td>
+                  <td>
+                    <div style="display:flex;align-items:center;gap:8px">
+                      <span class="team-tag-badge">${tag}</span>
+                      <span class="team-name-cell">${name}</span>
+                    </div>
+                  </td>
+                  <td><span class="tier-badge tier-${row.tier.key}">${row.tier.label}</span></td>
+                  <td><span class="members-count">${members + 1} ahli</span></td>
+                  <td class="points-cell ${row.points === 0 ? "zero" : ""}">${row.points}</td>
+                  <td><div class="placements-cell">${pips || '<span style="color:var(--txt3);font-size:12px">—</span>'}</div></td>
+                </tr>`;
+            }).join("")}
+          </tbody>
+        </table>`;
+
+      body.querySelectorAll("tbody tr").forEach(tr => {
+        tr.addEventListener("click", () => openDetail(tr.dataset.uid));
+      });
+    }
+
+    /* ── Update stats ─────────────────────────── */
+    function updateStats(standings, filteredTournaments) {
+      const uniqueChamps = new Set(filteredTournaments.map(t => t.winnerId).filter(Boolean)).size;
+      const maxPts = standings.filter(r => r.points > 0).length ? standings[0].points : 0;
+      const active = standings.filter(r => r.tournamentsPlayed > 0).length;
+
+      document.getElementById("statTeams").textContent       = standings.length;
+      document.getElementById("statTournaments").textContent  = filteredTournaments.length;
+      document.getElementById("statChampions").textContent   = uniqueChamps;
+      document.getElementById("statMax").textContent         = maxPts;
+
+      // Season info strip
+      const seasonInfo = document.getElementById("seasonInfo");
+      if (activeSeason) {
+        seasonInfo.textContent = `${activeSeason.label} · ${active} pasukan aktif · ${filteredTournaments.length} tournament`;
+      } else {
+        seasonInfo.textContent = `Sepanjang Masa · ${active} pasukan aktif · ${filteredTournaments.length} tournament`;
+      }
+    }
+
+    /* ── Apply season filter & re-render ─────── */
+    function applySeasonAndRender() {
+      const sel = document.getElementById("seasonSelect").value;
+      activeSeason = sel === "all" ? null : (allSeasons[sel] || null);
+      allStandings = buildStandings(allTeamsRaw, allTournaments, activeSeason);
+      renderTable(allStandings);
+      const filteredT = activeSeason
+        ? allTournaments.filter(t => t.startDate >= activeSeason.startMs && t.startDate <= activeSeason.endMs)
+        : allTournaments;
+      updateStats(allStandings, filteredT);
+    }
+
+    /* ── Load data ────────────────────────────── */
+    async function loadAndRender() {
+      document.getElementById("standingBody").innerHTML =
+        '<div class="empty-state"><span class="spinner"></span></div>';
+
+      const [teamsSnap, tournamentsSnap, usersSnap, seasonsSnap] = await Promise.all([
+        get(ref(db, "teams")),
+        get(ref(db, "tournaments")),
+        get(ref(db, "users")),
+        get(ref(db, "seasons")),
+      ]);
+
+      allTeamsRaw = teamsSnap.exists()  ? teamsSnap.val()  : {};
+      teamUsers   = usersSnap.exists()  ? usersSnap.val()  : {};
+
+      const tournamentsObj = tournamentsSnap.exists() ? tournamentsSnap.val() : {};
+      allTournaments = Object.entries(tournamentsObj)
+        .map(([id, t]) => ({ id, ...t }))
+        .filter(t => t.status === "done" && t.finalizedAt); // only fully finalised
+
+      // Build season selector
+      const seasonsData = seasonsSnap.exists() ? seasonsSnap.val() : {};
+      const currentSeasonId = seasonsData.current?.id || null;
+      allSeasons = {};
+      const sel = document.getElementById("seasonSelect");
+      sel.innerHTML = "";  // clear existing options
+
+      // Add named seasons (sorted by startMs desc)
+      const seasonEntries = Object.entries(seasonsData)
+        .filter(([k]) => k !== "current")
+        .sort(([, a], [, b]) => (b.startMs || 0) - (a.startMs || 0));
+
+      for (const [id, s] of seasonEntries) {
+        allSeasons[id] = s;
+        const opt = document.createElement("option");
+        opt.value = id;
+        opt.textContent = s.label || id;
+        if (id === currentSeasonId) opt.selected = true;
+        sel.appendChild(opt);
+      }
+      // All-time option at the end
+      const allOpt = document.createElement("option");
+      allOpt.value = "all";
+      allOpt.textContent = "Sepanjang Masa";
+      if (!currentSeasonId || !allSeasons[currentSeasonId]) allOpt.selected = true;
+      sel.appendChild(allOpt);
+
+      // Set activeSeason
+      const selVal = sel.value;
+      activeSeason = selVal === "all" ? null : (allSeasons[selVal] || null);
+
+      allStandings = buildStandings(allTeamsRaw, allTournaments, activeSeason);
+      renderTable(allStandings);
+      const filteredT = activeSeason
+        ? allTournaments.filter(t => t.startDate >= activeSeason.startMs && t.startDate <= activeSeason.endMs)
+        : allTournaments;
+      updateStats(allStandings, filteredT);
+    }
+
+    /* ── Modal ────────────────────────────────── */
+    function openDetail(uid) {
+      const row = allStandings.find(r => r.uid === uid);
+      if (!row) return;
+
+      const team    = row.team;
+      const user    = teamUsers[uid] || {};
+      const tag     = team.teamTag || "—";
+      const members = (team.members || []).filter(m => m.name);
+
+      // Header
+      document.getElementById("detailHex").textContent  = tag.slice(0, 4);
+      document.getElementById("detailTag").textContent  = `[ ${tag} ]`;
+      document.getElementById("detailName").textContent = team.teamName || "Tanpa Nama";
+
+      // Rank badge
+      const rankBadge = document.getElementById("detailRankBadge");
+      const r = row.rank;
+      rankBadge.textContent = r <= 3 ? `${MEDAL[r]} #${r}` : `#${r}`;
+      rankBadge.className   = `modal-rank-badge ${r === 1 ? "r1" : r === 2 ? "r2" : r === 3 ? "r3" : "rn"}`;
+
+      // Info grid
+      document.getElementById("detailRegion").textContent = team.serverRegion || "—";
+      document.getElementById("detailRank").textContent   =
+        team.captainRank
+          ? `${team.captainRank}${team.captainRankStars ? ` ★${team.captainRankStars}` : ""}`
+          : "—";
+      document.getElementById("detailMlId").textContent   = team.mlId || "—";
+      document.getElementById("detailPlayerId").textContent = user.playerId || "—";
+
+      // Roster
+      const roleIcon = role => ROLE_ICONS[role] || "";
+      const captainRow = `
+        <div class="member-row-detail">
+          <div>
+            <div class="member-name-detail">${team.displayName || "—"}</div>
+            <div class="member-sub">ML ID: ${team.mlId || "—"}</div>
+          </div>
+          <div style="display:flex;gap:6px;align-items:center;flex-shrink:0">
+            <span style="font-family:var(--font-mono);font-size:9px;color:var(--gold);letter-spacing:1px">KAPTEN</span>
+            ${team.captainRole ? `<span class="member-role-tag">${roleIcon(team.captainRole)} ${team.captainRole}</span>` : ""}
+          </div>
+        </div>`;
+      const memberRows = members.map(m => `
+        <div class="member-row-detail">
+          <div>
+            <div class="member-name-detail">${m.name}</div>
+            ${m.mlId ? `<div class="member-sub">ML ID: ${m.mlId}</div>` : ""}
+          </div>
+          ${m.role ? `<span class="member-role-tag">${roleIcon(m.role)} ${m.role}</span>` : ""}
+        </div>`).join("");
+      document.getElementById("detailRoster").innerHTML = captainRow + memberRows;
+
+      // Tier badge in modal
+      const tierEl = document.getElementById("detailTier");
+      if (tierEl) {
+        tierEl.innerHTML = `<span class="tier-badge tier-${row.tier.key}">${row.tier.label}</span>`;
+      }
+
+      // Tournament history with new placement labels
+      const PLACEMENT_LABEL = {
+        1: "Juara", 2: "Naib Juara", 3: "Tempat Ketiga",
+        4: "Tempat Keempat", 5: "Top 8", 9: "Top 16", 0: "Peserta"
+      };
+      const placementLabel = pl => {
+        if (pl >= 5 && pl <= 8)  return "Top 8";
+        if (pl >= 9 && pl <= 16) return "Top 16";
+        return PLACEMENT_LABEL[pl] || "Peserta";
+      };
+      const catBadge = cat => {
+        const map = { marhaen:"var(--green)", jaguh:"#3b82f6", sultan:"var(--gold)" };
+        return `<span style="font-family:var(--font-mono);font-size:8px;letter-spacing:1px;color:${map[cat]||"var(--txt3)"};text-transform:uppercase">${cat||""}</span>`;
+      };
+
+      if (row.history.length) {
+        document.getElementById("detailHistory").innerHTML = row.history.map(h => `
+          <div class="history-row">
+            <div>
+              <span class="history-name">${h.name}</span>
+              <div style="margin-top:2px">${catBadge(h.category)}</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
+              ${h.placement >= 1 && h.placement <= 3
+                ? `<span class="placement-pip pip-${h.placement}">${MEDAL[h.placement]||""} ${placementLabel(h.placement)}</span>`
+                : h.placement === 4
+                  ? `<span class="placement-pip pip-4">4th ${placementLabel(4)}</span>`
+                  : h.placement >= 5 && h.placement <= 8
+                    ? `<span class="placement-pip pip-top8">Top 8</span>`
+                    : h.placement >= 9
+                      ? `<span class="placement-pip pip-top16">Top 16</span>`
+                      : `<span style="color:var(--txt3);font-size:12px">Peserta</span>`}
+              <span class="history-pts">+${h.pts} mata</span>
+            </div>
+          </div>`).join("");
+      } else {
+        document.getElementById("detailHistory").innerHTML =
+          '<p style="color:var(--txt3);font-size:13px">Belum menyertai mana-mana tournament.</p>';
+      }
+
+      document.getElementById("detailPts").textContent = row.points;
+      document.getElementById("detailModal").classList.add("show");
+    }
+
+    function closeDetail() {
+      document.getElementById("detailModal").classList.remove("show");
+    }
+
+    document.getElementById("btnCloseModal").addEventListener("click", closeDetail);
+    document.getElementById("detailModal").addEventListener("click", e => {
+      if (e.target === document.getElementById("detailModal")) closeDetail();
+    });
+
+    /* ── Season selector ─────────────────────── */
+    document.getElementById("seasonSelect").addEventListener("change", applySeasonAndRender);
+
+    /* ── Recalculate (admin) ──────────────────── */
+    document.getElementById("btnRecalculate").addEventListener("click", async () => {
+      const btn = document.getElementById("btnRecalculate");
+      btn.disabled = true;
+      btn.textContent = "Mengira...";
+      await loadAndRender();
+      btn.disabled = false;
+      btn.textContent = "🔄 Kira Semula Peringkat";
+    });
+
+    /* ── Boot ─────────────────────────────────── */
+    loadAndRender();
+  </script>
+</body>
+</html>

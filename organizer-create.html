@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cipta Tournament Baru - MLBB OPS</title>
+  <link rel="stylesheet" href="css/global.css">
+  <style>
+    .page-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+    }
+    .create-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.5fr) minmax(280px, .9fr);
+      gap: 1.25rem;
+      align-items: start;
+    }
+    .form-row {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+    .note {
+      color: var(--blue2);
+      font-size: 13px;
+      margin-top: 6px;
+    }
+    .warning {
+      color: var(--gold);
+      font-size: 13px;
+      margin-top: 6px;
+      display: none;
+    }
+    .warning.show { display: block; }
+    .toggle-line {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 13px 14px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--bg3);
+    }
+    .toggle {
+      position: relative;
+      width: 48px;
+      height: 26px;
+      flex: 0 0 auto;
+    }
+    .toggle input { opacity: 0; width: 0; height: 0; }
+    .toggle span {
+      position: absolute;
+      inset: 0;
+      border-radius: 999px;
+      background: var(--border2);
+      cursor: pointer;
+      transition: .2s;
+    }
+    .toggle span::before {
+      content: "";
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      left: 3px;
+      top: 3px;
+      border-radius: 50%;
+      background: var(--txt);
+      transition: .2s;
+    }
+    .toggle input:checked + span { background: var(--green); }
+    .toggle input:checked + span::before { transform: translateX(22px); }
+    .preview-card { position: sticky; top: 76px; }
+    .preview-accent {
+      height: 4px;
+      background: var(--green);
+    }
+    .preview-accent.jaguh { background: var(--blue2); }
+    .preview-accent.sultan { background: var(--gold); }
+    .preview-list {
+      display: grid;
+      gap: 10px;
+      margin-top: 1rem;
+      color: var(--txt2);
+      font-size: 14px;
+    }
+    .preview-list strong { color: var(--txt); font-family: var(--font-mono); }
+    /* ── Stage format rows ─────────────────── */
+    .stage-formats-wrap {
+      display: grid; gap: 6px; margin-top: 8px;
+    }
+    .stage-row {
+      display: grid; grid-template-columns: 1fr 160px;
+      gap: 10px; align-items: center;
+      padding: 9px 12px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--bg3);
+    }
+    .stage-lbl {
+      font-family: var(--font-mono); font-size: 11px;
+      letter-spacing: 1.2px; text-transform: uppercase; color: var(--txt2);
+    }
+    .stage-select { margin: 0; padding: 6px 10px; font-size: 13px; }
+    .format-section-title {
+      font-family: var(--font-mono); font-size: 10px;
+      letter-spacing: 2px; text-transform: uppercase;
+      color: var(--txt3); margin: 8px 0 4px;
+    }
+    @media (max-width: 860px) {
+      .create-grid, .form-row { grid-template-columns: 1fr; }
+      .preview-card { position: static; }
+      .stage-row { grid-template-columns: 1fr 130px; }
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="navbar-inner">
+      <a href="organizer.html" class="navbar-logo">
+        <img src="assets/logo_organizer.png" alt="HC" class="logo-img">
+        <span class="logo-name">Tournament <span>Organizer</span></span>
+      </a>
+      <ul class="navbar-links">
+        <li><a href="organizer.html">Admin View</a></li>
+        <li><a href="schedule.html">Schedule</a></li>
+      </ul>
+      <div class="navbar-actions">
+        <button class="btn btn-secondary btn-sm" id="btnLogout">Log Keluar</button>
+      </div>
+    </div>
+  </nav>
+
+  <main class="page-wrap">
+    <div class="container">
+      <div class="page-head">
+        <div>
+          <h1>Cipta Tournament Baru</h1>
+          <p class="text-muted">Jana bracket kosong dan buka slot pendaftaran.</p>
+        </div>
+        <a class="btn btn-secondary" href="organizer.html">Kembali</a>
+      </div>
+
+      <div class="create-grid">
+        <section class="card fade-in">
+          <div class="card-header">
+            <h2>Maklumat Tournament</h2>
+          </div>
+          <div class="card-body">
+            <div class="alert alert-error" id="alertError"><span id="alertMsg"></span></div>
+            <div class="alert alert-success" id="alertSuccess">Tournament berjaya dicipta!</div>
+
+            <form id="createForm" novalidate>
+              <div class="form-group">
+                <label class="form-label" for="name">Nama Tournament</label>
+                <input class="form-input" id="name" type="text" placeholder="Contoh: MLBB OPS Season 1">
+                <span class="form-error" id="errName">Nama tournament diperlukan.</span>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="description">Deskripsi Tournament <span style="color:var(--txt3);font-weight:400">(Pilihan)</span></label>
+                <textarea class="form-textarea" id="description" rows="3" placeholder="Tulis ringkasan tournament, tema, atau maklumat am..."></textarea>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label" for="category">Kategori</label>
+                  <select class="form-select" id="category">
+                    <option value="marhaen">Marhaen</option>
+                    <option value="jaguh">Jaguh</option>
+                    <option value="sultan">Sultan</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="format">Format Bracket</label>
+                  <select class="form-select" id="format">
+                    <option value="single">Single Elimination</option>
+                    <option value="double">Double Elimination</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="maxTeams">Bilangan Slot Pasukan</label>
+                <select class="form-select" id="maxTeams">
+                  <option value="8">8</option>
+                  <option value="16">16</option>
+                  <option value="24">24</option>
+                  <option value="32" selected>32</option>
+                  <option value="48">48</option>
+                  <option value="64">64</option>
+                </select>
+                <div class="note" id="slotNote"></div>
+              </div>
+
+              <!-- ── Per-Stage Match Format ─────────────── -->
+              <div class="form-group">
+                <label class="form-label">Format Perlawanan Setiap Peringkat</label>
+
+                <!-- Single Elimination stages -->
+                <div id="stageFormatsSingle" class="stage-formats-wrap">
+                  <div class="format-section-title">Single Elimination</div>
+                  <div class="stage-row">
+                    <span class="stage-lbl">Pusingan Awal</span>
+                    <select class="form-select stage-select" id="sf_early">
+                      <option value="bo1" selected>Best of 1</option>
+                      <option value="bo3">Best of 3</option>
+                      <option value="bo5">Best of 5</option>
+                    </select>
+                  </div>
+                  <div class="stage-row">
+                    <span class="stage-lbl">Quarter Final</span>
+                    <select class="form-select stage-select" id="sf_qf">
+                      <option value="bo1">Best of 1</option>
+                      <option value="bo3" selected>Best of 3</option>
+                      <option value="bo5">Best of 5</option>
+                    </select>
+                  </div>
+                  <div class="stage-row">
+                    <span class="stage-lbl">Semi Final</span>
+                    <select class="form-select stage-select" id="sf_semi">
+                      <option value="bo1">Best of 1</option>
+                      <option value="bo3" selected>Best of 3</option>
+                      <option value="bo5">Best of 5</option>
+                    </select>
+                  </div>
+                  <div class="stage-row">
+                    <span class="stage-lbl">Grand Final</span>
+                    <select class="form-select stage-select" id="sf_gf">
+                      <option value="bo1">Best of 1</option>
+                      <option value="bo3">Best of 3</option>
+                      <option value="bo5" selected>Best of 5</option>
+                      <option value="bo7">Best of 7</option>
+                    </select>
+                  </div>
+                </div>
+
+                <!-- Double Elimination stages -->
+                <div id="stageFormatsDouble" class="stage-formats-wrap" style="display:none">
+                  <div class="format-section-title">Upper Bracket</div>
+                  <div class="stage-row">
+                    <span class="stage-lbl">Upper Bracket (Awal)</span>
+                    <select class="form-select stage-select" id="sf_ub">
+                      <option value="bo1" selected>Best of 1</option>
+                      <option value="bo3">Best of 3</option>
+                      <option value="bo5">Best of 5</option>
+                    </select>
+                  </div>
+                  <div class="stage-row">
+                    <span class="stage-lbl">Upper Bracket Final</span>
+                    <select class="form-select stage-select" id="sf_ubf">
+                      <option value="bo1">Best of 1</option>
+                      <option value="bo3" selected>Best of 3</option>
+                      <option value="bo5">Best of 5</option>
+                    </select>
+                  </div>
+                  <div class="format-section-title" style="margin-top:10px">Lower Bracket</div>
+                  <div class="stage-row">
+                    <span class="stage-lbl">Lower Bracket (Awal)</span>
+                    <select class="form-select stage-select" id="sf_lb">
+                      <option value="bo1" selected>Best of 1</option>
+                      <option value="bo3">Best of 3</option>
+                      <option value="bo5">Best of 5</option>
+                    </select>
+                  </div>
+                  <div class="stage-row">
+                    <span class="stage-lbl">Lower Bracket Final</span>
+                    <select class="form-select stage-select" id="sf_lbf">
+                      <option value="bo1">Best of 1</option>
+                      <option value="bo3" selected>Best of 3</option>
+                      <option value="bo5">Best of 5</option>
+                    </select>
+                  </div>
+                  <div class="format-section-title" style="margin-top:10px">Final</div>
+                  <div class="stage-row">
+                    <span class="stage-lbl">Grand Final</span>
+                    <select class="form-select stage-select" id="sf_gf_de">
+                      <option value="bo1">Best of 1</option>
+                      <option value="bo3">Best of 3</option>
+                      <option value="bo5" selected>Best of 5</option>
+                      <option value="bo7">Best of 7</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label" for="regOpenDate">Tarikh Buka Pendaftaran</label>
+                  <input class="form-input" id="regOpenDate" type="datetime-local">
+                  <span class="form-error" id="errRegOpen">Tarikh buka diperlukan.</span>
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="regCloseDate">Tarikh Tutup Pendaftaran</label>
+                  <input class="form-input" id="regCloseDate" type="datetime-local">
+                  <span class="form-error" id="errRegClose">Tarikh tutup mesti selepas tarikh buka.</span>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="startDate">Tarikh & Masa Mula Tournament</label>
+                <input class="form-input" id="startDate" type="datetime-local">
+                <span class="form-error" id="errStartDate">Tarikh mula mesti selepas pendaftaran ditutup.</span>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label" for="entryFee">Yuran Penyertaan (RM)</label>
+                  <input class="form-input" id="entryFee" type="number" min="0" placeholder="0 = percuma" value="0">
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="prizePool">Total Prize Pool (RM)</label>
+                  <input class="form-input" id="prizePool" type="number" min="0" value="0">
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label" for="prize1">Hadiah 1st Place (RM)</label>
+                  <input class="form-input" id="prize1" type="number" min="0" value="0">
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="prize2">Hadiah 2nd Place (RM)</label>
+                  <input class="form-input" id="prize2" type="number" min="0" value="0">
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="prize3">Hadiah 3rd Place (RM)</label>
+                <input class="form-input" id="prize3" type="number" min="0" value="0">
+                <div class="warning" id="prizeWarning">Jumlah hadiah tempat pertama hingga ketiga melebihi prize pool.</div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="rules">Peraturan & Syarat Penyertaan</label>
+                <textarea class="form-textarea" id="rules" rows="5" placeholder="Tulis peraturan khas, syarat kelayakan, maklumat pembayaran, dan arahan lain..."></textarea>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="whatsappGroupId">WhatsApp Group / Discord Link <span style="color:var(--txt3);font-weight:400">(Pilihan)</span></label>
+                <input class="form-input" id="whatsappGroupId" type="text" placeholder="https://chat.whatsapp.com/... atau https://discord.gg/...">
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="inputPosterUrl">URL Poster Tournament (pilihan)</label>
+                <input class="form-input" id="inputPosterUrl" type="url"
+                       placeholder="https://i.imgur.com/abc123.jpg">
+                <p style="font-size:12px;color:var(--txt3);margin-top:5px">
+                  Muat naik imej ke hos percuma (Imgur, ImgBB, Postimages) lalu tampal pautan terus imej di sini.
+                </p>
+                <img id="posterUrlPreview" src="" alt="Poster preview"
+                     style="display:none;width:100%;aspect-ratio:16/9;object-fit:cover;
+                            border-radius:var(--radius);border:1px solid var(--border);margin-top:.75rem">
+              </div>
+
+              <button class="btn btn-primary btn-full" id="btnCreate" type="submit">Jana Bracket & Cipta Tournament</button>
+            </form>
+          </div>
+        </section>
+
+        <aside class="card preview-card fade-in">
+          <div class="preview-accent" id="previewAccent"></div>
+          <div class="card-header">
+            <h2>Preview</h2>
+            <span class="badge badge-marhaen" id="previewBadge">Marhaen</span>
+          </div>
+          <div class="card-body">
+            <h3 id="previewName">Nama Tournament</h3>
+            <div class="preview-list">
+              <div><strong>Format:</strong> <span id="previewFormat">Single Elimination</span></div>
+              <div><strong>Slot:</strong> <span id="previewSlot">32 pasukan</span></div>
+              <div><strong>Yuran:</strong> <span id="previewFee">RM 0</span></div>
+              <div><strong>Prize Pool:</strong> <span id="previewPrize">RM 0</span></div>
+              <div><strong>Daftar Tutup:</strong> <span id="previewRegClose">Belum ditetapkan</span></div>
+              <div><strong>Mula:</strong> <span id="previewStart">Belum ditetapkan</span></div>
+            </div>
+            <div style="margin-top:12px;border-top:1px solid var(--border);padding-top:10px">
+              <div style="font-family:var(--font-mono);font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--txt3);margin-bottom:6px">Format Peringkat</div>
+              <div id="previewStages" style="font-size:12px;color:var(--txt2);line-height:1.8"></div>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </main>
+
+  <script type="module">
+    import { requireOrganizer, logout } from "./js/auth.js";
+    import { db } from "./js/firebase-config.js";
+    import { generateBracket, nextPowerOf2, formatDate, formatPrize, setLoading } from "./js/utils.js";
+    import { ref, push, set } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-database.js";
+
+    requireOrganizer((user) => {
+      const form = document.getElementById("createForm");
+      const btnCreate = document.getElementById("btnCreate");
+      const alertError = document.getElementById("alertError");
+      const alertSuccess = document.getElementById("alertSuccess");
+      const alertMsg = document.getElementById("alertMsg");
+      const prizeWarning = document.getElementById("prizeWarning");
+
+      document.getElementById("btnLogout").addEventListener("click", logout);
+
+      function el(id) { return document.getElementById(id); }
+      function val(id) { return el(id).value.trim(); }
+      function num(id) { return Math.max(0, Number(val(id)) || 0); }
+      function millis(id) { return val(id) ? new Date(val(id)).getTime() : 0; }
+
+      function showAlert(message) {
+        alertMsg.textContent = message;
+        alertError.classList.add("show");
+      }
+
+      function clearErrors() {
+        alertError.classList.remove("show");
+        alertSuccess.classList.remove("show");
+        document.querySelectorAll(".form-error").forEach((node) => node.classList.remove("show"));
+        document.querySelectorAll(".form-input, .form-textarea, .form-select").forEach((node) => node.classList.remove("error"));
+      }
+
+      function mark(id, errorId) {
+        el(id)?.classList.add("error");
+        el(errorId)?.classList.add("show");
+      }
+
+      function updateSlotNote() {
+        const maxTeams = num("maxTeams");
+        const bracketSlots = nextPowerOf2(maxTeams);
+        el("slotNote").textContent = bracketSlots === maxTeams
+          ? `${maxTeams} pasukan - bracket penuh.`
+          : `${maxTeams} pasukan -> bracket ${bracketSlots} slot, ${bracketSlots - maxTeams} slot akan dapat BYE`;
+      }
+
+      function updatePrizeWarning() {
+        const total = num("prize1") + num("prize2") + num("prize3");
+        prizeWarning.classList.toggle("show", total > num("prizePool"));
+      }
+
+      function updateStageFormats() {
+        const isDouble = val("format") === "double";
+        el("stageFormatsSingle").style.display = isDouble ? "none" : "";
+        el("stageFormatsDouble").style.display  = isDouble ? ""     : "none";
+      }
+      el("format").addEventListener("change", () => { updateStageFormats(); updatePreview(); });
+
+      function buildStageFormatsObj() {
+        return val("format") === "single" ? {
+          earlyRounds: val("sf_early"),
+          quarterFinal: val("sf_qf"),
+          semiFinal:   val("sf_semi"),
+          grandFinal:  val("sf_gf")
+        } : {
+          upperBracket:      val("sf_ub"),
+          upperBracketFinal: val("sf_ubf"),
+          lowerBracket:      val("sf_lb"),
+          lowerBracketFinal: val("sf_lbf"),
+          grandFinal:        val("sf_gf_de")
+        };
+      }
+
+      function updatePreview() {
+        const category = val("category");
+        const badge = el("previewBadge");
+        const accent = el("previewAccent");
+        badge.className = `badge badge-${category}`;
+        badge.textContent = category.charAt(0).toUpperCase() + category.slice(1);
+        accent.className = `preview-accent ${category}`;
+        el("previewName").textContent = val("name") || "Nama Tournament";
+        el("previewFormat").textContent = val("format") === "double" ? "Double Elimination" : "Single Elimination";
+        el("previewSlot").textContent = `${val("maxTeams")} pasukan`;
+        el("previewFee").textContent = formatPrize(num("entryFee"));
+        el("previewPrize").textContent = formatPrize(num("prizePool"));
+        el("previewRegClose").textContent = millis("regCloseDate") ? formatDate(millis("regCloseDate")) : "Belum ditetapkan";
+        el("previewStart").textContent = millis("startDate") ? formatDate(millis("startDate")) : "Belum ditetapkan";
+
+        // Stage format preview
+        const sf = buildStageFormatsObj();
+        const fmtLabel = f => f ? f.toUpperCase() : "BO1";
+        const stageLines = val("format") === "single"
+          ? [
+              `Pusingan Awal: <strong>${fmtLabel(sf.earlyRounds)}</strong>`,
+              `Quarter Final: <strong>${fmtLabel(sf.quarterFinal)}</strong>`,
+              `Semi Final: <strong>${fmtLabel(sf.semiFinal)}</strong>`,
+              `Grand Final: <strong>${fmtLabel(sf.grandFinal)}</strong>`
+            ]
+          : [
+              `Upper Bracket: <strong>${fmtLabel(sf.upperBracket)}</strong>`,
+              `UB Final: <strong>${fmtLabel(sf.upperBracketFinal)}</strong>`,
+              `Lower Bracket: <strong>${fmtLabel(sf.lowerBracket)}</strong>`,
+              `LB Final: <strong>${fmtLabel(sf.lowerBracketFinal)}</strong>`,
+              `Grand Final: <strong>${fmtLabel(sf.grandFinal)}</strong>`
+            ];
+        el("previewStages").innerHTML = stageLines.join("<br>");
+        updateSlotNote();
+        updatePrizeWarning();
+      }
+
+      /* ── Poster URL live preview ──────────────── */
+      const posterInput   = document.getElementById("inputPosterUrl");
+      const posterPreview = document.getElementById("posterUrlPreview");
+
+      posterInput.addEventListener("input", () => {
+        const url = posterInput.value.trim();
+        if (url) {
+          posterPreview.src = url;
+          posterPreview.style.display = "block";
+          posterPreview.onerror = () => { posterPreview.style.display = "none"; };
+        } else {
+          posterPreview.style.display = "none";
+        }
+      });
+
+      form.addEventListener("input", updatePreview);
+      form.addEventListener("change", updatePreview);
+      updateStageFormats();
+      updatePreview();
+
+      form.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        clearErrors();
+
+        const regOpenDate = millis("regOpenDate");
+        const regCloseDate = millis("regCloseDate");
+        const startDate = millis("startDate");
+        let valid = true;
+
+        if (!val("name")) { mark("name", "errName"); valid = false; }
+        if (!regOpenDate) { mark("regOpenDate", "errRegOpen"); valid = false; }
+        if (!regCloseDate || regCloseDate <= regOpenDate) { mark("regCloseDate", "errRegClose"); valid = false; }
+        if (!startDate || startDate <= regCloseDate) { mark("startDate", "errStartDate"); valid = false; }
+
+        if (!valid) {
+          showAlert("Semak semula maklumat tournament.");
+          return;
+        }
+
+        const originalHTML = btnCreate.innerHTML;
+        setLoading(btnCreate, true, originalHTML);
+
+        try {
+          const tournamentRef = push(ref(db, "tournaments"));
+          const tournamentId = tournamentRef.key;
+          const format = val("format");
+          const maxTeams = num("maxTeams");
+          const matches = generateBracket([], format, maxTeams);
+
+          const posterUrl = posterInput.value.trim();
+          const stageFormats = buildStageFormatsObj();
+
+          await set(tournamentRef, {
+            name: val("name"),
+            description: val("description"),
+            category: val("category"),
+            format,
+            status: "registration",
+            teamCount: 0,
+            maxTeams,
+            prizePool: num("prizePool"),
+            entryFee: num("entryFee"),
+            prizeBreakdown: {
+              first: num("prize1"),
+              second: num("prize2"),
+              third: num("prize3"),
+            },
+            stageFormats,
+            regOpenDate,
+            regCloseDate,
+            startDate,
+            rules: val("rules"),
+            whatsappGroupId: val("whatsappGroupId"),
+            organizerId: user.uid,
+            createdAt: Date.now(),
+            teams: {},
+            matches,
+            ...(posterUrl ? { posterUrl } : {}),
+          });
+
+          alertSuccess.classList.add("show");
+          setTimeout(() => { window.location.href = "organizer.html"; }, 1500);
+        } catch (error) {
+          showAlert("Ralat mencipta tournament. Cuba lagi.");
+          setLoading(btnCreate, false, originalHTML);
+        }
+      });
+    });
+  </script>
+</body>
+</html>

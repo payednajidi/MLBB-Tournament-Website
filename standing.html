@@ -274,18 +274,18 @@
     /* Team tag as a bold badge */
     .dp-identity-tag {
       display: inline-flex; align-items: center;
-      font-family: var(--font-mono); font-size: 14px; font-weight: 700;
+      font-family: var(--font-mono); font-size: 18px; font-weight: 700;
       letter-spacing: 3px; text-transform: uppercase;
       color: #fff;
       background: rgba(251,191,36,.22);
       border: 1px solid rgba(251,191,36,.6);
-      border-radius: 6px; padding: 5px 14px; margin-bottom: 10px;
+      border-radius: 6px; padding: 6px 16px; margin-bottom: 12px;
       text-shadow: 0 0 24px rgba(251,191,36,.5);
       box-shadow: 0 0 18px rgba(251,191,36,.1), inset 0 0 14px rgba(251,191,36,.06);
     }
     .dp-identity-name {
       font-family: var(--font-head);
-      font-size: clamp(22px, 3.6vw, 40px);
+      font-size: clamp(28px, 4.2vw, 50px);
       font-weight: 800; color: #fff; line-height: 1.1;
       text-shadow: 0 2px 18px rgba(0,0,0,.95), 0 0 44px rgba(139,92,246,.35);
     }
@@ -293,8 +293,8 @@
     /* Rank pill — top-right */
     .dp-rank-pill {
       position: absolute; top: 18px; right: 60px; z-index: 4;
-      font-family: var(--font-mono); font-size: 14px; font-weight: 700;
-      padding: 6px 18px; border-radius: 22px; white-space: nowrap;
+      font-family: var(--font-mono); font-size: 17px; font-weight: 700;
+      padding: 7px 20px; border-radius: 22px; white-space: nowrap;
     }
     .dp-rank-pill.r1 { background: rgba(255,215,0,.2);   color:#ffd700; border:1px solid rgba(255,215,0,.55); }
     .dp-rank-pill.r2 { background: rgba(192,192,192,.14); color:#d4d4d4; border:1px solid rgba(192,192,192,.42); }
@@ -347,8 +347,8 @@
 
     /* Role / designation label (KAPTEN / AHLI N) */
     .dp-pc-badge {
-      font-family: var(--font-mono); font-size: 10px; font-weight: 700;
-      letter-spacing: 2px; text-transform: uppercase; margin-bottom: 6px;
+      font-family: var(--font-mono); font-size: 13px; font-weight: 700;
+      letter-spacing: 2px; text-transform: uppercase; margin-bottom: 7px;
     }
     .dp-pc-badge.cap { color: var(--gold); }
     .dp-pc-badge.mem { color: #a5b4fc; }
@@ -356,27 +356,27 @@
     /* Lane role */
     .dp-pc-role {
       display: flex; align-items: center; gap: 4px;
-      font-family: var(--font-mono); font-size: 11px; letter-spacing: .8px;
-      color: rgba(255,255,255,.6);
-      margin-bottom: 6px; white-space: nowrap;
+      font-family: var(--font-mono); font-size: 13px; letter-spacing: .8px;
+      color: rgba(255,255,255,.65);
+      margin-bottom: 7px; white-space: nowrap;
     }
 
     /* Player IGN */
     .dp-pc-name {
-      font-family: var(--font-head); font-size: 16px; font-weight: 800;
+      font-family: var(--font-head); font-size: 20px; font-weight: 800;
       color: #fff; letter-spacing: .3px; line-height: 1.15;
       white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     }
     /* Captain IGN — larger + gold shimmer */
     .dp-player-card.is-cap .dp-pc-name {
-      font-size: 19px;
+      font-size: 24px;
       text-shadow: 0 0 22px rgba(251,191,36,.28);
     }
 
     /* ML ID */
     .dp-pc-mlid {
-      font-family: var(--font-mono); font-size: 11px;
-      color: rgba(255,255,255,.48); margin-top: 5px;
+      font-family: var(--font-mono); font-size: 13px;
+      color: rgba(255,255,255,.52); margin-top: 5px;
       white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     }
 
@@ -393,9 +393,9 @@
       border: 1px solid rgba(129,140,248,.24);
       border-radius: 9px; padding: 9px 14px;
     }
-    .dp-res-label { font-family:var(--font-mono); font-size:9px; letter-spacing:2px; color:#a5b4fc; text-transform:uppercase; margin-bottom:3px; font-weight:700; }
-    .dp-res-name  { font-size:14px; font-weight:700; color:var(--txt); }
-    .dp-res-role  { font-size:12px; color:var(--txt2); font-family:var(--font-mono); margin-left:auto; flex-shrink:0; }
+    .dp-res-label { font-family:var(--font-mono); font-size:12px; letter-spacing:2px; color:#a5b4fc; text-transform:uppercase; margin-bottom:3px; font-weight:700; }
+    .dp-res-name  { font-size:17px; font-weight:700; color:var(--txt); }
+    .dp-res-role  { font-size:14px; color:var(--txt2); font-family:var(--font-mono); margin-left:auto; flex-shrink:0; }
 
     /* ── Stats body ──────────────────────────────── */
     .dp-stats-body { padding: 20px 18px 16px; }
@@ -407,12 +407,12 @@
       border-radius: 10px; padding: 12px 14px; text-align: center;
     }
     .dp-s-label {
-      font-family: var(--font-mono); font-size: 10px; font-weight: 600;
+      font-family: var(--font-mono); font-size: 12px; font-weight: 600;
       letter-spacing: 1.5px; text-transform: uppercase;
-      color: var(--txt2); margin-bottom: 6px;
+      color: var(--txt2); margin-bottom: 7px;
     }
     .dp-s-value {
-      font-family: var(--font-head); font-size: 20px; font-weight: 700;
+      font-family: var(--font-head); font-size: 24px; font-weight: 700;
       color: var(--txt); line-height: 1.1;
     }
     .dp-s-value.gold   { color: var(--gold); }
@@ -420,22 +420,22 @@
 
     /* History */
     .dp-hist-label {
-      font-family: var(--font-mono); font-size: 11px; font-weight: 700;
+      font-family: var(--font-mono); font-size: 13px; font-weight: 700;
       letter-spacing: 2px; text-transform: uppercase;
-      color: var(--txt2); padding-bottom: 9px;
-      border-bottom: 1px solid var(--border); margin-bottom: 12px;
+      color: var(--txt2); padding-bottom: 10px;
+      border-bottom: 1px solid var(--border); margin-bottom: 14px;
     }
     .dp-hist-row {
       display: flex; align-items: center; justify-content: space-between;
-      gap: 8px; padding: 10px 0;
-      border-bottom: 1px solid rgba(255,255,255,.05); font-size: 14px;
+      gap: 8px; padding: 12px 0;
+      border-bottom: 1px solid rgba(255,255,255,.05); font-size: 15px;
     }
     .dp-hist-row:last-child { border-bottom: none; }
-    .dp-hist-name { color: var(--txt); font-weight: 600; font-size: 14px; }
-    .dp-hist-cat  { font-family:var(--font-mono); font-size:10px; font-weight:700;
-                    letter-spacing:1px; text-transform:uppercase; margin-top:3px; }
+    .dp-hist-name { color: var(--txt); font-weight: 600; font-size: 16px; }
+    .dp-hist-cat  { font-family:var(--font-mono); font-size:12px; font-weight:700;
+                    letter-spacing:1px; text-transform:uppercase; margin-top:4px; }
     .dp-hist-right { display:flex; align-items:center; gap:8px; flex-shrink:0; }
-    .dp-hist-pts { font-family:var(--font-mono); font-size:12px; color:var(--txt2); font-weight:600; }
+    .dp-hist-pts { font-family:var(--font-mono); font-size:14px; color:var(--txt2); font-weight:600; }
 
     /* Footer */
     .dp-footer {
@@ -444,28 +444,32 @@
       background: var(--bg3);
       display: flex; align-items: center; justify-content: flex-end; gap: 10px; flex-wrap: wrap;
     }
-    .dp-footer-pts { font-family:var(--font-mono); font-size:13px; color:var(--txt2); margin-right:auto; }
-    .dp-footer-pts strong { color: var(--gold); font-size: 22px; }
+    .dp-footer-pts { font-family:var(--font-mono); font-size:15px; color:var(--txt2); margin-right:auto; }
+    .dp-footer-pts strong { color: var(--gold); font-size: 26px; }
 
     .dp-admin-row {
       padding: 10px 18px;
       background: rgba(251,191,36,.05);
       border-top: 1px solid rgba(251,191,36,.12);
-      display: flex; align-items: center; gap: 14px; font-size: 13px; font-weight: 600;
+      display: flex; align-items: center; gap: 14px; font-size: 15px; font-weight: 600;
     }
 
     @media (max-width: 720px) {
       .dp-players { gap: 4px; padding: 0 8px 12px; }
       .dp-player-card { padding: 9px 10px; }
       .dp-player-card.is-cap { margin-top: -10px; padding: 12px 11px; }
-      .dp-pc-name { font-size: 13px; }
-      .dp-player-card.is-cap .dp-pc-name { font-size: 15px; }
-      .dp-pc-role { font-size: 10px; }
-      .dp-pc-mlid { font-size: 9px; }
-      .dp-identity-tag { font-size: 11px; padding: 4px 10px; }
-      .dp-identity-name { font-size: 20px; }
+      .dp-pc-badge { font-size: 11px; }
+      .dp-pc-name { font-size: 15px; }
+      .dp-player-card.is-cap .dp-pc-name { font-size: 18px; }
+      .dp-pc-role { font-size: 11px; }
+      .dp-pc-mlid { font-size: 11px; }
+      .dp-identity-tag { font-size: 14px; padding: 5px 12px; }
+      .dp-identity-name { font-size: 24px; }
       .dp-stat-card { min-width: 64px; padding: 9px 10px; }
-      .dp-s-value { font-size: 16px; }
+      .dp-s-label { font-size: 10px; }
+      .dp-s-value { font-size: 18px; }
+      .dp-hist-name { font-size: 14px; }
+      .dp-hist-pts { font-size: 12px; }
       .dp-roster-img { max-height: 66vw; }
     }
 
@@ -635,8 +639,8 @@
 
       <!-- Admin: Player ID (hidden for non-admins) -->
       <div id="detailPlayerIdRow" class="dp-admin-row hidden">
-        <span style="font-family:var(--font-mono);font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--txt3)">Player ID</span>
-        <span id="detailPlayerId" style="font-family:var(--font-mono);font-size:13px;color:var(--gold)">—</span>
+        <span style="font-family:var(--font-mono);font-size:12px;letter-spacing:1.5px;text-transform:uppercase;color:var(--txt3)">Player ID</span>
+        <span id="detailPlayerId" style="font-family:var(--font-mono);font-size:15px;color:var(--gold)">—</span>
       </div>
 
       <!-- Hidden compat shim (ML ID — now shown inside player card) -->

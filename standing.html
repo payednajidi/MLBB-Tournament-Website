@@ -567,6 +567,48 @@
       .standing-table th:nth-child(4),
       .standing-table td:nth-child(4) { display: none; }
     }
+
+    /* ── Additional responsive ──────────────────── */
+    @media (max-width: 768px) {
+      /* Table horizontal scroll */
+      .table-card { overflow: visible; }
+      #standingBody { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+      .standing-table { min-width: 480px; }
+
+      /* Season bar wraps gracefully */
+      .season-bar { flex-direction: column; align-items: flex-start; gap: 8px; }
+
+      /* Modal fills screen */
+      .dp-modal { width: min(98vw, 960px); border-radius: 12px; }
+      .modal-backdrop { padding: 1vh .5rem; }
+    }
+
+    @media (max-width: 480px) {
+      .hero { padding: 1.75rem 0 1rem; }
+      .hero h1 { font-size: clamp(20px, 6vw, 32px); }
+
+      .stats-strip { gap: 8px; }
+      .stat-box strong { font-size: 18px; }
+      .stat-box span   { font-size: 11px; }
+
+      /* Standings table — show only rank, team, points */
+      .standing-table th:nth-child(5),
+      .standing-table td:nth-child(5) { display: none; } /* Sejarah column hidden at 480 */
+
+      .rank-cell { width: 36px; font-size: 13px; }
+      .team-name-cell { font-size: 13px; }
+      .points-cell { font-size: 16px; }
+      .team-tag-badge { font-size: 10px; padding: 2px 6px; margin-right: 4px; }
+
+      /* Modal */
+      .dp-modal { width: 99vw; border-radius: 8px; }
+      .dp-stats-body { padding: 14px 12px 10px; }
+      .dp-reserves { padding: 10px 12px; }
+      .dp-footer { padding: 10px 12px; }
+      .dp-footer-pts strong { font-size: 20px; }
+      .dp-s-value { font-size: 16px; }
+      .dp-stat-card { min-width: 56px; }
+    }
   </style>
 </head>
 <body>

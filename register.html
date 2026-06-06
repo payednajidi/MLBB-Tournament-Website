@@ -318,6 +318,33 @@
       flex-basis: 100%;
     }
   }
+
+  @media (max-width: 480px) {
+    .auth-wrap {
+      align-items: flex-start;
+      padding: .75rem .75rem 2rem;
+    }
+
+    .auth-card {
+      max-width: 100%;
+      width: 100%;
+    }
+
+    .auth-header { padding: 1.35rem 1rem 1.2rem; }
+    .auth-title  { font-size: 26px; }
+    .auth-subtitle { font-size: 14px; }
+    .auth-body   { padding: 1.25rem 1rem; }
+    .auth-footer { padding: .9rem 1rem; font-size: 13px; }
+
+    .auth-card .form-input { font-size: 15px; min-height: 48px; }
+    .auth-card .btn        { font-size: 14px; min-height: 48px; }
+
+    .terms-wrap { padding: 11px 12px; }
+    .terms-wrap label { font-size: 13px; }
+
+    .cred-value-wrap { flex-wrap: wrap; }
+    .cred-value { font-size: 14px; flex-basis: 100%; }
+  }
 </style>
 </head>
 <body>

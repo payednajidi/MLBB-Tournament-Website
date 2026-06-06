@@ -263,6 +263,29 @@
       .hero           { padding-top: 1.5rem; }
       .tournament-list { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); }
     }
+    @media (max-width: 480px) {
+      .home-nav-inner { padding: 8px .75rem; }
+      .home-links a   { font-size: 11px; padding: 5px 7px; min-height: 38px; }
+
+      .hero { padding: 1.25rem 0 1rem; }
+      .hero h1 { font-size: clamp(20px, 6vw, 32px); }
+
+      /* Two-column poster grid on small mobile */
+      .tournament-list { grid-template-columns: repeat(2, 1fr); gap: .75rem; }
+
+      /* Filter tabs wrap and shrink */
+      .filter-tabs { gap: 6px; margin-bottom: 1rem; }
+      .tab-btn { padding: 7px 10px; font-size: 12px; }
+
+      /* Poster card body tighter */
+      .poster-body { padding: 9px 10px 10px; gap: 7px; }
+      .poster-stats { gap: 5px; }
+      .poster-stat  { padding: 6px 8px; }
+      .poster-stat-lbl { font-size: 7px; }
+      .poster-stat-val { font-size: 12px; }
+      .poster-title-overlay { font-size: 13px; }
+      .poster-cta   { font-size: 10px; }
+    }
   </style>
 </head>
 <body>

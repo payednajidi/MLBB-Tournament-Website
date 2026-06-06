@@ -209,12 +209,74 @@
     .home-links a:hover, .home-links a.active { color: var(--gold); background: color-mix(in srgb, var(--gold) 12%, transparent); }
     .home-actions { display: flex; gap: 8px; align-items: center; flex-shrink: 0; }
 
+    @media (max-width: 1024px) {
+      .details-wrap { padding: 0 1.25rem 4rem; }
+    }
+
     @media (max-width: 860px) {
       .info-grid { grid-template-columns: repeat(2, 1fr); }
     }
-    @media (max-width: 640px) {
+
+    @media (max-width: 768px) {
+      .home-nav-inner {
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 6px;
+        padding: 8px 1rem;
+      }
+      .navbar-logo { flex: 1 1 100%; justify-content: center; }
+      .home-links  { flex-wrap: wrap; flex: 1 1 100%; overflow: visible; justify-content: center; }
+      .home-actions { justify-content: center; width: 100%; }
       .home-links a { font-size: 12px; padding: 7px 8px; }
+
+      .details-wrap { padding: 0 1rem 3rem; }
+      .hero-poster  { min-height: 200px !important; }
       .hero-content { padding: 1.5rem 1rem 1.25rem; }
+      .hero-title   { font-size: clamp(18px, 5vw, 28px); }
+
+      /* Bracket must be horizontally scrollable */
+      .bracket-scroll {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        padding-bottom: 12px;
+      }
+      .bracket-section { min-width: 600px; }
+
+      .stage-table { font-size: 12px; }
+      .stage-table th, .stage-table td { padding: 7px 10px; }
+
+      .apply-card { padding: 16px; }
+    }
+
+    @media (max-width: 480px) {
+      .home-nav-inner { padding: 6px .75rem; }
+      .home-links a   { font-size: 11px; padding: 5px 6px; }
+      .details-wrap   { padding: 0 .75rem 2.5rem; }
+
+      .info-grid { grid-template-columns: repeat(2, 1fr); gap: 7px; }
+      .info-card { padding: 10px 11px; }
+      .info-lbl  { font-size: 8px; }
+      .info-val  { font-size: 13px; }
+
+      .hero-poster  { min-height: 160px !important; }
+      .hero-content { padding: 1rem .85rem 1rem; }
+      .hero-badges  { gap: 5px; margin-bottom: 7px; }
+
+      .section-card { margin-bottom: .75rem; }
+      .section-header { padding: 11px 14px; }
+      .section-body   { padding: 14px; }
+
+      .apply-card { padding: 14px; }
+
+      /* Bracket scroll — tight on mobile */
+      .bracket-section { min-width: 520px; }
+      .round-grid { grid-auto-columns: 170px; gap: 7px; }
+      .match-card { padding: 6px; }
+      .team-row   { font-size: 11px; }
+      .team-score { font-size: 11px; }
+
+      .prize-row  { gap: 10px; padding: 8px 0; }
+      .prize-amount { font-size: 13px; }
     }
   </style>
 </head>

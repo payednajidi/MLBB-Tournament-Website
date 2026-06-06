@@ -14,7 +14,12 @@
     }
     .notice-card {
       max-width: 520px;
+      width: 100%;
       text-align: center;
+    }
+    @media (max-width: 480px) {
+      .notice-wrap { padding: 1rem .75rem; align-items: start; padding-top: 3rem; }
+      .notice-card { max-width: 100%; }
     }
   </style>
 </head>

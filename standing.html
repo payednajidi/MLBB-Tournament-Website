@@ -223,106 +223,208 @@
       padding: 3rem; text-align: center; color: var(--txt2);
     }
 
-    /* ── Team Detail Modal ──────────────────────── */
+    /* ── Team Profile Modal ─────────────────────── */
     .modal-backdrop {
       position: fixed; inset: 0;
-      background: color-mix(in srgb, var(--bg) 84%, transparent);
+      background: rgba(5,3,14,.82);
+      backdrop-filter: blur(6px);
       z-index: 1000; display: none;
-      place-items: center; padding: 1rem;
+      place-items: start center;
+      padding: 2vh 1rem;
       overflow-y: auto;
     }
     .modal-backdrop.show { display: grid; }
 
-    .detail-modal {
-      width: min(640px, 100%);
-      background: var(--card);
+    /* ── Outer shell ─────────────────────────────── */
+    .dp-modal {
+      width: min(1060px, 97vw);
+      background: var(--bg);
       border: 1px solid var(--border2);
-      border-radius: var(--radius-lg);
+      border-radius: 18px;
       overflow: hidden;
-      animation: fadeIn .25s ease both;
+      position: relative;
+      animation: fadeIn .22s ease both;
+      box-shadow: 0 40px 100px rgba(0,0,0,.65),
+                  0 0 0 1px rgba(139,92,246,.12);
     }
 
-    .modal-hero {
-      background: var(--bg3);
-      border-bottom: 1px solid var(--border);
-      padding: 1.5rem 1.5rem 1.25rem;
-      display: flex; align-items: center; gap: 1rem;
-    }
-    .modal-hex {
-      width: 52px; height: 52px;
-      background: var(--gold);
-      clip-path: polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);
+    /* Close button */
+    .dp-close {
+      position: absolute; top: 14px; right: 14px; z-index: 20;
+      background: rgba(0,0,0,.6); border: 1px solid rgba(255,255,255,.14);
+      border-radius: 8px; color: var(--txt2);
+      width: 34px; height: 34px;
       display: flex; align-items: center; justify-content: center;
-      font-family: var(--font-mono); font-size: 13px;
-      font-weight: 700; color: #000; flex-shrink: 0;
-      letter-spacing: 1px;
+      cursor: pointer; font-size: 15px; transition: all .18s;
     }
-    .modal-team-title { flex: 1; }
-    .modal-team-name  { font-size: 22px; font-family: var(--font-head); color: var(--txt); }
-    .modal-team-tag   { font-family: var(--font-mono); font-size: 12px; color: var(--gold); letter-spacing: 2px; }
-    .modal-rank-badge {
-      font-family: var(--font-mono); font-size: 13px;
-      font-weight: 700; padding: 4px 12px;
-      border-radius: var(--radius); flex-shrink: 0;
+    .dp-close:hover { background: rgba(239,68,68,.3); color: #fca5a5; border-color: rgba(239,68,68,.5); }
+
+    /* ── Roster stage (top 70%) ─────────────────── */
+    .dp-stage { position: relative; overflow: hidden; background: #000; line-height: 0; }
+    .dp-roster-img {
+      width: 100%; display: block;
+      object-fit: cover; max-height: 52vmin;
+      min-height: 260px;
     }
-    .modal-rank-badge.r1 { background: rgba(255,215,0,.18); color: #ffd700; border: 1px solid rgba(255,215,0,.4); }
-    .modal-rank-badge.r2 { background: rgba(192,192,192,.12); color: #c0c0c0; border: 1px solid rgba(192,192,192,.3); }
-    .modal-rank-badge.r3 { background: rgba(205,127,50,.12); color: #cd7f32; border: 1px solid rgba(205,127,50,.3); }
-    .modal-rank-badge.rn { background: var(--bg3); color: var(--txt2); border: 1px solid var(--border); }
 
-    .modal-body { padding: 1.25rem 1.5rem; }
+    /* Identity overlay — top-left */
+    .dp-identity {
+      position: absolute; top: 18px; left: 20px; z-index: 4;
+      text-shadow: 0 2px 12px rgba(0,0,0,.9);
+    }
+    .dp-identity-tag {
+      font-family: var(--font-mono); font-size: 11px;
+      letter-spacing: 2.5px; color: var(--gold);
+      text-transform: uppercase; margin-bottom: 4px;
+    }
+    .dp-identity-name {
+      font-family: var(--font-head); font-size: clamp(20px,3.2vw,34px);
+      font-weight: 700; color: #fff; line-height: 1.1;
+    }
 
-    .modal-section-label {
+    /* Rank pill — top-right (inset to avoid close btn) */
+    .dp-rank-pill {
+      position: absolute; top: 16px; right: 58px; z-index: 4;
+      font-family: var(--font-mono); font-size: 13px; font-weight: 700;
+      padding: 5px 16px; border-radius: 20px; white-space: nowrap;
+    }
+    .dp-rank-pill.r1 { background: rgba(255,215,0,.18); color:#ffd700; border:1px solid rgba(255,215,0,.45); }
+    .dp-rank-pill.r2 { background: rgba(192,192,192,.12); color:#c0c0c0; border:1px solid rgba(192,192,192,.35); }
+    .dp-rank-pill.r3 { background: rgba(205,127,50,.12); color:#cd7f32; border:1px solid rgba(205,127,50,.35); }
+    .dp-rank-pill.rn { background: rgba(99,102,241,.12); color:#a5b4fc; border:1px solid rgba(99,102,241,.3); }
+
+    /* Bottom gradient over image */
+    .dp-stage-fade {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      height: 58%; z-index: 2; pointer-events: none;
+      background: linear-gradient(to top, var(--bg) 0%, rgba(5,3,14,.88) 38%, transparent 100%);
+    }
+
+    /* Player cards — absolute at image bottom */
+    .dp-players {
+      position: absolute; bottom: 0; left: 0; right: 0; z-index: 3;
+      display: flex; gap: 6px; padding: 0 16px 16px;
+    }
+    .dp-player-card {
+      flex: 1; min-width: 0;
+      background: rgba(8,6,18,.75);
+      backdrop-filter: blur(14px);
+      border: 1px solid rgba(255,255,255,.09);
+      border-radius: 10px; padding: 9px 11px;
+      transition: border-color .2s, transform .2s;
+      line-height: 1;
+    }
+    .dp-player-card:hover { border-color: rgba(139,92,246,.45); transform: translateY(-2px); }
+    .dp-player-card.is-cap { border-color: rgba(251,191,36,.35); background: rgba(28,20,4,.78); }
+    .dp-player-card.empty  { opacity: .28; pointer-events: none; }
+    .dp-pc-badge {
+      font-family: var(--font-mono); font-size: 8px;
+      letter-spacing: 1.8px; text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+    .dp-pc-badge.cap  { color: var(--gold); }
+    .dp-pc-badge.mem  { color: #818cf8; }
+    .dp-pc-role {
+      display: flex; align-items: center; gap: 3px;
+      font-family: var(--font-mono); font-size: 9px;
+      letter-spacing: 1px; color: rgba(255,255,255,.38);
+      margin-bottom: 5px; white-space: nowrap;
+    }
+    .dp-pc-name {
+      font-family: var(--font-head); font-size: 14px; font-weight: 700;
+      color: #fff; letter-spacing: .4px;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .dp-pc-mlid {
+      font-family: var(--font-mono); font-size: 9px;
+      color: rgba(255,255,255,.32); margin-top: 3px;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+
+    /* ── Reserve chips ───────────────────────────── */
+    .dp-reserves {
+      display: flex; gap: 6px; padding: 10px 16px 2px;
+      background: rgba(129,140,248,.04);
+      border-bottom: 1px solid rgba(129,140,248,.1);
+    }
+    .dp-res-chip {
+      flex: 1; display: flex; align-items: center; gap: 8px;
+      background: rgba(129,140,248,.07);
+      border: 1px solid rgba(129,140,248,.18);
+      border-radius: 8px; padding: 7px 12px;
+    }
+    .dp-res-label { font-family:var(--font-mono); font-size:8px; letter-spacing:1.5px; color:#818cf8; text-transform:uppercase; margin-bottom:1px; }
+    .dp-res-name  { font-size:13px; font-weight:600; color:var(--txt2); }
+    .dp-res-role  { font-size:10px; color:var(--txt3); font-family:var(--font-mono); margin-left:auto; flex-shrink:0; }
+
+    /* ── Stats body (bottom 30%) ─────────────────── */
+    .dp-stats-body { padding: 18px 18px 14px; }
+
+    .dp-stat-row {
+      display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 18px;
+    }
+    .dp-stat-card {
+      flex: 1; min-width: 80px;
+      background: var(--bg3); border: 1px solid var(--border);
+      border-radius: 10px; padding: 10px 14px; text-align: center;
+    }
+    .dp-s-label {
+      font-family: var(--font-mono); font-size: 9px;
+      letter-spacing: 1.5px; text-transform: uppercase;
+      color: var(--txt3); margin-bottom: 5px;
+    }
+    .dp-s-value {
+      font-family: var(--font-head); font-size: 18px; font-weight: 700;
+      color: var(--txt); line-height: 1.1;
+    }
+    .dp-s-value.gold   { color: var(--gold); }
+    .dp-s-value.purple { color: #a855f7; }
+
+    .dp-hist-label {
       font-family: var(--font-mono); font-size: 10px;
       letter-spacing: 2px; text-transform: uppercase;
-      color: var(--txt3); margin-bottom: 8px;
-      padding-bottom: 5px; border-bottom: 1px solid var(--border);
+      color: var(--txt3); padding-bottom: 8px;
+      border-bottom: 1px solid var(--border); margin-bottom: 10px;
     }
-
-    .info-grid {
-      display: grid; grid-template-columns: 1fr 1fr;
-      gap: 10px; margin-bottom: 1.25rem;
-    }
-    .info-item-label { font-size: 11px; color: var(--txt3); font-family: var(--font-mono); letter-spacing: 1px; text-transform: uppercase; }
-    .info-item-value { font-size: 14px; color: var(--txt); font-weight: 500; margin-top: 2px; }
-
-    .member-row-detail {
+    .dp-hist-row {
       display: flex; align-items: center;
       justify-content: space-between; gap: 8px;
-      padding: 8px 0; border-bottom: 1px solid var(--border);
-    }
-    .member-row-detail:last-child { border-bottom: none; }
-    .member-name-detail { font-weight: 600; color: var(--txt); font-size: 14px; }
-    .member-sub { font-size: 12px; color: var(--txt2); font-family: var(--font-mono); }
-    .member-role-tag {
-      font-family: var(--font-head); font-size: 11px;
-      color: var(--txt2); background: var(--bg3);
-      border: 1px solid var(--border); border-radius: 4px;
-      padding: 2px 7px; white-space: nowrap; flex-shrink: 0;
-    }
-
-    .history-row {
-      display: flex; align-items: center;
-      justify-content: space-between; gap: 8px;
-      padding: 8px 0; border-bottom: 1px solid var(--border);
+      padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,.04);
       font-size: 13px;
     }
-    .history-row:last-child { border-bottom: none; }
-    .history-name { color: var(--txt); }
-    .history-pts  { font-family: var(--font-mono); font-size: 11px; color: var(--txt3); }
+    .dp-hist-row:last-child { border-bottom: none; }
+    .dp-hist-name { color: var(--txt); font-weight: 500; }
+    .dp-hist-cat  { font-family:var(--font-mono); font-size:8px; letter-spacing:1px; text-transform:uppercase; margin-top:2px; }
+    .dp-hist-right { display:flex; align-items:center; gap:8px; flex-shrink:0; }
+    .dp-hist-pts { font-family:var(--font-mono); font-size:11px; color:var(--txt3); }
 
-    .modal-footer {
-      padding: .85rem 1.5rem;
-      border-top: 1px solid var(--border);
+    /* ── Footer / admin row ──────────────────────── */
+    .dp-footer {
+      padding: 11px 18px;
+      border-top: 1px solid rgba(255,255,255,.05);
       background: var(--bg3);
-      display: flex; justify-content: space-between;
-      align-items: center; gap: 12px; flex-wrap: wrap;
+      display: flex; align-items: center; justify-content: flex-end; gap: 10px; flex-wrap: wrap;
     }
-    .modal-pts-display {
-      font-family: var(--font-mono); font-size: 13px;
-      color: var(--txt2);
+    .dp-footer-pts {
+      font-family: var(--font-mono); font-size: 12px; color: var(--txt2); margin-right: auto;
     }
-    .modal-pts-display strong { color: var(--gold); font-size: 20px; }
+    .dp-footer-pts strong { color: var(--gold); font-size: 19px; }
+    .dp-admin-row {
+      padding: 8px 18px;
+      background: rgba(251,191,36,.04);
+      border-top: 1px solid rgba(251,191,36,.1);
+      display: flex; align-items: center; gap: 12px; font-size: 12px;
+    }
+
+    @media (max-width: 720px) {
+      .dp-players { gap: 3px; padding: 0 8px 10px; }
+      .dp-player-card { padding: 7px 8px; }
+      .dp-pc-name { font-size: 12px; }
+      .dp-identity-name { font-size: 18px; }
+      .dp-stat-card { min-width: 64px; padding: 8px 10px; }
+      .dp-s-value { font-size: 14px; }
+      .dp-roster-img { max-height: 64vw; }
+    }
 
     /* ── Admin recalculate bar ──────────────────── */
     .admin-bar {
@@ -338,7 +440,6 @@
 
     @media (max-width: 720px) {
       .stats-strip { grid-template-columns: repeat(2, 1fr); }
-      .info-grid { grid-template-columns: 1fr; }
       /* Hide Ahli (4) and Tier (3) columns on mobile */
       .standing-table th:nth-child(3),
       .standing-table td:nth-child(3),
@@ -425,59 +526,89 @@
     </section>
   </main>
 
-  <!-- ── Team Detail Modal ───────────────────────── -->
+  <!-- ── Team Profile Modal ──────────────────────── -->
   <div class="modal-backdrop" id="detailModal">
-    <div class="detail-modal">
-      <div class="modal-hero">
-        <div class="modal-hex" id="detailHex">—</div>
-        <div class="modal-team-title">
-          <div class="modal-team-tag" id="detailTag">—</div>
-          <div class="modal-team-name" id="detailName">—</div>
+    <div class="dp-modal">
+
+      <!-- Close -->
+      <button class="dp-close" id="btnCloseModal">✕</button>
+
+      <!-- ── Roster Stage ──────────────────────── -->
+      <div class="dp-stage">
+        <!-- Team identity overlay -->
+        <div class="dp-identity">
+          <div class="dp-identity-tag" id="detailTag">[ — ]</div>
+          <div class="dp-identity-name" id="detailName">—</div>
         </div>
-        <div class="modal-rank-badge rn" id="detailRankBadge">#—</div>
+        <!-- Rank pill -->
+        <div class="dp-rank-pill rn" id="detailRankBadge">#—</div>
+        <!-- Roster artwork -->
+        <img src="assets/roster_image.png" class="dp-roster-img" alt="Team Roster">
+        <!-- Gradient overlay -->
+        <div class="dp-stage-fade"></div>
+        <!-- Player info cards -->
+        <div class="dp-players" id="detailPlayersOverlay"></div>
       </div>
 
-      <div class="modal-body">
-        <!-- Info -->
-        <p class="modal-section-label" style="margin-top:0">Maklumat Pasukan</p>
-        <div class="info-grid">
-          <div>
-            <div class="info-item-label">Server Region</div>
-            <div class="info-item-value" id="detailRegion">—</div>
+      <!-- Reserve strip (shown only if team has reserves) -->
+      <div class="dp-reserves" id="detailReserves" style="display:none"></div>
+
+      <!-- ── Stats Body ─────────────────────────── -->
+      <div class="dp-stats-body">
+
+        <!-- Stat blocks -->
+        <div class="dp-stat-row">
+          <div class="dp-stat-card">
+            <div class="dp-s-label">Kedudukan</div>
+            <div class="dp-s-value gold" id="detailRankNum">#—</div>
           </div>
-          <div>
-            <div class="info-item-label">Rank Kapten</div>
-            <div class="info-item-value" id="detailRank">—</div>
+          <div class="dp-stat-card">
+            <div class="dp-s-label">Jumlah Mata</div>
+            <div class="dp-s-value gold" id="detailPts">0</div>
           </div>
-          <div>
-            <div class="info-item-label">ML ID Kapten</div>
-            <div class="info-item-value" id="detailMlId" style="font-family:var(--font-mono);font-size:13px">—</div>
+          <div class="dp-stat-card">
+            <div class="dp-s-label">Tier Kompetitif</div>
+            <div class="dp-s-value" id="detailTier">—</div>
           </div>
-          <div>
-            <div class="info-item-label">Tier Kompetitif</div>
-            <div class="info-item-value" id="detailTier">—</div>
+          <div class="dp-stat-card">
+            <div class="dp-s-label">Server Region</div>
+            <div class="dp-s-value" id="detailRegion">—</div>
           </div>
-          <div id="detailPlayerIdRow" class="hidden">
-            <div class="info-item-label">Player ID</div>
-            <div class="info-item-value" id="detailPlayerId" style="font-family:var(--font-mono);font-size:13px;color:var(--gold)">—</div>
+          <div class="dp-stat-card">
+            <div class="dp-s-label">Rank Kapten</div>
+            <div class="dp-s-value" id="detailRank">—</div>
+          </div>
+          <div class="dp-stat-card">
+            <div class="dp-s-label">Tournament Disertai</div>
+            <div class="dp-s-value purple" id="detailTournamentCount">0</div>
           </div>
         </div>
-
-        <!-- Members -->
-        <p class="modal-section-label">Roster Pasukan</p>
-        <div id="detailRoster" style="margin-bottom:1.25rem"></div>
 
         <!-- Tournament history -->
-        <p class="modal-section-label">Sejarah Tournament</p>
+        <div class="dp-hist-label">SEJARAH TOURNAMENT</div>
         <div id="detailHistory"></div>
+
       </div>
 
-      <div class="modal-footer">
-        <div class="modal-pts-display">
-          Jumlah Mata: <strong id="detailPts">0</strong>
-        </div>
-        <button class="btn btn-secondary btn-sm" id="btnCloseModal">Tutup</button>
+      <!-- Admin: Player ID (hidden for non-admins) -->
+      <div id="detailPlayerIdRow" class="dp-admin-row hidden">
+        <span style="font-family:var(--font-mono);font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--txt3)">Player ID</span>
+        <span id="detailPlayerId" style="font-family:var(--font-mono);font-size:13px;color:var(--gold)">—</span>
       </div>
+
+      <!-- Hidden compat shim (ML ID — now shown inside player card) -->
+      <span id="detailMlId" style="display:none"></span>
+      <!-- Hidden compat shim (old roster div) -->
+      <div id="detailRoster" style="display:none"></div>
+
+      <!-- Footer -->
+      <div class="dp-footer">
+        <div class="dp-footer-pts">
+          Jumlah Mata: <strong id="detailPtsFooter">0</strong>
+        </div>
+        <button class="btn btn-secondary btn-sm" id="btnCloseModal2">Tutup</button>
+      </div>
+
     </div>
   </div>
 
@@ -845,7 +976,17 @@
       updateStats(allStandings, filteredT);
     }
 
-    /* ── Modal ────────────────────────────────── */
+    /* ── Helpers ──────────────────────────────── */
+    function escHtml(str) {
+      return String(str ?? "")
+        .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")
+        .replace(/"/g,"&quot;");
+    }
+
+    /* ── Team Profile Modal ───────────────────── */
+    const ROLE_ICON_MAP = { Hyper:"⚡", Roamer:"🛡", EXPlaner:"⚔️", Goldlaner:"🏹", Midlaner:"🔮" };
+    const ri = role => ROLE_ICON_MAP[role] || "";
+
     function openDetail(uid) {
       const row = allStandings.find(r => r.uid === uid);
       if (!row) return;
@@ -853,82 +994,97 @@
       const team    = row.team;
       const user    = teamUsers[uid] || {};
       const tag     = team.teamTag || "—";
-      const members = (team.members || []).filter(m => m.name);
+      const members = (team.members  || []).filter(m => m && m.name);
+      const reserves= (team.reserves || []).filter(r => r && r.name);
+      const rk      = row.rank;
+      const rankCls = rk === 1 ? "r1" : rk === 2 ? "r2" : rk === 3 ? "r3" : "rn";
+      const rankTxt = rk <= 3 ? `${MEDAL[rk]} #${rk}` : `#${rk}`;
 
-      // Header
-      document.getElementById("detailHex").textContent  = tag.slice(0, 4);
+      /* Identity */
       document.getElementById("detailTag").textContent  = `[ ${tag} ]`;
       document.getElementById("detailName").textContent = team.teamName || "Tanpa Nama";
 
-      // Rank badge
+      /* Rank pill */
       const rankBadge = document.getElementById("detailRankBadge");
-      const r = row.rank;
-      rankBadge.textContent = r <= 3 ? `${MEDAL[r]} #${r}` : `#${r}`;
-      rankBadge.className   = `modal-rank-badge ${r === 1 ? "r1" : r === 2 ? "r2" : r === 3 ? "r3" : "rn"}`;
+      rankBadge.textContent = rankTxt;
+      rankBadge.className   = `dp-rank-pill ${rankCls}`;
 
-      // Info grid
-      document.getElementById("detailRegion").textContent = team.serverRegion || "—";
-      document.getElementById("detailRank").textContent   =
-        team.captainRank
-          ? `${team.captainRank}${team.captainRankStars ? ` ★${team.captainRankStars}` : ""}`
-          : "—";
-      document.getElementById("detailMlId").textContent   = team.mlId || "—";
-      document.getElementById("detailPlayerId").textContent = user.playerId || "—";
+      /* Stat blocks */
+      document.getElementById("detailRankNum").textContent        = rankTxt;
+      document.getElementById("detailPts").textContent            = row.points;
+      document.getElementById("detailRegion").textContent         = team.serverRegion || "MY/SG";
+      document.getElementById("detailRank").textContent           = team.captainRank
+        ? `${team.captainRank}${team.captainRankStars ? ` ★${team.captainRankStars}` : ""}` : "—";
+      document.getElementById("detailTournamentCount").textContent = row.history.length;
+      document.getElementById("detailPtsFooter").textContent       = row.points;
 
-      // Roster
-      const roleIcon = role => ROLE_ICONS[role] || "";
-      const captainRow = `
-        <div class="member-row-detail">
-          <div>
-            <div class="member-name-detail">${team.displayName || "—"}</div>
-            <div class="member-sub">ML ID: ${team.mlId || "—"}</div>
-          </div>
-          <div style="display:flex;gap:6px;align-items:center;flex-shrink:0">
-            <span style="font-family:var(--font-mono);font-size:9px;color:var(--gold);letter-spacing:1px">KAPTEN</span>
-            ${team.captainRole ? `<span class="member-role-tag">${roleIcon(team.captainRole)} ${team.captainRole}</span>` : ""}
-          </div>
+      /* Tier */
+      document.getElementById("detailTier").innerHTML =
+        `<span class="tier-badge tier-${row.tier.key}">${row.tier.label}</span>`;
+
+      /* Admin shims */
+      document.getElementById("detailMlId").textContent      = team.mlId || "—";
+      document.getElementById("detailPlayerId").textContent  = user.playerId || "—";
+
+      /* ── Player cards overlay ──────────────── */
+      const active = [
+        { name: team.displayName, mlId: team.mlId, role: team.captainRole, isCap: true },
+        ...members.slice(0, 4).map(m => ({ name: m.name, mlId: m.mlId, role: m.role, isCap: false })),
+      ];
+      while (active.length < 5) active.push({ name: null, mlId: null, role: null, isCap: false });
+
+      document.getElementById("detailPlayersOverlay").innerHTML = active.map((p, i) => {
+        if (!p.name) return `<div class="dp-player-card empty">
+          <div class="dp-pc-name" style="color:var(--txt3)">Slot Kosong</div></div>`;
+        const label = p.isCap ? "KAPTEN" : `AHLI ${i + 1}`;
+        const cls   = p.isCap ? "cap" : "mem";
+        return `<div class="dp-player-card${p.isCap ? " is-cap" : ""}">
+          <div class="dp-pc-badge ${cls}">${label}</div>
+          ${p.role ? `<div class="dp-pc-role">${ri(p.role)} ${p.role}</div>` : ""}
+          <div class="dp-pc-name">${escHtml(p.name)}</div>
+          ${p.mlId ? `<div class="dp-pc-mlid">${escHtml(p.mlId)}</div>` : ""}
         </div>`;
-      const memberRows = members.map(m => `
-        <div class="member-row-detail">
-          <div>
-            <div class="member-name-detail">${m.name}</div>
-            ${m.mlId ? `<div class="member-sub">ML ID: ${m.mlId}</div>` : ""}
-          </div>
-          ${m.role ? `<span class="member-role-tag">${roleIcon(m.role)} ${m.role}</span>` : ""}
-        </div>`).join("");
-      document.getElementById("detailRoster").innerHTML = captainRow + memberRows;
+      }).join("");
 
-      // Tier badge in modal
-      const tierEl = document.getElementById("detailTier");
-      if (tierEl) {
-        tierEl.innerHTML = `<span class="tier-badge tier-${row.tier.key}">${row.tier.label}</span>`;
+      /* ── Reserve strip ─────────────────────── */
+      const resEl = document.getElementById("detailReserves");
+      if (reserves.length) {
+        resEl.style.display = "flex";
+        resEl.innerHTML = reserves.map(r => `
+          <div class="dp-res-chip">
+            <div>
+              <div class="dp-res-label">Rizab</div>
+              <div class="dp-res-name">${escHtml(r.name)}</div>
+            </div>
+            ${r.role ? `<span class="dp-res-role">${ri(r.role)} ${r.role}</span>` : ""}
+          </div>`).join("");
+      } else {
+        resEl.style.display = "none";
       }
 
-      // Tournament history with new placement labels
+      /* ── Tournament history ─────────────────── */
       const PLACEMENT_LABEL = {
-        1: "Juara", 2: "Naib Juara", 3: "Tempat Ketiga",
-        4: "Tempat Keempat", 5: "Top 8", 9: "Top 16", 0: "Peserta"
+        1:"Juara", 2:"Naib Juara", 3:"Tempat Ketiga", 4:"Tempat Keempat"
       };
       const placementLabel = pl => {
         if (pl >= 5 && pl <= 8)  return "Top 8";
         if (pl >= 9 && pl <= 16) return "Top 16";
         return PLACEMENT_LABEL[pl] || "Peserta";
       };
-      const catBadge = cat => {
-        const map = { marhaen:"var(--green)", jaguh:"#3b82f6", sultan:"var(--gold)" };
-        return `<span style="font-family:var(--font-mono);font-size:8px;letter-spacing:1px;color:${map[cat]||"var(--txt3)"};text-transform:uppercase">${cat||""}</span>`;
-      };
+      const catColor = { marhaen:"var(--green)", jaguh:"#3b82f6", sultan:"var(--gold)" };
 
-      if (row.history.length) {
-        document.getElementById("detailHistory").innerHTML = row.history.map(h => `
-          <div class="history-row">
+      document.getElementById("detailHistory").innerHTML = row.history.length
+        ? row.history.map(h => `
+          <div class="dp-hist-row">
             <div>
-              <span class="history-name">${h.name}</span>
-              <div style="margin-top:2px">${catBadge(h.category)}</div>
+              <div class="dp-hist-name">${escHtml(h.name)}</div>
+              <div class="dp-hist-cat" style="color:${catColor[h.category]||"var(--txt3)"}">
+                ${(h.category||"").toUpperCase()}
+              </div>
             </div>
-            <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
+            <div class="dp-hist-right">
               ${h.placement >= 1 && h.placement <= 3
-                ? `<span class="placement-pip pip-${h.placement}">${MEDAL[h.placement]||""} ${placementLabel(h.placement)}</span>`
+                ? `<span class="placement-pip pip-${h.placement}">${MEDAL[h.placement]} ${placementLabel(h.placement)}</span>`
                 : h.placement === 4
                   ? `<span class="placement-pip pip-4">4th ${placementLabel(4)}</span>`
                   : h.placement >= 5 && h.placement <= 8
@@ -936,15 +1092,13 @@
                     : h.placement >= 9
                       ? `<span class="placement-pip pip-top16">Top 16</span>`
                       : `<span style="color:var(--txt3);font-size:12px">Peserta</span>`}
-              <span class="history-pts">+${h.pts} mata</span>
+              <span class="dp-hist-pts">+${h.pts} pts</span>
             </div>
-          </div>`).join("");
-      } else {
-        document.getElementById("detailHistory").innerHTML =
-          '<p style="color:var(--txt3);font-size:13px">Belum menyertai mana-mana tournament.</p>';
-      }
+          </div>`).join("")
+        : `<p style="color:var(--txt3);font-size:13px;padding:8px 0">
+             Belum menyertai mana-mana tournament.
+           </p>`;
 
-      document.getElementById("detailPts").textContent = row.points;
       document.getElementById("detailModal").classList.add("show");
     }
 
@@ -953,6 +1107,7 @@
     }
 
     document.getElementById("btnCloseModal").addEventListener("click", closeDetail);
+    document.getElementById("btnCloseModal2").addEventListener("click", closeDetail);
     document.getElementById("detailModal").addEventListener("click", e => {
       if (e.target === document.getElementById("detailModal")) closeDetail();
     });

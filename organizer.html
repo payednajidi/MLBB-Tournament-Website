@@ -346,7 +346,9 @@
     }
     .modal-section:first-child { margin-top: 0; }
     .edit-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    .edit-grid-3 { display: grid; grid-template-columns: 1fr 1fr 140px; gap: 10px; }
+    .edit-grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+    .edit-grid-4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 10px; }
+    .edit-row-gap { margin-top: 8px; }
     .member-edit-block {
       background: var(--bg); border: 1px solid var(--border);
       border-radius: var(--radius); padding: .85rem; margin-bottom: 8px;
@@ -377,7 +379,7 @@
     @media (max-width: 760px) {
       .stats-row { grid-template-columns: 1fr; }
       .home-links a  { font-size: 12px; padding: 7px 10px; }
-      .edit-grid-2, .edit-grid-3 { grid-template-columns: 1fr; }
+      .edit-grid-2, .edit-grid-3, .edit-grid-4 { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -642,12 +644,11 @@
             <label class="form-label" for="esCaptainRole">Peranan</label>
             <select class="form-select" id="esCaptainRole">
               <option value="">— Pilih —</option>
-              <option value="Tank">🛡️ Tank</option>
-              <option value="Fighter">⚔️ Fighter</option>
-              <option value="Assassin">🗡️ Assassin</option>
-              <option value="Mage">🔮 Mage</option>
-              <option value="Marksman">🏹 Marksman</option>
-              <option value="Support">💚 Support</option>
+              <option value="Hyper">⚡ Hyper</option>
+              <option value="Roamer">🛡 Roamer</option>
+              <option value="EXPlaner">⚔️ EXP Laner</option>
+              <option value="Goldlaner">🏹 Gold Laner</option>
+              <option value="Midlaner">🔮 Mid Laner</option>
             </select>
           </div>
           <div class="form-group" style="margin-bottom:0">
@@ -688,109 +689,161 @@
 
         <!-- Member 2 -->
         <div class="member-edit-block">
-          <div class="member-edit-label">Ahli 2</div>
-          <div class="edit-grid-3">
-            <div>
-              <label class="form-label" for="esM2Name">Nama In-Game</label>
-              <input class="form-input" id="esM2Name" type="text" maxlength="30" autocomplete="off" placeholder="PlayerTwo">
-            </div>
-            <div>
-              <label class="form-label" for="esM2Id">ML ID</label>
-              <input class="form-input" id="esM2Id" type="text" maxlength="25" autocomplete="off">
-            </div>
-            <div>
-              <label class="form-label" for="esM2Role">Peranan</label>
+          <div class="member-edit-label">Ahli 2 — Wajib</div>
+          <div class="edit-grid-2">
+            <div><label class="form-label" for="esM2Name">Nama In-Game</label>
+              <input class="form-input" id="esM2Name" type="text" maxlength="30" autocomplete="off" placeholder="PlayerTwo"></div>
+            <div><label class="form-label" for="esM2Id">ML ID</label>
+              <input class="form-input" id="esM2Id" type="text" maxlength="25" autocomplete="off"></div>
+          </div>
+          <div class="edit-grid-3 edit-row-gap">
+            <div><label class="form-label" for="esM2Role">Peranan</label>
               <select class="form-select" id="esM2Role">
                 <option value="">—</option>
-                <option value="Tank">Tank</option>
-                <option value="Fighter">Fighter</option>
-                <option value="Assassin">Assassin</option>
-                <option value="Mage">Mage</option>
-                <option value="Marksman">Marksman</option>
-                <option value="Support">Support</option>
-              </select>
-            </div>
+                <option value="Hyper">⚡ Hyper</option>
+                <option value="Roamer">🛡 Roamer</option>
+                <option value="EXPlaner">⚔️ EXP Laner</option>
+                <option value="Goldlaner">🏹 Gold Laner</option>
+                <option value="Midlaner">🔮 Mid Laner</option>
+              </select></div>
+            <div><label class="form-label" for="esM2Rank">Rank Semasa</label>
+              <select class="form-select" id="esM2Rank">
+                <option value="">— Pilih —</option>
+                <option value="Warrior">Warrior</option><option value="Elite">Elite</option>
+                <option value="Master">Master</option><option value="Grandmaster">Grandmaster</option>
+                <option value="Epic">Epic</option><option value="Legend">Legend</option>
+                <option value="Mythic">Mythic</option><option value="Mythic Honor">Mythic Honor</option>
+                <option value="Mythic Glory">Mythic Glory</option><option value="Mythic Immortal">Mythic Immortal</option>
+              </select></div>
+            <div><label class="form-label" for="esM2HighestRank">Rank Tertinggi</label>
+              <select class="form-select" id="esM2HighestRank">
+                <option value="">— Pilih —</option>
+                <option value="Warrior">Warrior</option><option value="Elite">Elite</option>
+                <option value="Master">Master</option><option value="Grandmaster">Grandmaster</option>
+                <option value="Epic">Epic</option><option value="Legend">Legend</option>
+                <option value="Mythic">Mythic</option><option value="Mythic Honor">Mythic Honor</option>
+                <option value="Mythic Glory">Mythic Glory</option><option value="Mythic Immortal">Mythic Immortal</option>
+              </select></div>
           </div>
         </div>
 
         <!-- Member 3 -->
         <div class="member-edit-block">
-          <div class="member-edit-label">Ahli 3</div>
-          <div class="edit-grid-3">
-            <div>
-              <label class="form-label" for="esM3Name">Nama In-Game</label>
-              <input class="form-input" id="esM3Name" type="text" maxlength="30" autocomplete="off" placeholder="PlayerThree">
-            </div>
-            <div>
-              <label class="form-label" for="esM3Id">ML ID</label>
-              <input class="form-input" id="esM3Id" type="text" maxlength="25" autocomplete="off">
-            </div>
-            <div>
-              <label class="form-label" for="esM3Role">Peranan</label>
+          <div class="member-edit-label">Ahli 3 — Wajib</div>
+          <div class="edit-grid-2">
+            <div><label class="form-label" for="esM3Name">Nama In-Game</label>
+              <input class="form-input" id="esM3Name" type="text" maxlength="30" autocomplete="off" placeholder="PlayerThree"></div>
+            <div><label class="form-label" for="esM3Id">ML ID</label>
+              <input class="form-input" id="esM3Id" type="text" maxlength="25" autocomplete="off"></div>
+          </div>
+          <div class="edit-grid-3 edit-row-gap">
+            <div><label class="form-label" for="esM3Role">Peranan</label>
               <select class="form-select" id="esM3Role">
                 <option value="">—</option>
-                <option value="Tank">Tank</option>
-                <option value="Fighter">Fighter</option>
-                <option value="Assassin">Assassin</option>
-                <option value="Mage">Mage</option>
-                <option value="Marksman">Marksman</option>
-                <option value="Support">Support</option>
-              </select>
-            </div>
+                <option value="Hyper">⚡ Hyper</option>
+                <option value="Roamer">🛡 Roamer</option>
+                <option value="EXPlaner">⚔️ EXP Laner</option>
+                <option value="Goldlaner">🏹 Gold Laner</option>
+                <option value="Midlaner">🔮 Mid Laner</option>
+              </select></div>
+            <div><label class="form-label" for="esM3Rank">Rank Semasa</label>
+              <select class="form-select" id="esM3Rank">
+                <option value="">— Pilih —</option>
+                <option value="Warrior">Warrior</option><option value="Elite">Elite</option>
+                <option value="Master">Master</option><option value="Grandmaster">Grandmaster</option>
+                <option value="Epic">Epic</option><option value="Legend">Legend</option>
+                <option value="Mythic">Mythic</option><option value="Mythic Honor">Mythic Honor</option>
+                <option value="Mythic Glory">Mythic Glory</option><option value="Mythic Immortal">Mythic Immortal</option>
+              </select></div>
+            <div><label class="form-label" for="esM3HighestRank">Rank Tertinggi</label>
+              <select class="form-select" id="esM3HighestRank">
+                <option value="">— Pilih —</option>
+                <option value="Warrior">Warrior</option><option value="Elite">Elite</option>
+                <option value="Master">Master</option><option value="Grandmaster">Grandmaster</option>
+                <option value="Epic">Epic</option><option value="Legend">Legend</option>
+                <option value="Mythic">Mythic</option><option value="Mythic Honor">Mythic Honor</option>
+                <option value="Mythic Glory">Mythic Glory</option><option value="Mythic Immortal">Mythic Immortal</option>
+              </select></div>
           </div>
         </div>
 
         <!-- Member 4 -->
         <div class="member-edit-block">
           <div class="member-edit-label">Ahli 4 <span style="color:var(--txt3);font-weight:400">— Pilihan</span></div>
-          <div class="edit-grid-3">
-            <div>
-              <label class="form-label" for="esM4Name">Nama In-Game</label>
-              <input class="form-input" id="esM4Name" type="text" maxlength="30" autocomplete="off" placeholder="PlayerFour">
-            </div>
-            <div>
-              <label class="form-label" for="esM4Id">ML ID</label>
-              <input class="form-input" id="esM4Id" type="text" maxlength="25" autocomplete="off">
-            </div>
-            <div>
-              <label class="form-label" for="esM4Role">Peranan</label>
+          <div class="edit-grid-2">
+            <div><label class="form-label" for="esM4Name">Nama In-Game</label>
+              <input class="form-input" id="esM4Name" type="text" maxlength="30" autocomplete="off" placeholder="PlayerFour"></div>
+            <div><label class="form-label" for="esM4Id">ML ID</label>
+              <input class="form-input" id="esM4Id" type="text" maxlength="25" autocomplete="off"></div>
+          </div>
+          <div class="edit-grid-3 edit-row-gap">
+            <div><label class="form-label" for="esM4Role">Peranan</label>
               <select class="form-select" id="esM4Role">
                 <option value="">—</option>
-                <option value="Tank">Tank</option>
-                <option value="Fighter">Fighter</option>
-                <option value="Assassin">Assassin</option>
-                <option value="Mage">Mage</option>
-                <option value="Marksman">Marksman</option>
-                <option value="Support">Support</option>
-              </select>
-            </div>
+                <option value="Hyper">⚡ Hyper</option>
+                <option value="Roamer">🛡 Roamer</option>
+                <option value="EXPlaner">⚔️ EXP Laner</option>
+                <option value="Goldlaner">🏹 Gold Laner</option>
+                <option value="Midlaner">🔮 Mid Laner</option>
+              </select></div>
+            <div><label class="form-label" for="esM4Rank">Rank Semasa</label>
+              <select class="form-select" id="esM4Rank">
+                <option value="">— Pilih —</option>
+                <option value="Warrior">Warrior</option><option value="Elite">Elite</option>
+                <option value="Master">Master</option><option value="Grandmaster">Grandmaster</option>
+                <option value="Epic">Epic</option><option value="Legend">Legend</option>
+                <option value="Mythic">Mythic</option><option value="Mythic Honor">Mythic Honor</option>
+                <option value="Mythic Glory">Mythic Glory</option><option value="Mythic Immortal">Mythic Immortal</option>
+              </select></div>
+            <div><label class="form-label" for="esM4HighestRank">Rank Tertinggi</label>
+              <select class="form-select" id="esM4HighestRank">
+                <option value="">— Pilih —</option>
+                <option value="Warrior">Warrior</option><option value="Elite">Elite</option>
+                <option value="Master">Master</option><option value="Grandmaster">Grandmaster</option>
+                <option value="Epic">Epic</option><option value="Legend">Legend</option>
+                <option value="Mythic">Mythic</option><option value="Mythic Honor">Mythic Honor</option>
+                <option value="Mythic Glory">Mythic Glory</option><option value="Mythic Immortal">Mythic Immortal</option>
+              </select></div>
           </div>
         </div>
 
         <!-- Member 5 -->
         <div class="member-edit-block">
           <div class="member-edit-label">Ahli 5 <span style="color:var(--txt3);font-weight:400">— Pilihan</span></div>
-          <div class="edit-grid-3">
-            <div>
-              <label class="form-label" for="esM5Name">Nama In-Game</label>
-              <input class="form-input" id="esM5Name" type="text" maxlength="30" autocomplete="off" placeholder="PlayerFive">
-            </div>
-            <div>
-              <label class="form-label" for="esM5Id">ML ID</label>
-              <input class="form-input" id="esM5Id" type="text" maxlength="25" autocomplete="off">
-            </div>
-            <div>
-              <label class="form-label" for="esM5Role">Peranan</label>
+          <div class="edit-grid-2">
+            <div><label class="form-label" for="esM5Name">Nama In-Game</label>
+              <input class="form-input" id="esM5Name" type="text" maxlength="30" autocomplete="off" placeholder="PlayerFive"></div>
+            <div><label class="form-label" for="esM5Id">ML ID</label>
+              <input class="form-input" id="esM5Id" type="text" maxlength="25" autocomplete="off"></div>
+          </div>
+          <div class="edit-grid-3 edit-row-gap">
+            <div><label class="form-label" for="esM5Role">Peranan</label>
               <select class="form-select" id="esM5Role">
                 <option value="">—</option>
-                <option value="Tank">Tank</option>
-                <option value="Fighter">Fighter</option>
-                <option value="Assassin">Assassin</option>
-                <option value="Mage">Mage</option>
-                <option value="Marksman">Marksman</option>
-                <option value="Support">Support</option>
-              </select>
-            </div>
+                <option value="Hyper">⚡ Hyper</option>
+                <option value="Roamer">🛡 Roamer</option>
+                <option value="EXPlaner">⚔️ EXP Laner</option>
+                <option value="Goldlaner">🏹 Gold Laner</option>
+                <option value="Midlaner">🔮 Mid Laner</option>
+              </select></div>
+            <div><label class="form-label" for="esM5Rank">Rank Semasa</label>
+              <select class="form-select" id="esM5Rank">
+                <option value="">— Pilih —</option>
+                <option value="Warrior">Warrior</option><option value="Elite">Elite</option>
+                <option value="Master">Master</option><option value="Grandmaster">Grandmaster</option>
+                <option value="Epic">Epic</option><option value="Legend">Legend</option>
+                <option value="Mythic">Mythic</option><option value="Mythic Honor">Mythic Honor</option>
+                <option value="Mythic Glory">Mythic Glory</option><option value="Mythic Immortal">Mythic Immortal</option>
+              </select></div>
+            <div><label class="form-label" for="esM5HighestRank">Rank Tertinggi</label>
+              <select class="form-select" id="esM5HighestRank">
+                <option value="">— Pilih —</option>
+                <option value="Warrior">Warrior</option><option value="Elite">Elite</option>
+                <option value="Master">Master</option><option value="Grandmaster">Grandmaster</option>
+                <option value="Epic">Epic</option><option value="Legend">Legend</option>
+                <option value="Mythic">Mythic</option><option value="Mythic Honor">Mythic Honor</option>
+                <option value="Mythic Glory">Mythic Glory</option><option value="Mythic Immortal">Mythic Immortal</option>
+              </select></div>
           </div>
         </div>
 
@@ -799,52 +852,80 @@
         <!-- Reserve 1 -->
         <div class="member-edit-block">
           <div class="member-edit-label" style="color:#818cf8">Rizab 1 <span style="color:var(--txt3);font-weight:400">— Pilihan</span></div>
-          <div class="edit-grid-3">
-            <div>
-              <label class="form-label" for="esR1Name">Nama In-Game</label>
-              <input class="form-input" id="esR1Name" type="text" maxlength="30" autocomplete="off" placeholder="ReserveOne">
-            </div>
-            <div>
-              <label class="form-label" for="esR1Id">ML ID</label>
-              <input class="form-input" id="esR1Id" type="text" maxlength="25" autocomplete="off">
-            </div>
-            <div>
-              <label class="form-label" for="esR1Role">Peranan</label>
+          <div class="edit-grid-2">
+            <div><label class="form-label" for="esR1Name">Nama In-Game</label>
+              <input class="form-input" id="esR1Name" type="text" maxlength="30" autocomplete="off" placeholder="ReserveOne"></div>
+            <div><label class="form-label" for="esR1Id">ML ID</label>
+              <input class="form-input" id="esR1Id" type="text" maxlength="25" autocomplete="off"></div>
+          </div>
+          <div class="edit-grid-3 edit-row-gap">
+            <div><label class="form-label" for="esR1Role">Peranan</label>
               <select class="form-select" id="esR1Role">
                 <option value="">—</option>
-                <option value="Hyper">Hyper</option>
-                <option value="Roamer">Roamer</option>
-                <option value="EXPlaner">EXPlaner</option>
-                <option value="Goldlaner">Goldlaner</option>
-                <option value="Midlaner">Midlaner</option>
-              </select>
-            </div>
+                <option value="Hyper">⚡ Hyper</option>
+                <option value="Roamer">🛡 Roamer</option>
+                <option value="EXPlaner">⚔️ EXP Laner</option>
+                <option value="Goldlaner">🏹 Gold Laner</option>
+                <option value="Midlaner">🔮 Mid Laner</option>
+              </select></div>
+            <div><label class="form-label" for="esR1Rank">Rank Semasa</label>
+              <select class="form-select" id="esR1Rank">
+                <option value="">— Pilih —</option>
+                <option value="Warrior">Warrior</option><option value="Elite">Elite</option>
+                <option value="Master">Master</option><option value="Grandmaster">Grandmaster</option>
+                <option value="Epic">Epic</option><option value="Legend">Legend</option>
+                <option value="Mythic">Mythic</option><option value="Mythic Honor">Mythic Honor</option>
+                <option value="Mythic Glory">Mythic Glory</option><option value="Mythic Immortal">Mythic Immortal</option>
+              </select></div>
+            <div><label class="form-label" for="esR1HighestRank">Rank Tertinggi</label>
+              <select class="form-select" id="esR1HighestRank">
+                <option value="">— Pilih —</option>
+                <option value="Warrior">Warrior</option><option value="Elite">Elite</option>
+                <option value="Master">Master</option><option value="Grandmaster">Grandmaster</option>
+                <option value="Epic">Epic</option><option value="Legend">Legend</option>
+                <option value="Mythic">Mythic</option><option value="Mythic Honor">Mythic Honor</option>
+                <option value="Mythic Glory">Mythic Glory</option><option value="Mythic Immortal">Mythic Immortal</option>
+              </select></div>
           </div>
         </div>
 
         <!-- Reserve 2 -->
         <div class="member-edit-block">
           <div class="member-edit-label" style="color:#818cf8">Rizab 2 <span style="color:var(--txt3);font-weight:400">— Pilihan</span></div>
-          <div class="edit-grid-3">
-            <div>
-              <label class="form-label" for="esR2Name">Nama In-Game</label>
-              <input class="form-input" id="esR2Name" type="text" maxlength="30" autocomplete="off" placeholder="ReserveTwo">
-            </div>
-            <div>
-              <label class="form-label" for="esR2Id">ML ID</label>
-              <input class="form-input" id="esR2Id" type="text" maxlength="25" autocomplete="off">
-            </div>
-            <div>
-              <label class="form-label" for="esR2Role">Peranan</label>
+          <div class="edit-grid-2">
+            <div><label class="form-label" for="esR2Name">Nama In-Game</label>
+              <input class="form-input" id="esR2Name" type="text" maxlength="30" autocomplete="off" placeholder="ReserveTwo"></div>
+            <div><label class="form-label" for="esR2Id">ML ID</label>
+              <input class="form-input" id="esR2Id" type="text" maxlength="25" autocomplete="off"></div>
+          </div>
+          <div class="edit-grid-3 edit-row-gap">
+            <div><label class="form-label" for="esR2Role">Peranan</label>
               <select class="form-select" id="esR2Role">
                 <option value="">—</option>
-                <option value="Hyper">Hyper</option>
-                <option value="Roamer">Roamer</option>
-                <option value="EXPlaner">EXPlaner</option>
-                <option value="Goldlaner">Goldlaner</option>
-                <option value="Midlaner">Midlaner</option>
-              </select>
-            </div>
+                <option value="Hyper">⚡ Hyper</option>
+                <option value="Roamer">🛡 Roamer</option>
+                <option value="EXPlaner">⚔️ EXP Laner</option>
+                <option value="Goldlaner">🏹 Gold Laner</option>
+                <option value="Midlaner">🔮 Mid Laner</option>
+              </select></div>
+            <div><label class="form-label" for="esR2Rank">Rank Semasa</label>
+              <select class="form-select" id="esR2Rank">
+                <option value="">— Pilih —</option>
+                <option value="Warrior">Warrior</option><option value="Elite">Elite</option>
+                <option value="Master">Master</option><option value="Grandmaster">Grandmaster</option>
+                <option value="Epic">Epic</option><option value="Legend">Legend</option>
+                <option value="Mythic">Mythic</option><option value="Mythic Honor">Mythic Honor</option>
+                <option value="Mythic Glory">Mythic Glory</option><option value="Mythic Immortal">Mythic Immortal</option>
+              </select></div>
+            <div><label class="form-label" for="esR2HighestRank">Rank Tertinggi</label>
+              <select class="form-select" id="esR2HighestRank">
+                <option value="">— Pilih —</option>
+                <option value="Warrior">Warrior</option><option value="Elite">Elite</option>
+                <option value="Master">Master</option><option value="Grandmaster">Grandmaster</option>
+                <option value="Epic">Epic</option><option value="Legend">Legend</option>
+                <option value="Mythic">Mythic</option><option value="Mythic Honor">Mythic Honor</option>
+                <option value="Mythic Glory">Mythic Glory</option><option value="Mythic Immortal">Mythic Immortal</option>
+              </select></div>
           </div>
         </div>
 
@@ -1202,7 +1283,7 @@
     }
 
     /* ── Squad helpers ────────────────────────── */
-    const ROLE_ICONS_ADM = { Tank:"🛡️", Fighter:"⚔️", Assassin:"🗡️", Mage:"🔮", Marksman:"🏹", Support:"💚" };
+    const ROLE_ICONS_ADM = { Hyper:"⚡", Roamer:"🛡", EXPlaner:"⚔️", Goldlaner:"🏹", Midlaner:"🔮" };
 
     const ADM_RANK_WEIGHTS = {
       "Warrior":10,"Elite":20,"Master":30,"Grandmaster":40,
@@ -1435,16 +1516,20 @@
       const members = t.members || [];
       [2,3,4,5].forEach((n, i) => {
         const m = members[i] || {};
-        setVal(`esM${n}Name`, m.name);
-        setVal(`esM${n}Id`,   m.mlId);
-        setVal(`esM${n}Role`, m.role);
+        setVal(`esM${n}Name`,        m.name);
+        setVal(`esM${n}Id`,          m.mlId);
+        setVal(`esM${n}Role`,        m.role);
+        setVal(`esM${n}Rank`,        m.rank);
+        setVal(`esM${n}HighestRank`, m.highestRank);
       });
       const reserves = t.reserves || [];
       [1,2].forEach((n, i) => {
         const r = reserves[i] || {};
-        setVal(`esR${n}Name`, r.name);
-        setVal(`esR${n}Id`,   r.mlId);
-        setVal(`esR${n}Role`, r.role);
+        setVal(`esR${n}Name`,        r.name);
+        setVal(`esR${n}Id`,          r.mlId);
+        setVal(`esR${n}Role`,        r.role);
+        setVal(`esR${n}Rank`,        r.rank);
+        setVal(`esR${n}HighestRank`, r.highestRank);
       });
 
       state.currentAction = { ...state.currentAction, editUid: uid };
@@ -1777,35 +1862,61 @@
           return;
         }
 
+        const old = state.teams[uid] || {};
+
         const updated = {
           teamName,
           teamTag,
-          serverRegion:      getVal("esRegion")            || "MY/SG",
-          displayName:       getVal("esCaptainName"),
-          mlId:              getVal("esCaptainMlId"),
-          captainRole:       getVal("esCaptainRole"),
-          captainRank:       getVal("esCaptainRank"),
-          captainHighestRank:getVal("esCaptainHighestRank"),
-          members: [2,3,4,5].map(n => ({
-            name:  getVal(`esM${n}Name`),
-            mlId:  getVal(`esM${n}Id`),
-            role:  getVal(`esM${n}Role`),
-            // preserve existing member ranks from current state
-            ...(state.teams[uid]?.members?.[n-2]?.rank ? { rank: state.teams[uid].members[n-2].rank, rankStars: state.teams[uid].members[n-2].rankStars } : {}),
-          })),
-          reserves: [1,2].map(n => ({
-            name:  getVal(`esR${n}Name`),
-            mlId:  getVal(`esR${n}Id`),
-            role:  getVal(`esR${n}Role`),
-            // preserve existing reserve ranks from current state
-            ...(state.teams[uid]?.reserves?.[n-1]?.rank ? { rank: state.teams[uid].reserves[n-1].rank, rankStars: state.teams[uid].reserves[n-1].rankStars } : {}),
-          })).filter(r => r.name),
+          serverRegion:       getVal("esRegion")             || "MY/SG",
+          displayName:        getVal("esCaptainName"),
+          mlId:               getVal("esCaptainMlId"),
+          captainRole:        getVal("esCaptainRole"),
+          captainRank:        getVal("esCaptainRank"),
+          captainHighestRank: getVal("esCaptainHighestRank"),
+          members: [2,3,4,5].map(n => {
+            const rank        = getVal(`esM${n}Rank`);
+            const highestRank = getVal(`esM${n}HighestRank`);
+            const entry = {
+              name:  getVal(`esM${n}Name`),
+              mlId:  getVal(`esM${n}Id`),
+              role:  getVal(`esM${n}Role`),
+            };
+            if (rank)        entry.rank        = rank;
+            if (highestRank) entry.highestRank = highestRank;
+            // preserve rankStars (set during player self-registration)
+            const prevStars = old.members?.[n-2]?.rankStars;
+            if (prevStars)   entry.rankStars   = prevStars;
+            return entry;
+          }),
+          reserves: [1,2].map(n => {
+            const rank        = getVal(`esR${n}Rank`);
+            const highestRank = getVal(`esR${n}HighestRank`);
+            const entry = {
+              name:  getVal(`esR${n}Name`),
+              mlId:  getVal(`esR${n}Id`),
+              role:  getVal(`esR${n}Role`),
+            };
+            if (rank)        entry.rank        = rank;
+            if (highestRank) entry.highestRank = highestRank;
+            const prevStars = old.reserves?.[n-1]?.rankStars;
+            if (prevStars)   entry.rankStars   = prevStars;
+            return entry;
+          }).filter(r => r.name),
           uid,
-          // preserve original create time and rank stars if they exist
-          ...(state.teams[uid]?.createdAt       ? { createdAt:              state.teams[uid].createdAt }       : {}),
-          ...(state.teams[uid]?.captainRankStars ? { captainRankStars:       state.teams[uid].captainRankStars } : {}),
-          ...(state.teams[uid]?.captainHighestRankStars ? { captainHighestRankStars: state.teams[uid].captainHighestRankStars } : {}),
+          // preserve immutable / player-set fields
+          ...(old.createdAt                 ? { createdAt:                old.createdAt }                 : {}),
+          ...(old.captainRankStars          ? { captainRankStars:         old.captainRankStars }          : {}),
+          ...(old.captainHighestRankStars   ? { captainHighestRankStars:  old.captainHighestRankStars }   : {}),
+          ...(old.registrationStatus        ? { registrationStatus:       old.registrationStatus }        : {}),
+          ...(old.latestModRequest          ? { latestModRequest:         old.latestModRequest }          : {}),
+          ...(old.auditLog                  ? { auditLog:                 old.auditLog }                  : {}),
         };
+
+        // Recompute and store team power snapshot
+        const power = computeTeamPower(updated);
+        updated.computedCategory = power.category;
+        updated.computedAvgRank  = power.avg;
+        updated.computedTopRank  = power.top;
 
         setLoading(btn, true, originalHTML);
         try {
@@ -1813,7 +1924,7 @@
           state.teams[uid] = updated;
           closeModals();
           renderAll(state);
-          showAlert("Squad berjaya dikemaskini.", "success");
+          showAlert("Maklumat squad berjaya dikemaskini.", "success");
         } catch (err) {
           showAlert("Ralat menyimpan perubahan. Cuba lagi.");
         } finally {

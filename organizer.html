@@ -75,7 +75,7 @@
       font-family: var(--font-mono); font-size: 10px; letter-spacing: 1.2px;
       text-transform: uppercase; font-weight: 700; margin-bottom: 6px;
     }
-    .app-status.payment_submitted{ background:rgba(59,130,246,.12);color:#60a5fa;border:1px solid rgba(59,130,246,.3); }
+    .app-status.payment_submitted{ background:rgba(99,102,241,.12);color:#a5b4fc;border:1px solid rgba(99,102,241,.3); }
     .app-status.pending_review   { background:rgba(99,102,241,.12);color:#a5b4fc;border:1px solid rgba(99,102,241,.3); }
     .app-status.approved         { background:rgba(34,197,94,.12);color:var(--green);border:1px solid rgba(34,197,94,.3); }
     .app-status.rejected         { background:rgba(239,68,68,.1);color:#f87171;border:1px solid rgba(239,68,68,.25); }
@@ -396,7 +396,7 @@
         <li><a href="index.html#contact">Contact</a></li>
         <li><a href="standing.html">Standing</a></li>
         <li><a href="schedule.html">Schedule</a></li>
-        <li><a class="active" href="organizer.html">Organizer Dashboard</a></li>
+        <li><a class="active" href="organizer.html">Organizer Dashboard <span class="admin-nav-badge" style="display:none">0</span></a></li>
       </ul>
       <div class="home-actions">
         <span class="btn btn-primary btn-sm" style="cursor:default;user-select:none;pointer-events:none;">Admin</span>
@@ -861,6 +861,7 @@
     import { db } from "./js/firebase-config.js";
     import { advanceBracket, formatDate, setLoading } from "./js/utils.js";
     import { ref, get, update, push, set, remove } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-database.js";
+    import { initAdminNavBadge } from "./js/admin-nav-badge.js";
 
     /* ── Account Recovery ─────────────────────────────── */
     let recoveryPwdVisible = false;
@@ -937,6 +938,9 @@
     });
 
     requireOrganizer(async (user) => {
+      // Start global nav badge counter
+      initAdminNavBadge(db);
+
       const state = {
         user,
         tournaments: [],
@@ -1316,7 +1320,7 @@
       const panel = document.getElementById("panel-applications");
       const apps  = state.applications || [];
 
-      // Update badge
+      // Update tab badge
       const pending = apps.filter(a => a.status === "pending_review" || a.status === "payment_submitted");
       const badge = document.getElementById("appBadge");
       if (badge) {
@@ -1330,7 +1334,7 @@
       }
 
       const STATUS_LABELS = {
-        payment_submitted: "📤 Bukti Bayaran",
+        payment_submitted: "⏳ Menunggu Semakan",   // backward compat – treat same as pending_review
         pending_review:    "⏳ Menunggu Semakan",
         approved:          "✅ Diluluskan",
         rejected:          "❌ Ditolak",
@@ -1338,20 +1342,21 @@
 
       const cards = apps.map(app => {
         const statusLbl = STATUS_LABELS[app.status] || app.status;
-        const canAct = app.status === "pending_review" || app.status === "payment_submitted";
+        const canAct    = app.status === "pending_review" || app.status === "payment_submitted";
+        const appliedDate = app.appliedAt ? formatDate(app.appliedAt) : "—";
 
         return `<div class="app-card">
           <div class="app-card-info">
-            <div class="app-status ${app.status}">${statusLbl}</div>
-            <div style="font-size:14px;font-weight:700;color:var(--txt)">[${escHtml(app.teamTag||"")}] ${escHtml(app.teamName||"")}</div>
-            <div style="font-size:12px;color:var(--txt3);margin-top:4px">
-              ${escHtml(app.tournamentName||"")} · Dihantar: ${formatDate(app.appliedAt)}
+            <div class="app-status ${canAct ? "pending_review" : app.status}">${statusLbl}</div>
+            <div style="font-size:15px;font-weight:700;color:var(--txt);margin-bottom:6px">[${escHtml(app.teamTag||"")}] ${escHtml(app.teamName||"")}</div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:4px 16px;font-size:12px;color:var(--txt2)">
+              <div><span style="color:var(--txt3)">Kapten:</span> ${escHtml(app.captainName||"—")}</div>
+              ${app.captainRank ? `<div><span style="color:var(--txt3)">Rank Kapten:</span> ${escHtml(app.captainRank)}</div>` : ""}
+              <div><span style="color:var(--txt3)">Tournament:</span> ${escHtml(app.tournamentName||"—")}</div>
+              <div><span style="color:var(--txt3)">Tarikh Mohon:</span> ${appliedDate}</div>
             </div>
-            ${app.paymentProofUrl
-              ? `<div style="margin-top:8px"><a href="${escHtml(app.paymentProofUrl)}" target="_blank" rel="noopener" style="font-size:12px;color:var(--blue2)">🖼 Lihat Bukti Bayaran</a></div>`
-              : ""}
             ${app.status === "rejected" && app.rejectionReason
-              ? `<div style="font-size:12px;color:var(--red);margin-top:4px">Sebab: ${escHtml(app.rejectionReason)}</div>`
+              ? `<div style="font-size:12px;color:var(--red);margin-top:6px">❌ Sebab ditolak: ${escHtml(app.rejectionReason)}</div>`
               : ""}
           </div>
           ${canAct ? `

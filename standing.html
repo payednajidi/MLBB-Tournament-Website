@@ -364,7 +364,7 @@
         <li><a class="active" href="standing.html">Standing</a></li>
         <li><a href="schedule.html">Schedule</a></li>
         <li class="player-nav"><a href="team-setup.html">Registration</a></li>
-        <li class="admin-nav hidden"><a href="organizer.html">Organizer Dashboard</a></li>
+        <li class="admin-nav hidden"><a href="organizer.html">Organizer Dashboard <span class="admin-nav-badge" style="display:none">0</span></a></li>
       </ul>
       <div class="home-actions" id="navActions" style="visibility:hidden"></div>
     </div>
@@ -486,6 +486,7 @@
     import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-auth.js";
     import { ref, get } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-database.js";
     import { signOut as fbSignOut } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-auth.js";
+    import { initAdminNavBadge } from "./js/admin-nav-badge.js";
 
     const ROLE_ICONS = { Tank:"🛡️", Fighter:"⚔️", Assassin:"🗡️", Mage:"🔮", Marksman:"🏹", Support:"💚",
                          Hyper:"⚡", Roamer:"🗺️", EXPlaner:"⚔️", Goldlaner:"🏅", Midlaner:"🔮" };
@@ -538,8 +539,8 @@
       if (role === "organizer") {
         navActions.innerHTML = `<span class="btn btn-primary btn-sm" style="cursor:default;user-select:none;pointer-events:none;">Admin</span><button class="btn btn-secondary btn-sm" id="logoutBtn">Log Keluar</button>`;
         document.getElementById("adminBar").classList.remove("hidden");
-        // Show Player IDs in modal for admin
         document.getElementById("detailPlayerIdRow").classList.remove("hidden");
+        initAdminNavBadge(db);
       } else {
         navActions.innerHTML = `<span class="btn btn-primary btn-sm" style="cursor:default;user-select:none;pointer-events:none;">Player</span><button class="btn btn-secondary btn-sm" id="logoutBtn">Log Keluar</button>`;
       }

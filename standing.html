@@ -244,186 +244,229 @@
       overflow: hidden;
       position: relative;
       animation: fadeIn .22s ease both;
-      box-shadow: 0 40px 100px rgba(0,0,0,.65),
-                  0 0 0 1px rgba(139,92,246,.12);
+      box-shadow: 0 40px 100px rgba(0,0,0,.7),
+                  0 0 0 1px rgba(139,92,246,.14);
     }
 
-    /* Close button */
+    /* ── Close ──────────────────────────────────── */
     .dp-close {
       position: absolute; top: 14px; right: 14px; z-index: 20;
-      background: rgba(0,0,0,.6); border: 1px solid rgba(255,255,255,.14);
-      border-radius: 8px; color: var(--txt2);
-      width: 34px; height: 34px;
+      background: rgba(0,0,0,.65); border: 1px solid rgba(255,255,255,.18);
+      border-radius: 8px; color: rgba(255,255,255,.8);
+      width: 36px; height: 36px;
       display: flex; align-items: center; justify-content: center;
-      cursor: pointer; font-size: 15px; transition: all .18s;
+      cursor: pointer; font-size: 16px; font-weight: 700;
+      transition: all .18s;
     }
-    .dp-close:hover { background: rgba(239,68,68,.3); color: #fca5a5; border-color: rgba(239,68,68,.5); }
+    .dp-close:hover { background: rgba(239,68,68,.35); color: #fca5a5; border-color: rgba(239,68,68,.55); }
 
-    /* ── Roster stage (top 70%) ─────────────────── */
+    /* ── Roster stage ───────────────────────────── */
     .dp-stage { position: relative; overflow: hidden; background: #000; line-height: 0; }
     .dp-roster-img {
       width: 100%; display: block;
-      object-fit: cover; max-height: 52vmin;
-      min-height: 260px;
+      object-fit: cover; max-height: 54vmin; min-height: 280px;
     }
 
-    /* Identity overlay — top-left */
+    /* Team identity — top-left */
     .dp-identity {
-      position: absolute; top: 18px; left: 20px; z-index: 4;
-      text-shadow: 0 2px 12px rgba(0,0,0,.9);
+      position: absolute; top: 20px; left: 22px; z-index: 4;
     }
+    /* Team tag as a bold badge */
     .dp-identity-tag {
-      font-family: var(--font-mono); font-size: 11px;
-      letter-spacing: 2.5px; color: var(--gold);
-      text-transform: uppercase; margin-bottom: 4px;
+      display: inline-flex; align-items: center;
+      font-family: var(--font-mono); font-size: 14px; font-weight: 700;
+      letter-spacing: 3px; text-transform: uppercase;
+      color: #fff;
+      background: rgba(251,191,36,.22);
+      border: 1px solid rgba(251,191,36,.6);
+      border-radius: 6px; padding: 5px 14px; margin-bottom: 10px;
+      text-shadow: 0 0 24px rgba(251,191,36,.5);
+      box-shadow: 0 0 18px rgba(251,191,36,.1), inset 0 0 14px rgba(251,191,36,.06);
     }
     .dp-identity-name {
-      font-family: var(--font-head); font-size: clamp(20px,3.2vw,34px);
-      font-weight: 700; color: #fff; line-height: 1.1;
+      font-family: var(--font-head);
+      font-size: clamp(22px, 3.6vw, 40px);
+      font-weight: 800; color: #fff; line-height: 1.1;
+      text-shadow: 0 2px 18px rgba(0,0,0,.95), 0 0 44px rgba(139,92,246,.35);
     }
 
-    /* Rank pill — top-right (inset to avoid close btn) */
+    /* Rank pill — top-right */
     .dp-rank-pill {
-      position: absolute; top: 16px; right: 58px; z-index: 4;
-      font-family: var(--font-mono); font-size: 13px; font-weight: 700;
-      padding: 5px 16px; border-radius: 20px; white-space: nowrap;
+      position: absolute; top: 18px; right: 60px; z-index: 4;
+      font-family: var(--font-mono); font-size: 14px; font-weight: 700;
+      padding: 6px 18px; border-radius: 22px; white-space: nowrap;
     }
-    .dp-rank-pill.r1 { background: rgba(255,215,0,.18); color:#ffd700; border:1px solid rgba(255,215,0,.45); }
-    .dp-rank-pill.r2 { background: rgba(192,192,192,.12); color:#c0c0c0; border:1px solid rgba(192,192,192,.35); }
-    .dp-rank-pill.r3 { background: rgba(205,127,50,.12); color:#cd7f32; border:1px solid rgba(205,127,50,.35); }
-    .dp-rank-pill.rn { background: rgba(99,102,241,.12); color:#a5b4fc; border:1px solid rgba(99,102,241,.3); }
+    .dp-rank-pill.r1 { background: rgba(255,215,0,.2);   color:#ffd700; border:1px solid rgba(255,215,0,.55); }
+    .dp-rank-pill.r2 { background: rgba(192,192,192,.14); color:#d4d4d4; border:1px solid rgba(192,192,192,.42); }
+    .dp-rank-pill.r3 { background: rgba(205,127,50,.14);  color:#e0965a; border:1px solid rgba(205,127,50,.42); }
+    .dp-rank-pill.rn { background: rgba(99,102,241,.14);  color:#c7d2fe; border:1px solid rgba(99,102,241,.35); }
 
-    /* Bottom gradient over image */
+    /* Bottom gradient */
     .dp-stage-fade {
       position: absolute; bottom: 0; left: 0; right: 0;
-      height: 58%; z-index: 2; pointer-events: none;
-      background: linear-gradient(to top, var(--bg) 0%, rgba(5,3,14,.88) 38%, transparent 100%);
+      height: 62%; z-index: 2; pointer-events: none;
+      background: linear-gradient(to top, var(--bg) 0%, rgba(5,3,14,.9) 36%, transparent 100%);
     }
 
-    /* Player cards — absolute at image bottom */
+    /* ── Player cards row — bottom of stage ──────── */
     .dp-players {
       position: absolute; bottom: 0; left: 0; right: 0; z-index: 3;
-      display: flex; gap: 6px; padding: 0 16px 16px;
+      display: flex; align-items: flex-end; gap: 7px; padding: 0 16px 18px;
     }
+
+    /* Base card */
     .dp-player-card {
-      flex: 1; min-width: 0;
-      background: rgba(8,6,18,.75);
-      backdrop-filter: blur(14px);
-      border: 1px solid rgba(255,255,255,.09);
-      border-radius: 10px; padding: 9px 11px;
+      flex: 1; min-width: 0; position: relative; overflow: hidden;
+      background: rgba(6,4,16,.90);
+      backdrop-filter: blur(18px) saturate(1.3);
+      border: 1px solid rgba(255,255,255,.14);
+      border-radius: 11px; padding: 11px 13px;
       transition: border-color .2s, transform .2s;
       line-height: 1;
     }
-    .dp-player-card:hover { border-color: rgba(139,92,246,.45); transform: translateY(-2px); }
-    .dp-player-card.is-cap { border-color: rgba(251,191,36,.35); background: rgba(28,20,4,.78); }
-    .dp-player-card.empty  { opacity: .28; pointer-events: none; }
+    .dp-player-card:hover { border-color: rgba(139,92,246,.55); transform: translateY(-3px); }
+    .dp-player-card.empty { opacity: .2; pointer-events: none; }
+
+    /* Captain center card — elevated and gold-lit */
+    .dp-player-card.is-cap {
+      background: rgba(20,13,2,.93);
+      border-color: rgba(251,191,36,.55);
+      margin-top: -14px;            /* rises above the other cards */
+      padding: 15px 14px;
+      box-shadow: 0 0 0 1px rgba(251,191,36,.18),
+                  0 10px 40px rgba(251,191,36,.1),
+                  0 0 60px rgba(251,191,36,.05);
+    }
+    /* Gold top-line on captain card */
+    .dp-player-card.is-cap::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; height: 2px;
+      background: linear-gradient(90deg, transparent 0%, rgba(251,191,36,.9) 50%, transparent 100%);
+    }
+    .dp-player-card.is-cap:hover { border-color: rgba(251,191,36,.8); transform: translateY(-4px); }
+
+    /* Role / designation label (KAPTEN / AHLI N) */
     .dp-pc-badge {
-      font-family: var(--font-mono); font-size: 8px;
-      letter-spacing: 1.8px; text-transform: uppercase;
-      margin-bottom: 4px;
+      font-family: var(--font-mono); font-size: 10px; font-weight: 700;
+      letter-spacing: 2px; text-transform: uppercase; margin-bottom: 6px;
     }
-    .dp-pc-badge.cap  { color: var(--gold); }
-    .dp-pc-badge.mem  { color: #818cf8; }
+    .dp-pc-badge.cap { color: var(--gold); }
+    .dp-pc-badge.mem { color: #a5b4fc; }
+
+    /* Lane role */
     .dp-pc-role {
-      display: flex; align-items: center; gap: 3px;
-      font-family: var(--font-mono); font-size: 9px;
-      letter-spacing: 1px; color: rgba(255,255,255,.38);
-      margin-bottom: 5px; white-space: nowrap;
+      display: flex; align-items: center; gap: 4px;
+      font-family: var(--font-mono); font-size: 11px; letter-spacing: .8px;
+      color: rgba(255,255,255,.6);
+      margin-bottom: 6px; white-space: nowrap;
     }
+
+    /* Player IGN */
     .dp-pc-name {
-      font-family: var(--font-head); font-size: 14px; font-weight: 700;
-      color: #fff; letter-spacing: .4px;
+      font-family: var(--font-head); font-size: 16px; font-weight: 800;
+      color: #fff; letter-spacing: .3px; line-height: 1.15;
       white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     }
+    /* Captain IGN — larger + gold shimmer */
+    .dp-player-card.is-cap .dp-pc-name {
+      font-size: 19px;
+      text-shadow: 0 0 22px rgba(251,191,36,.28);
+    }
+
+    /* ML ID */
     .dp-pc-mlid {
-      font-family: var(--font-mono); font-size: 9px;
-      color: rgba(255,255,255,.32); margin-top: 3px;
+      font-family: var(--font-mono); font-size: 11px;
+      color: rgba(255,255,255,.48); margin-top: 5px;
       white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     }
 
-    /* ── Reserve chips ───────────────────────────── */
+    /* ── Reserve strip ───────────────────────────── */
     .dp-reserves {
-      display: flex; gap: 6px; padding: 10px 16px 2px;
-      background: rgba(129,140,248,.04);
-      border-bottom: 1px solid rgba(129,140,248,.1);
+      display: flex; gap: 8px; padding: 12px 18px;
+      flex-wrap: wrap;
+      background: rgba(129,140,248,.05);
+      border-bottom: 1px solid rgba(129,140,248,.14);
     }
     .dp-res-chip {
-      flex: 1; display: flex; align-items: center; gap: 8px;
-      background: rgba(129,140,248,.07);
-      border: 1px solid rgba(129,140,248,.18);
-      border-radius: 8px; padding: 7px 12px;
+      flex: 1; min-width: 160px; display: flex; align-items: center; gap: 10px;
+      background: rgba(129,140,248,.09);
+      border: 1px solid rgba(129,140,248,.24);
+      border-radius: 9px; padding: 9px 14px;
     }
-    .dp-res-label { font-family:var(--font-mono); font-size:8px; letter-spacing:1.5px; color:#818cf8; text-transform:uppercase; margin-bottom:1px; }
-    .dp-res-name  { font-size:13px; font-weight:600; color:var(--txt2); }
-    .dp-res-role  { font-size:10px; color:var(--txt3); font-family:var(--font-mono); margin-left:auto; flex-shrink:0; }
+    .dp-res-label { font-family:var(--font-mono); font-size:9px; letter-spacing:2px; color:#a5b4fc; text-transform:uppercase; margin-bottom:3px; font-weight:700; }
+    .dp-res-name  { font-size:14px; font-weight:700; color:var(--txt); }
+    .dp-res-role  { font-size:12px; color:var(--txt2); font-family:var(--font-mono); margin-left:auto; flex-shrink:0; }
 
-    /* ── Stats body (bottom 30%) ─────────────────── */
-    .dp-stats-body { padding: 18px 18px 14px; }
+    /* ── Stats body ──────────────────────────────── */
+    .dp-stats-body { padding: 20px 18px 16px; }
 
-    .dp-stat-row {
-      display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 18px;
-    }
+    .dp-stat-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; }
     .dp-stat-card {
       flex: 1; min-width: 80px;
       background: var(--bg3); border: 1px solid var(--border);
-      border-radius: 10px; padding: 10px 14px; text-align: center;
+      border-radius: 10px; padding: 12px 14px; text-align: center;
     }
     .dp-s-label {
-      font-family: var(--font-mono); font-size: 9px;
+      font-family: var(--font-mono); font-size: 10px; font-weight: 600;
       letter-spacing: 1.5px; text-transform: uppercase;
-      color: var(--txt3); margin-bottom: 5px;
+      color: var(--txt2); margin-bottom: 6px;
     }
     .dp-s-value {
-      font-family: var(--font-head); font-size: 18px; font-weight: 700;
+      font-family: var(--font-head); font-size: 20px; font-weight: 700;
       color: var(--txt); line-height: 1.1;
     }
     .dp-s-value.gold   { color: var(--gold); }
     .dp-s-value.purple { color: #a855f7; }
 
+    /* History */
     .dp-hist-label {
-      font-family: var(--font-mono); font-size: 10px;
+      font-family: var(--font-mono); font-size: 11px; font-weight: 700;
       letter-spacing: 2px; text-transform: uppercase;
-      color: var(--txt3); padding-bottom: 8px;
-      border-bottom: 1px solid var(--border); margin-bottom: 10px;
+      color: var(--txt2); padding-bottom: 9px;
+      border-bottom: 1px solid var(--border); margin-bottom: 12px;
     }
     .dp-hist-row {
-      display: flex; align-items: center;
-      justify-content: space-between; gap: 8px;
-      padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,.04);
-      font-size: 13px;
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 8px; padding: 10px 0;
+      border-bottom: 1px solid rgba(255,255,255,.05); font-size: 14px;
     }
     .dp-hist-row:last-child { border-bottom: none; }
-    .dp-hist-name { color: var(--txt); font-weight: 500; }
-    .dp-hist-cat  { font-family:var(--font-mono); font-size:8px; letter-spacing:1px; text-transform:uppercase; margin-top:2px; }
+    .dp-hist-name { color: var(--txt); font-weight: 600; font-size: 14px; }
+    .dp-hist-cat  { font-family:var(--font-mono); font-size:10px; font-weight:700;
+                    letter-spacing:1px; text-transform:uppercase; margin-top:3px; }
     .dp-hist-right { display:flex; align-items:center; gap:8px; flex-shrink:0; }
-    .dp-hist-pts { font-family:var(--font-mono); font-size:11px; color:var(--txt3); }
+    .dp-hist-pts { font-family:var(--font-mono); font-size:12px; color:var(--txt2); font-weight:600; }
 
-    /* ── Footer / admin row ──────────────────────── */
+    /* Footer */
     .dp-footer {
-      padding: 11px 18px;
-      border-top: 1px solid rgba(255,255,255,.05);
+      padding: 12px 18px;
+      border-top: 1px solid rgba(255,255,255,.06);
       background: var(--bg3);
       display: flex; align-items: center; justify-content: flex-end; gap: 10px; flex-wrap: wrap;
     }
-    .dp-footer-pts {
-      font-family: var(--font-mono); font-size: 12px; color: var(--txt2); margin-right: auto;
-    }
-    .dp-footer-pts strong { color: var(--gold); font-size: 19px; }
+    .dp-footer-pts { font-family:var(--font-mono); font-size:13px; color:var(--txt2); margin-right:auto; }
+    .dp-footer-pts strong { color: var(--gold); font-size: 22px; }
+
     .dp-admin-row {
-      padding: 8px 18px;
-      background: rgba(251,191,36,.04);
-      border-top: 1px solid rgba(251,191,36,.1);
-      display: flex; align-items: center; gap: 12px; font-size: 12px;
+      padding: 10px 18px;
+      background: rgba(251,191,36,.05);
+      border-top: 1px solid rgba(251,191,36,.12);
+      display: flex; align-items: center; gap: 14px; font-size: 13px; font-weight: 600;
     }
 
     @media (max-width: 720px) {
-      .dp-players { gap: 3px; padding: 0 8px 10px; }
-      .dp-player-card { padding: 7px 8px; }
-      .dp-pc-name { font-size: 12px; }
-      .dp-identity-name { font-size: 18px; }
-      .dp-stat-card { min-width: 64px; padding: 8px 10px; }
-      .dp-s-value { font-size: 14px; }
-      .dp-roster-img { max-height: 64vw; }
+      .dp-players { gap: 4px; padding: 0 8px 12px; }
+      .dp-player-card { padding: 9px 10px; }
+      .dp-player-card.is-cap { margin-top: -10px; padding: 12px 11px; }
+      .dp-pc-name { font-size: 13px; }
+      .dp-player-card.is-cap .dp-pc-name { font-size: 15px; }
+      .dp-pc-role { font-size: 10px; }
+      .dp-pc-mlid { font-size: 9px; }
+      .dp-identity-tag { font-size: 11px; padding: 4px 10px; }
+      .dp-identity-name { font-size: 20px; }
+      .dp-stat-card { min-width: 64px; padding: 9px 10px; }
+      .dp-s-value { font-size: 16px; }
+      .dp-roster-img { max-height: 66vw; }
     }
 
     /* ── Admin recalculate bar ──────────────────── */
@@ -1026,17 +1069,26 @@
       document.getElementById("detailMlId").textContent      = team.mlId || "—";
       document.getElementById("detailPlayerId").textContent  = user.playerId || "—";
 
-      /* ── Player cards overlay ──────────────── */
+      /* ── Player cards overlay — captain at centre ── */
+      // Arrange: [M2, M3, CAPTAIN, M4, M5]  (index 2 = centre slot)
+      const m4 = members.slice(0, 4);
+      const capObj = { name: team.displayName, mlId: team.mlId, role: team.captainRole, isCap: true };
       const active = [
-        { name: team.displayName, mlId: team.mlId, role: team.captainRole, isCap: true },
-        ...members.slice(0, 4).map(m => ({ name: m.name, mlId: m.mlId, role: m.role, isCap: false })),
-      ];
-      while (active.length < 5) active.push({ name: null, mlId: null, role: null, isCap: false });
+        m4[0] || null,  // left-most  → AHLI 1
+        m4[1] || null,  // left-mid   → AHLI 2
+        capObj,          // CENTRE     → KAPTEN
+        m4[2] || null,  // right-mid  → AHLI 3
+        m4[3] || null,  // right-most → AHLI 4
+      ].map(p => p ? p : { name: null, mlId: null, role: null, isCap: false });
+
+      // Slot label map (skip index 2 which is always captain)
+      const memberLabel = { 0:"AHLI 1", 1:"AHLI 2", 3:"AHLI 3", 4:"AHLI 4" };
 
       document.getElementById("detailPlayersOverlay").innerHTML = active.map((p, i) => {
         if (!p.name) return `<div class="dp-player-card empty">
-          <div class="dp-pc-name" style="color:var(--txt3)">Slot Kosong</div></div>`;
-        const label = p.isCap ? "KAPTEN" : `AHLI ${i + 1}`;
+          <div class="dp-pc-badge mem">${p.isCap ? "KAPTEN" : (memberLabel[i]||"AHLI")}</div>
+          <div class="dp-pc-name" style="color:rgba(255,255,255,.25)">Slot Kosong</div></div>`;
+        const label = p.isCap ? "👑 KAPTEN" : (memberLabel[i] || "AHLI");
         const cls   = p.isCap ? "cap" : "mem";
         return `<div class="dp-player-card${p.isCap ? " is-cap" : ""}">
           <div class="dp-pc-badge ${cls}">${label}</div>

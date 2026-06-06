@@ -301,100 +301,122 @@
     .dp-rank-pill.r3 { background: rgba(205,127,50,.14);  color:#e0965a; border:1px solid rgba(205,127,50,.42); }
     .dp-rank-pill.rn { background: rgba(99,102,241,.14);  color:#c7d2fe; border:1px solid rgba(99,102,241,.35); }
 
-    /* Bottom gradient — extended high enough to back the info panels */
+    /* Gradient — solid base for panels, gentle dark backing in torso zone */
     .dp-stage-fade {
       position: absolute; bottom: 0; left: 0; right: 0;
-      height: 78%; z-index: 2; pointer-events: none;
+      height: 82%; z-index: 2; pointer-events: none;
       background: linear-gradient(to top,
-        var(--bg) 0%,
-        rgba(5,3,14,.92) 22%,
-        rgba(5,3,14,.55) 55%,
-        transparent 100%);
+        rgba(5,3,14,.98) 0%,    /* panel area — near-opaque */
+        rgba(5,3,14,.92) 16%,   /* panel top edge */
+        rgba(5,3,14,.55) 42%,   /* torso backing for nameplate text */
+        rgba(5,3,14,.18) 65%,   /* shoulder zone fades */
+        transparent 100%
+      );
     }
 
-    /* ── Player info columns — span full stage, info centred on silhouettes ── */
+    /* ── Five equal columns spanning the full stage ──────── */
     .dp-players {
       position: absolute; inset: 0; z-index: 3;
-      display: flex; padding: 0 1%;
+      display: flex;
     }
-
-    /* One column per player — fills full stage height */
     .dp-pc-col {
       flex: 1; position: relative; min-width: 0;
     }
-    .dp-pc-col.empty { opacity: .18; pointer-events: none; }
+    .dp-pc-col.empty { opacity: .15; pointer-events: none; }
 
-    /* Info panel: absolutely positioned at ~60% down within each column */
-    .dp-pc-inner {
+    /* ── 1. IGN + Role nameplate — pure text on silhouette ── */
+    .dp-pc-nameplate {
       position: absolute;
-      left: 50%; top: 60%;
+      left: 50%; top: 45%;           /* chest / torso area */
       transform: translateX(-50%);
-      width: 92%; text-align: center;
-      background: rgba(3,1,12,.65);
-      backdrop-filter: blur(12px) saturate(1.3);
-      border-radius: 10px; padding: 11px 10px 12px;
-      border: 1px solid rgba(255,255,255,.11);
-      transition: border-color .2s;
+      width: 96%; text-align: center;
+      pointer-events: none; z-index: 2;
     }
-    .dp-pc-col:not(.empty):hover .dp-pc-inner {
-      border-color: rgba(139,92,246,.5);
-    }
-
-    /* Captain panel — gold treatment */
-    .dp-pc-col.is-cap .dp-pc-inner {
-      background: rgba(16,9,1,.75);
-      border-color: rgba(251,191,36,.52);
-      padding: 13px 11px 14px;
-      box-shadow: 0 0 0 1px rgba(251,191,36,.14),
-                  0 0 32px rgba(251,191,36,.09);
-    }
-    .dp-pc-col.is-cap:hover .dp-pc-inner {
-      border-color: rgba(251,191,36,.8);
-    }
-    /* Gold bar across top of captain panel */
-    .dp-pc-col.is-cap .dp-pc-inner::before {
-      content: '';
-      position: absolute; top: 0; left: 0; right: 0; height: 2px;
-      border-radius: 10px 10px 0 0;
-      background: linear-gradient(90deg, transparent, rgba(251,191,36,.95), transparent);
-    }
-
-    /* Designation label — "AHLI N" or "👑 KAPTEN" */
-    .dp-pc-badge {
-      font-family: var(--font-mono); font-size: 12px; font-weight: 700;
-      letter-spacing: 2px; text-transform: uppercase;
-      color: #a5b4fc; margin-bottom: 7px;
-    }
-    .dp-pc-crown {
-      font-family: var(--font-mono); font-size: 12px; font-weight: 700;
-      letter-spacing: 2px; text-transform: uppercase;
-      color: var(--gold); margin-bottom: 8px;
-    }
-
-    /* IGN — primary focal text */
     .dp-pc-name {
-      font-family: var(--font-head); font-size: 22px; font-weight: 800;
-      color: #fff; letter-spacing: .3px; line-height: 1.15;
+      font-family: var(--font-head); font-size: 24px; font-weight: 800;
+      color: #fff; letter-spacing: .4px; line-height: 1.2;
       white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      /* multi-layer shadow: dark aura + directional shadow + subtle glow */
+      text-shadow:
+        0 0 22px rgba(0,0,0,.95),
+        0 0 8px  rgba(0,0,0,.95),
+        0 2px 6px rgba(0,0,0,.9),
+        0 0 50px rgba(99,102,241,.2);
     }
     .dp-pc-col.is-cap .dp-pc-name {
-      font-size: 26px;
-      text-shadow: 0 0 24px rgba(251,191,36,.3);
+      font-size: 27px;
+      text-shadow:
+        0 0 24px rgba(0,0,0,.98),
+        0 0 10px rgba(0,0,0,.95),
+        0 2px 8px rgba(0,0,0,.9),
+        0 0 40px rgba(251,191,36,.35);
     }
-
-    /* Role — directly below IGN */
     .dp-pc-role {
-      font-family: var(--font-mono); font-size: 13px; letter-spacing: .8px;
-      color: rgba(255,255,255,.75); margin-top: 6px;
+      font-family: var(--font-mono); font-size: 14px; font-weight: 600;
+      letter-spacing: 1px;
+      color: rgba(255,255,255,.92);
+      margin-top: 7px;
       white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      text-shadow:
+        0 0 16px rgba(0,0,0,.95),
+        0 1px 4px rgba(0,0,0,.9);
+    }
+    .dp-pc-col.is-cap .dp-pc-role {
+      color: rgba(251,191,36,.95);
+      text-shadow:
+        0 0 18px rgba(0,0,0,.95),
+        0 1px 5px rgba(0,0,0,.9),
+        0 0 30px rgba(251,191,36,.3);
     }
 
-    /* ML ID — secondary info */
+    /* ── 2. Info panel — dark card at very bottom of stage ── */
+    .dp-pc-panel {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      background: rgba(4,2,14,.92);
+      backdrop-filter: blur(14px);
+      border-top: 1px solid rgba(255,255,255,.1);
+      padding: 9px 8px 11px;
+      text-align: center; line-height: 1.3;
+    }
+    /* Thin vertical dividers between panels */
+    .dp-pc-col + .dp-pc-col .dp-pc-panel {
+      border-left: 1px solid rgba(255,255,255,.07);
+    }
+    /* Captain panel — gold top accent */
+    .dp-pc-col.is-cap .dp-pc-panel {
+      background: rgba(14,8,0,.93);
+      border-top: 2px solid rgba(251,191,36,.55);
+      border-left: none;
+    }
+    /* Adjacent columns re-add left divider around captain */
+    .dp-pc-col.is-cap + .dp-pc-col .dp-pc-panel {
+      border-left: 1px solid rgba(255,255,255,.07);
+    }
+
+    /* Designation label inside panel */
+    .dp-pc-badge {
+      font-family: var(--font-mono); font-size: 11px; font-weight: 700;
+      letter-spacing: 2px; text-transform: uppercase;
+      color: #a5b4fc; margin-bottom: 5px;
+    }
+    .dp-pc-crown {
+      font-family: var(--font-mono); font-size: 11px; font-weight: 700;
+      letter-spacing: 2px; text-transform: uppercase;
+      color: var(--gold); margin-bottom: 5px;
+    }
+    /* ML ID in panel */
     .dp-pc-mlid {
       font-family: var(--font-mono); font-size: 12px;
-      color: rgba(255,255,255,.48); margin-top: 5px;
+      color: rgba(255,255,255,.55); margin-top: 3px;
       white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     }
+    /* Rank in panel */
+    .dp-pc-rank {
+      font-family: var(--font-mono); font-size: 12px; font-weight: 600;
+      color: rgba(255,255,255,.72); margin-top: 3px;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .dp-pc-col.is-cap .dp-pc-rank { color: rgba(251,191,36,.85); }
 
     /* ── Reserve strip ───────────────────────────── */
     .dp-reserves {
@@ -471,14 +493,13 @@
     }
 
     @media (max-width: 720px) {
-      .dp-players { padding: 0; }
-      .dp-pc-inner { top: 58%; padding: 8px 7px 9px; width: 96%; }
-      .dp-pc-col.is-cap .dp-pc-inner { padding: 10px 8px 11px; }
-      .dp-pc-badge, .dp-pc-crown { font-size: 9px; margin-bottom: 5px; }
-      .dp-pc-name { font-size: 14px; }
-      .dp-pc-col.is-cap .dp-pc-name { font-size: 17px; }
+      .dp-pc-nameplate { top: 44%; width: 98%; }
+      .dp-pc-name { font-size: 13px; }
+      .dp-pc-col.is-cap .dp-pc-name { font-size: 15px; }
       .dp-pc-role { font-size: 11px; margin-top: 4px; }
-      .dp-pc-mlid { font-size: 10px; display: none; } /* hide MLID on mobile — too cramped */
+      .dp-pc-badge, .dp-pc-crown { font-size: 9px; }
+      .dp-pc-mlid, .dp-pc-rank { font-size: 10px; }
+      .dp-pc-panel { padding: 7px 4px 8px; }
       .dp-identity-tag { font-size: 14px; padding: 5px 12px; }
       .dp-identity-name { font-size: 22px; }
       .dp-rank-pill { font-size: 14px; padding: 5px 14px; }
@@ -1090,42 +1111,52 @@
       document.getElementById("detailMlId").textContent      = team.mlId || "—";
       document.getElementById("detailPlayerId").textContent  = user.playerId || "—";
 
-      /* ── Player cards overlay — captain at centre ── */
-      // Arrange: [M2, M3, CAPTAIN, M4, M5]  (index 2 = centre slot)
+      /* ── Player overlay — captain at centre slot ── */
+      // Layout: [M2, M3, CAPTAIN, M4, M5]  (index 2 = centre)
       const m4 = members.slice(0, 4);
-      const capObj = { name: team.displayName, mlId: team.mlId, role: team.captainRole, isCap: true };
+      const capObj = {
+        name:        team.displayName,
+        mlId:        team.mlId,
+        role:        team.captainRole,
+        rank:        team.captainRank,
+        highestRank: team.captainHighestRank,
+        isCap:       true,
+      };
       const active = [
-        m4[0] || null,  // left-most  → AHLI 1
-        m4[1] || null,  // left-mid   → AHLI 2
-        capObj,          // CENTRE     → KAPTEN
-        m4[2] || null,  // right-mid  → AHLI 3
-        m4[3] || null,  // right-most → AHLI 4
-      ].map(p => p ? p : { name: null, mlId: null, role: null, isCap: false });
+        m4[0] ? { ...m4[0], isCap:false } : null,
+        m4[1] ? { ...m4[1], isCap:false } : null,
+        capObj,
+        m4[2] ? { ...m4[2], isCap:false } : null,
+        m4[3] ? { ...m4[3], isCap:false } : null,
+      ].map(p => p || { name:null, mlId:null, role:null, rank:null, isCap:false });
 
-      // Slot label map (skip index 2 which is always captain)
       const memberLabel = { 0:"AHLI 1", 1:"AHLI 2", 3:"AHLI 3", 4:"AHLI 4" };
 
       document.getElementById("detailPlayersOverlay").innerHTML = active.map((p, i) => {
-        // Empty slot
+        const label = p.isCap ? null : (memberLabel[i] || "AHLI");
+
+        // Empty slot — show panel label only, nameplate blank
         if (!p.name) return `<div class="dp-pc-col empty">
-          <div class="dp-pc-inner">
-            <div class="dp-pc-badge">${memberLabel[i]||""}</div>
-            <div class="dp-pc-name" style="color:rgba(255,255,255,.2)">—</div>
+          <div class="dp-pc-panel">
+            <div class="dp-pc-badge">${label||""}</div>
           </div></div>`;
 
-        const label = memberLabel[i] || "AHLI";
-
-        // Hierarchy: IGN → Role → ML ID
-        return `<div class="dp-pc-col${p.isCap ? " is-cap" : ""}">
-          <div class="dp-pc-inner">
-            ${p.isCap
-              ? `<div class="dp-pc-crown">👑 KAPTEN</div>`
-              : `<div class="dp-pc-badge">${label}</div>`}
-            <div class="dp-pc-name">${escHtml(p.name)}</div>
-            ${p.role ? `<div class="dp-pc-role">${ri(p.role)} ${p.role}</div>` : ""}
-            ${p.mlId ? `<div class="dp-pc-mlid">${escHtml(p.mlId)}</div>` : ""}
-          </div>
+        // ── Layer 1: IGN + Role on the silhouette (no background) ──
+        const nameplate = `<div class="dp-pc-nameplate">
+          <div class="dp-pc-name">${escHtml(p.name)}</div>
+          ${p.role ? `<div class="dp-pc-role">${ri(p.role)} ${p.role}</div>` : ""}
         </div>`;
+
+        // ── Layer 2: Info panel at the bottom of the stage ──
+        const panel = `<div class="dp-pc-panel">
+          ${p.isCap
+            ? `<div class="dp-pc-crown">👑 KAPTEN</div>`
+            : `<div class="dp-pc-badge">${label}</div>`}
+          ${p.mlId ? `<div class="dp-pc-mlid">${escHtml(p.mlId)}</div>` : ""}
+          ${p.rank ? `<div class="dp-pc-rank">${escHtml(p.rank)}</div>` : ""}
+        </div>`;
+
+        return `<div class="dp-pc-col${p.isCap ? " is-cap" : ""}">${nameplate}${panel}</div>`;
       }).join("");
 
       /* ── Reserve strip ─────────────────────── */

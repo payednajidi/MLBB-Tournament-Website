@@ -264,7 +264,7 @@
     .dp-stage { position: relative; overflow: hidden; background: #000; line-height: 0; }
     .dp-roster-img {
       width: 100%; display: block;
-      object-fit: cover; max-height: 54vmin; min-height: 280px;
+      object-fit: cover; max-height: 54vmin; min-height: 340px;
     }
 
     /* Team identity — top-left */
@@ -301,15 +301,15 @@
     .dp-rank-pill.r3 { background: rgba(205,127,50,.14);  color:#e0965a; border:1px solid rgba(205,127,50,.42); }
     .dp-rank-pill.rn { background: rgba(99,102,241,.14);  color:#c7d2fe; border:1px solid rgba(99,102,241,.35); }
 
-    /* Gradient — solid base for panels, gentle dark backing in torso zone */
+    /* Gradient — solid base for tall panels, gentle torso backing for nameplate */
     .dp-stage-fade {
       position: absolute; bottom: 0; left: 0; right: 0;
-      height: 82%; z-index: 2; pointer-events: none;
+      height: 88%; z-index: 2; pointer-events: none;
       background: linear-gradient(to top,
-        rgba(5,3,14,.98) 0%,    /* panel area — near-opaque */
-        rgba(5,3,14,.92) 16%,   /* panel top edge */
-        rgba(5,3,14,.55) 42%,   /* torso backing for nameplate text */
-        rgba(5,3,14,.18) 65%,   /* shoulder zone fades */
+        rgba(5,3,14,.98) 0%,    /* panel area floor */
+        rgba(5,3,14,.96) 30%,   /* panel top edge (~38% from bottom for tall panels) */
+        rgba(5,3,14,.55) 52%,   /* torso zone — nameplate text */
+        rgba(5,3,14,.18) 72%,   /* shoulder, fading out */
         transparent 100%
       );
     }
@@ -327,7 +327,7 @@
     /* ── 1. IGN + Role nameplate — pure text on silhouette ── */
     .dp-pc-nameplate {
       position: absolute;
-      left: 50%; top: 45%;           /* chest / torso area */
+      left: 50%; top: 36%;           /* upper-chest area — clear of tall panel */
       transform: translateX(-50%);
       width: 96%; text-align: center;
       pointer-events: none; z-index: 2;
@@ -369,54 +369,85 @@
         0 0 30px rgba(251,191,36,.3);
     }
 
-    /* ── 2. Info panel — dark card at very bottom of stage ── */
+    /* ── 2. Info panel — spacious dark card at very bottom of stage ── */
     .dp-pc-panel {
       position: absolute; bottom: 0; left: 0; right: 0;
-      background: rgba(4,2,14,.92);
-      backdrop-filter: blur(14px);
-      border-top: 1px solid rgba(255,255,255,.1);
-      padding: 9px 8px 11px;
-      text-align: center; line-height: 1.3;
+      background: rgba(4,2,14,.94);
+      backdrop-filter: blur(18px) saturate(1.2);
+      border-top: 1px solid rgba(255,255,255,.11);
+      padding: 18px 10px 20px;
+      text-align: center; line-height: 1;
     }
-    /* Thin vertical dividers between panels */
+    /* Thin vertical dividers */
     .dp-pc-col + .dp-pc-col .dp-pc-panel {
       border-left: 1px solid rgba(255,255,255,.07);
     }
-    /* Captain panel — gold top accent */
+    /* Captain panel — gold accent */
     .dp-pc-col.is-cap .dp-pc-panel {
-      background: rgba(14,8,0,.93);
-      border-top: 2px solid rgba(251,191,36,.55);
+      background: rgba(14,8,0,.95);
+      border-top: 2px solid rgba(251,191,36,.6);
       border-left: none;
     }
-    /* Adjacent columns re-add left divider around captain */
     .dp-pc-col.is-cap + .dp-pc-col .dp-pc-panel {
       border-left: 1px solid rgba(255,255,255,.07);
     }
 
-    /* Designation label inside panel */
+    /* Designation label */
     .dp-pc-badge {
-      font-family: var(--font-mono); font-size: 11px; font-weight: 700;
-      letter-spacing: 2px; text-transform: uppercase;
-      color: #a5b4fc; margin-bottom: 5px;
+      font-family: var(--font-mono); font-size: 14px; font-weight: 700;
+      letter-spacing: 2.5px; text-transform: uppercase;
+      color: #a5b4fc;
     }
     .dp-pc-crown {
-      font-family: var(--font-mono); font-size: 11px; font-weight: 700;
-      letter-spacing: 2px; text-transform: uppercase;
-      color: var(--gold); margin-bottom: 5px;
+      font-family: var(--font-mono); font-size: 14px; font-weight: 700;
+      letter-spacing: 2.5px; text-transform: uppercase;
+      color: var(--gold);
     }
-    /* ML ID in panel */
+
+    /* Separator line after designation */
+    .dp-pc-sep {
+      width: 55%; height: 1px; margin: 10px auto 0;
+      background: rgba(255,255,255,.1);
+    }
+    .dp-pc-col.is-cap .dp-pc-sep { background: rgba(251,191,36,.28); }
+
+    /* ML ID */
     .dp-pc-mlid {
-      font-family: var(--font-mono); font-size: 12px;
-      color: rgba(255,255,255,.55); margin-top: 3px;
+      font-family: var(--font-mono); font-size: 13px;
+      color: rgba(255,255,255,.58);
+      margin-top: 12px;
       white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     }
-    /* Rank in panel */
+
+    /* Rank row — icon + name side by side */
+    .dp-pc-rank-row {
+      display: flex; align-items: center; justify-content: center;
+      gap: 7px; margin-top: 12px;
+    }
+    .dp-pc-rank-img {
+      width: 32px; height: 32px;
+      object-fit: contain; flex-shrink: 0;
+      filter: drop-shadow(0 0 6px rgba(255,255,255,.2));
+    }
     .dp-pc-rank {
-      font-family: var(--font-mono); font-size: 12px; font-weight: 600;
-      color: rgba(255,255,255,.72); margin-top: 3px;
+      font-family: var(--font-head); font-size: 18px; font-weight: 700;
+      color: rgba(255,255,255,.92);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      line-height: 1;
+    }
+    .dp-pc-col.is-cap .dp-pc-rank {
+      color: rgba(251,191,36,.95);
+      text-shadow: 0 0 16px rgba(251,191,36,.2);
+    }
+
+    /* Highest rank — secondary line */
+    .dp-pc-highest {
+      font-family: var(--font-mono); font-size: 12px;
+      color: rgba(255,255,255,.42);
+      margin-top: 7px;
       white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     }
-    .dp-pc-col.is-cap .dp-pc-rank { color: rgba(251,191,36,.85); }
+    .dp-pc-highest::before { content: "↑ "; }
 
     /* ── Reserve strip ───────────────────────────── */
     .dp-reserves {
@@ -493,13 +524,19 @@
     }
 
     @media (max-width: 720px) {
-      .dp-pc-nameplate { top: 44%; width: 98%; }
-      .dp-pc-name { font-size: 13px; }
-      .dp-pc-col.is-cap .dp-pc-name { font-size: 15px; }
-      .dp-pc-role { font-size: 11px; margin-top: 4px; }
-      .dp-pc-badge, .dp-pc-crown { font-size: 9px; }
-      .dp-pc-mlid, .dp-pc-rank { font-size: 10px; }
-      .dp-pc-panel { padding: 7px 4px 8px; }
+      .dp-roster-img { max-height: 68vw; min-height: 260px; }
+      .dp-pc-nameplate { top: 34%; width: 98%; }
+      .dp-pc-name { font-size: 12px; }
+      .dp-pc-col.is-cap .dp-pc-name { font-size: 14px; }
+      .dp-pc-role { font-size: 10px; margin-top: 4px; }
+      .dp-pc-panel { padding: 11px 5px 13px; }
+      .dp-pc-badge, .dp-pc-crown { font-size: 10px; letter-spacing: 1.5px; }
+      .dp-pc-sep { margin: 7px auto 0; }
+      .dp-pc-mlid { font-size: 10px; margin-top: 8px; }
+      .dp-pc-rank-row { gap: 4px; margin-top: 8px; }
+      .dp-pc-rank-img { width: 20px; height: 20px; }
+      .dp-pc-rank { font-size: 12px; }
+      .dp-pc-highest { font-size: 10px; margin-top: 5px; }
       .dp-identity-tag { font-size: 14px; padding: 5px 12px; }
       .dp-identity-name { font-size: 22px; }
       .dp-rank-pill { font-size: 14px; padding: 5px 14px; }
@@ -508,7 +545,6 @@
       .dp-s-value { font-size: 18px; }
       .dp-hist-name { font-size: 14px; }
       .dp-hist-pts { font-size: 12px; }
-      .dp-roster-img { max-height: 66vw; }
     }
 
     /* ── Admin recalculate bar ──────────────────── */
@@ -1072,6 +1108,23 @@
     const ROLE_ICON_MAP = { Hyper:"⚡", Roamer:"🛡", EXPlaner:"⚔️", Goldlaner:"🏹", Midlaner:"🔮" };
     const ri = role => ROLE_ICON_MAP[role] || "";
 
+    /* Rank badge images (assets that exist in /assets/) */
+    const RANK_IMG_MAP = {
+      "Warrior":        "assets/warrior_Rank.png",
+      "Elite":          "assets/silver_Rank.png",
+      "Master":         "assets/master_Rank.png",
+      "Grandmaster":    "assets/grandmaster_Rank.png",
+      "Epic":           "assets/epic_Rank.png",
+      "Legend":         "assets/legend_Rank.png",
+      "Mythic":         "assets/mythic_Rank.png",
+      "Mythic Honor":   "assets/mythichonor_Rank.png",
+      "Mythic Glory":   "assets/mythichonor_Rank.png",   // closest available
+      "Mythic Immortal":"assets/mythicimmortal_Rank.png",
+    };
+    const rImg = rank => RANK_IMG_MAP[rank]
+      ? `<img src="${RANK_IMG_MAP[rank]}" class="dp-pc-rank-img" alt="${escHtml(rank)}" onerror="this.style.display='none'">`
+      : "";
+
     function openDetail(uid) {
       const row = allStandings.find(r => r.uid === uid);
       if (!row) return;
@@ -1135,10 +1188,11 @@
       document.getElementById("detailPlayersOverlay").innerHTML = active.map((p, i) => {
         const label = p.isCap ? null : (memberLabel[i] || "AHLI");
 
-        // Empty slot — show panel label only, nameplate blank
+        // Empty slot — show panel label + separator only
         if (!p.name) return `<div class="dp-pc-col empty">
           <div class="dp-pc-panel">
             <div class="dp-pc-badge">${label||""}</div>
+            <div class="dp-pc-sep"></div>
           </div></div>`;
 
         // ── Layer 1: IGN + Role on the silhouette (no background) ──
@@ -1147,13 +1201,21 @@
           ${p.role ? `<div class="dp-pc-role">${ri(p.role)} ${p.role}</div>` : ""}
         </div>`;
 
-        // ── Layer 2: Info panel at the bottom of the stage ──
+        // ── Layer 2: Spacious info panel at bottom of stage ──
         const panel = `<div class="dp-pc-panel">
           ${p.isCap
             ? `<div class="dp-pc-crown">👑 KAPTEN</div>`
             : `<div class="dp-pc-badge">${label}</div>`}
+          <div class="dp-pc-sep"></div>
           ${p.mlId ? `<div class="dp-pc-mlid">${escHtml(p.mlId)}</div>` : ""}
-          ${p.rank ? `<div class="dp-pc-rank">${escHtml(p.rank)}</div>` : ""}
+          ${p.rank ? `
+            <div class="dp-pc-rank-row">
+              ${rImg(p.rank)}
+              <div class="dp-pc-rank">${escHtml(p.rank)}</div>
+            </div>` : ""}
+          ${p.highestRank && p.highestRank !== p.rank
+            ? `<div class="dp-pc-highest">${escHtml(p.highestRank)}</div>`
+            : ""}
         </div>`;
 
         return `<div class="dp-pc-col${p.isCap ? " is-cap" : ""}">${nameplate}${panel}</div>`;

@@ -16,7 +16,7 @@
     }
     .stats-row {
       display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
+      grid-template-columns: repeat(4, minmax(0, 1fr));
       gap: 1rem;
       margin-bottom: 1.25rem;
     }
@@ -111,13 +111,81 @@
       border-radius: var(--radius);
       padding: 1rem;
     }
-    .row-poster-thumb {
-      width: 60px;
-      height: 38px;
-      object-fit: cover;
-      border-radius: 4px;
+    /* ── Tournament management cards ──────── */
+    .t-card {
+      display: flex;
+      background: var(--bg3);
       border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      transition: border-color .2s;
+      min-height: 210px;
+    }
+    .t-card:hover { border-color: var(--border2); }
+    .t-card-poster {
+      width: 175px;
       flex-shrink: 0;
+      position: relative;
+      overflow: hidden;
+      background: linear-gradient(160deg, var(--bg3) 0%, var(--bg2) 100%);
+    }
+    .t-card-poster-img {
+      width: 100%; height: 100%;
+      object-fit: cover; display: block;
+    }
+    .t-card-poster-ph {
+      width: 100%; height: 100%; min-height: 210px;
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--font-head); font-size: 42px;
+      color: var(--border2); letter-spacing: 6px;
+      background: linear-gradient(160deg, #100e28 0%, #0c0a1c 100%);
+    }
+    .t-card-body {
+      flex: 1; min-width: 0;
+      padding: 1rem 1.25rem;
+      display: flex; flex-direction: column; gap: 8px;
+    }
+    .t-card-badges { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+    .t-card-title {
+      font-family: var(--font-head);
+      font-size: clamp(18px, 2.2vw, 24px);
+      font-weight: 700; letter-spacing: 1px; color: var(--txt);
+    }
+    .t-card-date { font-size: 13px; color: var(--txt2); }
+    .t-card-stats {
+      display: flex; gap: 1.4rem; flex-wrap: wrap;
+      padding: 8px 0;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+    .t-stat { display: flex; flex-direction: column; gap: 2px; }
+    .t-stat-val {
+      font-family: var(--font-head); font-size: 18px;
+      font-weight: 700; color: var(--gold); line-height: 1;
+    }
+    .t-stat-lbl {
+      font-family: var(--font-mono); font-size: 9px;
+      letter-spacing: 1.5px; text-transform: uppercase; color: var(--txt3);
+    }
+    .t-reg-wrap { display: flex; flex-direction: column; gap: 3px; }
+    .t-reg-label {
+      display: flex; justify-content: space-between;
+      font-family: var(--font-mono); font-size: 10px;
+      color: var(--txt3); letter-spacing: .8px;
+    }
+    .t-reg-bar { height: 4px; background: var(--border); border-radius: 2px; overflow: hidden; }
+    .t-reg-fill {
+      height: 100%; min-width: 2px; border-radius: 2px;
+      background: linear-gradient(to right, var(--green), var(--gold));
+      transition: width .4s;
+    }
+    .t-card-actions {
+      display: flex; gap: 8px; flex-wrap: wrap;
+      margin-top: auto; padding-top: 2px;
+    }
+    @media (max-width: 640px) {
+      .t-card { flex-direction: column; }
+      .t-card-poster { width: 100%; min-height: 180px; }
     }
     .modal-backdrop {
       position: fixed;
@@ -376,6 +444,9 @@
       .home-links    { flex-wrap: wrap; flex: 1 1 100%; overflow: visible; justify-content: center; }
       .home-actions  { justify-content: center; width: 100%; }
     }
+    @media (max-width: 900px) {
+      .stats-row { grid-template-columns: repeat(2, 1fr); }
+    }
     @media (max-width: 760px) {
       .stats-row { grid-template-columns: 1fr; }
       .home-links a  { font-size: 12px; padding: 7px 10px; }
@@ -423,6 +494,7 @@
       <section class="stats-row">
         <div class="stat-card"><strong id="statActive">0</strong><span class="text-muted">Active Tournaments</span></div>
         <div class="stat-card"><strong id="statPending">0</strong><span class="text-muted">Pending Results</span></div>
+        <div class="stat-card"><strong id="statPendingApps">0</strong><span class="text-muted">Pending Applications</span></div>
         <div class="stat-card"><strong id="statTeamsToday">0</strong><span class="text-muted">Teams Today</span></div>
       </section>
 
@@ -1123,6 +1195,8 @@
     function renderStats(state) {
       document.getElementById("statActive").textContent = state.tournaments.filter((t) => t.status === "live" || t.status === "registration").length;
       document.getElementById("statPending").textContent = actionMatches(state).filter((m) => m.status === "pending").length;
+      const pendingApps = (state.applications || []).filter(a => a.status === "pending_review" || a.status === "payment_submitted").length;
+      document.getElementById("statPendingApps").textContent = pendingApps;
       const todayStart = new Date();
       todayStart.setHours(0, 0, 0, 0);
       document.getElementById("statTeamsToday").textContent = Object.values(state.teams).filter((team) => (team.createdAt || 0) >= todayStart.getTime()).length;
@@ -1214,25 +1288,71 @@
         panel.innerHTML = '<div class="empty-state">Tiada tournament lagi.</div>';
         return;
       }
-      panel.innerHTML = state.tournaments.map((tournament) => `
-        <article class="row-card">
-          <div class="row-main">
-            ${tournament.posterUrl ? `<img class="row-poster-thumb" src="${tournament.posterUrl}" alt="" onerror="this.style.display='none'">` : ""}
-            <div>
-              <span class="badge badge-${tournament.category}">${tournament.category}</span>
-              ${statusBadge(tournament.status)}
-              <h3 class="mt-1">${tournament.name}</h3>
-              <p class="text-muted">${formatDate(tournament.startDate)} - ${tournament.teamCount || 0}/${tournament.maxTeams || 0} teams</p>
+
+      const pendingAppsMap = {};
+      (state.applications || []).forEach(app => {
+        if (app.status === "pending_review" || app.status === "payment_submitted") {
+          pendingAppsMap[app.tournamentId] = (pendingAppsMap[app.tournamentId] || 0) + 1;
+        }
+      });
+
+      panel.innerHTML = state.tournaments.map((t) => {
+        const teamCount  = t.teamCount || 0;
+        const maxTeams   = t.maxTeams  || 0;
+        const slotsLeft  = Math.max(0, maxTeams - teamCount);
+        const pct        = maxTeams > 0 ? Math.min(100, Math.round((teamCount / maxTeams) * 100)) : 0;
+        const pendingApp = pendingAppsMap[t.id] || 0;
+
+        return `<article class="t-card">
+          <div class="t-card-poster">
+            ${t.posterUrl
+              ? `<img class="t-card-poster-img" src="${escHtmlAttr(t.posterUrl)}" alt=""
+                      onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+                 <div class="t-card-poster-ph" style="display:none">HC</div>`
+              : `<div class="t-card-poster-ph">HC</div>`}
+          </div>
+          <div class="t-card-body">
+            <div class="t-card-badges">
+              <span class="badge badge-${escHtml(t.category)}">${escHtml(t.category)}</span>
+              ${statusBadge(t.status)}
             </div>
-            <div class="row-actions">
-              <a class="btn btn-secondary btn-sm" href="organizer-create.html?edit=${tournament.id}">Manage</a>
-              <button class="btn btn-secondary btn-sm" data-action="pause" data-tid="${tournament.id}">Pause</button>
-              <button class="btn btn-danger btn-sm" data-action="end" data-tid="${tournament.id}">End Tournament</button>
-              <button class="btn btn-danger btn-sm" data-action="delete" data-tid="${tournament.id}" data-tname="${tournament.name}" data-tcount="${tournament.teamCount || 0}" title="Hapus tournament sepenuhnya">🗑 Hapus</button>
+            <h3 class="t-card-title">${escHtml(t.name)}</h3>
+            <p class="t-card-date">${formatDate(t.startDate)}</p>
+            <div class="t-card-stats">
+              <div class="t-stat">
+                <span class="t-stat-val">${teamCount}/${maxTeams}</span>
+                <span class="t-stat-lbl">Pasukan</span>
+              </div>
+              <div class="t-stat">
+                <span class="t-stat-val">${slotsLeft}</span>
+                <span class="t-stat-lbl">Slot Baki</span>
+              </div>
+              <div class="t-stat">
+                <span class="t-stat-val" style="${pendingApp > 0 ? "color:var(--red)" : ""}">${pendingApp}</span>
+                <span class="t-stat-lbl">Permohonan</span>
+              </div>
+              <div class="t-stat">
+                <span class="t-stat-val" style="font-size:13px;color:var(--txt2)">${escHtml(t.format || "—")}</span>
+                <span class="t-stat-lbl">Format</span>
+              </div>
+            </div>
+            <div class="t-reg-wrap">
+              <div class="t-reg-label">
+                <span>Pendaftaran</span>
+                <span>${teamCount}/${maxTeams} &middot; ${pct}%</span>
+              </div>
+              <div class="t-reg-bar"><div class="t-reg-fill" style="width:${pct}%"></div></div>
+            </div>
+            <div class="t-card-actions">
+              <a class="btn btn-primary btn-sm" href="tournament-manage.html?id=${t.id}">Manage</a>
+              <a class="btn btn-secondary btn-sm" href="organizer-create.html?edit=${t.id}">Edit Tournament</a>
+              <button class="btn btn-danger btn-sm" data-action="end" data-tid="${t.id}">End Tournament</button>
+              <button class="btn btn-danger btn-sm" data-action="delete" data-tid="${t.id}"
+                      data-tname="${escHtmlAttr(t.name)}" data-tcount="${teamCount}">🗑 Hapus</button>
             </div>
           </div>
-        </article>
-      `).join("");
+        </article>`;
+      }).join("");
     }
 
     function renderPending(state) {
@@ -1694,7 +1814,6 @@
         setLoading(btn, true, originalHTML);
         try {
           if (action === "approve") await approveResult(state, tournamentId, matchId);
-          if (action === "pause") await pauseTournament(tournamentId);
           if (action === "end") await endTournament(tournamentId);
           await refresh(state);
           showAlert("Tindakan organizer berjaya disimpan.", "success");
@@ -1993,11 +2112,6 @@
         teamId: winnerId,
         organizerId: state.user.uid,
       });
-    }
-
-    async function pauseTournament(tournamentId) {
-      await update(ref(db, `tournaments/${tournamentId}`), { status: "upcoming" });
-      await logAction(tournamentId, { action: "PAUSE_TOURNAMENT", matchId: null });
     }
 
     async function endTournament(tournamentId) {

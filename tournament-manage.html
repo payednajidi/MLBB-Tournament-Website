@@ -1,0 +1,954 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manage Tournament – MLBB OPS</title>
+  <link rel="stylesheet" href="css/global.css">
+  <style>
+    .home-nav {
+      position: sticky; top: 0; z-index: 100;
+      background: color-mix(in srgb, var(--bg) 94%, transparent);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+    }
+    .home-nav-inner {
+      max-width: 1400px; margin: 0 auto; padding: 14px 1.5rem;
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 12px; flex-wrap: nowrap;
+    }
+    .home-links {
+      display: flex; align-items: center; justify-content: center;
+      gap: 2px; flex-wrap: nowrap; list-style: none; flex: 1 1 auto; overflow: hidden;
+    }
+    .home-links a {
+      display: inline-flex; align-items: center; min-height: 44px;
+      padding: 9px 10px; border-radius: var(--radius); color: var(--txt2);
+      font-family: var(--font-head); font-size: 15px; font-weight: 700;
+      letter-spacing: 1.5px; text-transform: uppercase; white-space: nowrap; transition: all .2s;
+    }
+    .home-links a:hover, .home-links a.active {
+      color: var(--gold); background: color-mix(in srgb, var(--gold) 12%, transparent);
+    }
+    .home-actions { display: flex; gap: 8px; align-items: center; flex-shrink: 0; }
+
+    /* Hero */
+    .manage-hero {
+      display: flex; gap: 0; margin-bottom: 1.5rem;
+      background: var(--bg3); border: 1px solid var(--border);
+      border-radius: var(--radius-lg); overflow: hidden; min-height: 240px;
+    }
+    .manage-poster {
+      width: 190px; flex-shrink: 0; position: relative;
+      overflow: hidden; background: linear-gradient(160deg, #100e28, #0c0a1c);
+    }
+    .manage-poster img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .manage-poster-ph {
+      width: 100%; height: 100%; min-height: 240px;
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--font-head); font-size: 52px; color: var(--border2); letter-spacing: 8px;
+    }
+    .manage-info {
+      flex: 1; min-width: 0; padding: 1.25rem 1.5rem;
+      display: flex; flex-direction: column; gap: 10px;
+    }
+    .manage-badges { display: flex; gap: 6px; flex-wrap: wrap; }
+    .manage-title {
+      font-family: var(--font-head); font-size: clamp(22px, 3vw, 34px);
+      font-weight: 800; letter-spacing: 2px; color: var(--txt); margin: 0;
+    }
+    .manage-date { font-size: 14px; color: var(--txt2); }
+    .manage-stats {
+      display: flex; gap: 1.5rem; flex-wrap: wrap;
+      padding: 10px 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
+    }
+    .m-stat { display: flex; flex-direction: column; gap: 2px; }
+    .m-stat-val { font-family: var(--font-head); font-size: 20px; font-weight: 700; color: var(--gold); line-height: 1; }
+    .m-stat-lbl { font-family: var(--font-mono); font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--txt3); }
+    .manage-reg-label {
+      display: flex; justify-content: space-between;
+      font-family: var(--font-mono); font-size: 10px; color: var(--txt3); letter-spacing: .8px; margin-bottom: 4px;
+    }
+    .manage-reg-bar { height: 5px; background: var(--border); border-radius: 3px; overflow: hidden; }
+    .manage-reg-fill { height: 100%; background: linear-gradient(to right, var(--green), var(--gold)); border-radius: 3px; transition: width .4s; min-width: 2px; }
+    .manage-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: auto; }
+
+    /* Tabs */
+    .tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 1rem; }
+    .tab-btn {
+      border: 1px solid var(--border); background: var(--bg3); color: var(--txt2);
+      border-radius: var(--radius); padding: 10px 14px;
+      font-family: var(--font-head); letter-spacing: 1px; cursor: pointer;
+    }
+    .tab-btn.active { border-color: var(--gold); color: var(--gold); }
+    .tab-badge {
+      display: inline-flex; align-items: center; justify-content: center;
+      min-width: 18px; height: 18px; border-radius: 9px;
+      background: var(--red); color: #fff; font-family: var(--font-mono);
+      font-size: 10px; font-weight: 700; padding: 0 5px; margin-left: 4px;
+    }
+    .panel { display: none; }
+    .panel.active { display: grid; gap: 1rem; }
+
+    /* Overview stat cards */
+    .ov-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(155px, 1fr)); gap: 10px;
+    }
+    .ov-card {
+      background: var(--bg3); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1rem;
+    }
+    .ov-card strong { display: block; font-family: var(--font-head); font-size: 30px; color: var(--gold); }
+    .ov-card span { font-size: 13px; color: var(--txt2); }
+
+    /* Match cards */
+    .match-card {
+      background: var(--bg3); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1rem; transition: border-color .15s;
+    }
+    .match-card.status-pending { border-color: rgba(244,63,94,.45); }
+    .match-card.status-done { opacity: .68; }
+    .match-head { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 8px; }
+    .match-id-lbl { font-family: var(--font-mono); font-size: 11px; letter-spacing: 2px; color: var(--txt3); text-transform: uppercase; }
+    .match-teams {
+      display: grid; grid-template-columns: 1fr auto 1fr;
+      align-items: center; gap: 8px; padding: 8px 0;
+    }
+    .match-team { font-family: var(--font-head); font-size: 15px; font-weight: 700; color: var(--txt); }
+    .match-team.right { text-align: right; }
+    .match-score-box {
+      display: flex; align-items: center; gap: 8px; justify-content: center;
+      font-family: var(--font-head); font-size: 28px; font-weight: 800; color: var(--gold); white-space: nowrap;
+    }
+    .match-score-vs { font-size: 14px; color: var(--txt3); }
+    .match-footer {
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 8px; margin-top: 8px;
+      padding-top: 8px; border-top: 1px solid var(--border);
+    }
+    .match-meta { font-size: 12px; color: var(--txt3); }
+    .match-actions-row { display: flex; gap: 6px; flex-wrap: wrap; }
+
+    /* Filter bar */
+    .filter-row { display: flex; gap: 6px; flex-wrap: wrap; }
+    .filter-btn {
+      background: var(--bg3); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 5px 12px;
+      font-family: var(--font-mono); font-size: 11px;
+      letter-spacing: 1px; color: var(--txt2); cursor: pointer; transition: all .15s;
+    }
+    .filter-btn.active {
+      border-color: var(--gold); color: var(--gold);
+      background: color-mix(in srgb, var(--gold) 10%, transparent);
+    }
+
+    /* Sub headings inside panels */
+    .sub-heading {
+      font-family: var(--font-head); font-size: 12px;
+      letter-spacing: 2.5px; text-transform: uppercase; color: var(--txt3);
+      padding-bottom: 8px; border-bottom: 1px solid var(--border); margin-bottom: 12px;
+    }
+
+    /* Team rows */
+    .team-row {
+      display: flex; align-items: center; gap: 12px;
+      background: var(--bg3); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: .75rem 1rem; flex-wrap: wrap;
+    }
+    .team-tag-lbl { font-family: var(--font-mono); font-size: 11px; color: var(--gold); letter-spacing: 2px; flex-shrink: 0; }
+    .team-name-lbl { font-family: var(--font-head); font-size: 17px; flex: 1; min-width: 0; }
+    .team-meta-lbl { font-size: 13px; color: var(--txt2); }
+
+    /* Application cards */
+    .app-card {
+      background: var(--bg3); border: 1px solid rgba(99,102,241,.35);
+      border-radius: var(--radius); padding: 1rem; margin-bottom: 8px;
+    }
+    .app-card-inner {
+      display: flex; align-items: flex-start;
+      justify-content: space-between; gap: 12px; flex-wrap: wrap;
+    }
+    .app-status-badge {
+      display: inline-flex; align-items: center;
+      padding: 3px 10px; border-radius: 4px;
+      font-family: var(--font-mono); font-size: 9px; letter-spacing: 1.5px;
+      text-transform: uppercase; font-weight: 700;
+      background: rgba(99,102,241,.12); color: #a5b4fc;
+      border: 1px solid rgba(99,102,241,.3); margin-bottom: 6px;
+    }
+
+    /* Activity log */
+    .log-entry { display: flex; gap: 12px; padding: .65rem 0; border-bottom: 1px solid var(--border); }
+    .log-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--border2); flex-shrink: 0; margin-top: 6px; }
+    .log-dot.approve  { background: var(--green); }
+    .log-dot.reject   { background: var(--red); }
+    .log-dot.walkover { background: var(--gold); }
+    .log-dot.end      { background: var(--txt3); }
+    .log-text { font-family: var(--font-mono); font-size: 11px; color: var(--txt2); }
+    .log-time { font-size: 11px; color: var(--txt3); margin-top: 2px; }
+
+    /* Live badge */
+    .live-badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      font-family: var(--font-mono); font-size: 10px; letter-spacing: 1.5px; color: var(--green);
+    }
+    .live-dot {
+      width: 6px; height: 6px; border-radius: 50%; background: var(--green);
+      animation: pulsedot 1.5s infinite;
+    }
+    @keyframes pulsedot { 0%,100%{opacity:1} 50%{opacity:.25} }
+
+    /* Modals */
+    .modal-backdrop {
+      position: fixed; inset: 0; z-index: 1000;
+      background: color-mix(in srgb, var(--bg) 84%, transparent);
+      display: none; place-items: center; padding: 1rem;
+    }
+    .modal-backdrop.show { display: grid; }
+    .modal {
+      width: min(520px, 100%); background: var(--card);
+      border: 1px solid var(--border2); border-radius: var(--radius-lg); overflow: hidden;
+    }
+    .modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 1rem; }
+
+    .empty-state {
+      color: var(--txt2); border: 1px dashed var(--border2);
+      border-radius: var(--radius); padding: 1rem;
+    }
+    .page-head {
+      display: flex; align-items: center; gap: 12px;
+      margin-bottom: 1.5rem; flex-wrap: wrap;
+    }
+
+    @media (max-width: 1100px) {
+      .home-nav-inner { flex-wrap: wrap; justify-content: center; gap: 8px; }
+      .navbar-logo  { flex: 1 1 100%; justify-content: center; }
+      .home-links   { flex-wrap: wrap; flex: 1 1 100%; overflow: visible; justify-content: center; }
+      .home-actions { justify-content: center; width: 100%; }
+    }
+    @media (max-width: 680px) {
+      .manage-hero  { flex-direction: column; }
+      .manage-poster { width: 100%; min-height: 200px; }
+      .home-links a { font-size: 12px; padding: 7px 10px; }
+    }
+  </style>
+</head>
+<body>
+  <header class="home-nav">
+    <div class="home-nav-inner">
+      <a href="index.html" class="navbar-logo">
+        <img src="assets/logo_organizer.png" alt="HC" class="logo-img">
+        <span class="logo-name">Tournament <span>Organizer</span></span>
+      </a>
+      <ul class="home-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="index.html#tournaments">Tournaments</a></li>
+        <li><a href="index.html#teams">Teams</a></li>
+        <li><a href="index.html#about">About</a></li>
+        <li><a href="index.html#contact">Contact</a></li>
+        <li><a href="standing.html">Standing</a></li>
+        <li><a href="schedule.html">Schedule</a></li>
+        <li><a href="organizer.html" class="active">Organizer Dashboard</a></li>
+      </ul>
+      <div class="home-actions">
+        <span class="btn btn-primary btn-sm" style="cursor:default;user-select:none;pointer-events:none;">Admin</span>
+        <button class="btn btn-secondary btn-sm" id="btnLogout">Log Keluar</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="page-wrap">
+    <div class="container">
+
+      <div class="page-head">
+        <a href="organizer.html" class="btn btn-secondary btn-sm">← Dashboard</a>
+        <span class="live-badge" id="liveBadge" style="display:none;margin-left:auto">
+          <span class="live-dot"></span>LIVE SYNC
+        </span>
+      </div>
+
+      <div class="alert alert-error"   id="alertError"  ><span id="alertMsg"></span></div>
+      <div class="alert alert-success" id="alertSuccess"><span id="successMsg"></span></div>
+
+      <div id="loadingState" style="text-align:center;padding:3rem;color:var(--txt2)">
+        <p>Memuatkan data tournament...</p>
+      </div>
+      <div id="notFoundState" style="display:none">
+        <div class="empty-state">Tournament tidak dijumpai. <a href="organizer.html">Kembali ke Dashboard</a></div>
+      </div>
+
+      <div id="mainContent" style="display:none">
+
+        <!-- Hero -->
+        <div class="manage-hero">
+          <div class="manage-poster" id="managePoster">
+            <div class="manage-poster-ph">HC</div>
+          </div>
+          <div class="manage-info">
+            <div class="manage-badges" id="manageBadges"></div>
+            <h1 class="manage-title" id="manageTitle">—</h1>
+            <p class="manage-date"   id="manageDate">—</p>
+            <div class="manage-stats" id="manageStats"></div>
+            <div>
+              <div class="manage-reg-label">
+                <span>Pendaftaran</span>
+                <span id="manageRegPct">—</span>
+              </div>
+              <div class="manage-reg-bar">
+                <div class="manage-reg-fill" id="manageRegFill" style="width:0%"></div>
+              </div>
+            </div>
+            <div class="manage-actions" id="manageHeroActions"></div>
+          </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="tabs" id="tabs">
+          <button class="tab-btn active" data-tab="overview">Overview</button>
+          <button class="tab-btn" data-tab="matches">
+            Matches <span id="matchPendingBadge" class="tab-badge" style="display:none"></span>
+          </button>
+          <button class="tab-btn" data-tab="teams">
+            Teams <span id="appPendingBadge" class="tab-badge" style="display:none"></span>
+          </button>
+          <button class="tab-btn" data-tab="log">Activity Log</button>
+        </div>
+
+        <!-- Overview -->
+        <section class="panel active" id="panel-overview">
+          <div class="ov-grid" id="ovGrid"></div>
+          <div class="row-card" id="ovMatchProgress" style="padding:1rem"></div>
+        </section>
+
+        <!-- Matches -->
+        <section class="panel" id="panel-matches">
+          <div class="filter-row" id="matchFilter">
+            <button class="filter-btn active" data-filter="all">Semua</button>
+            <button class="filter-btn" data-filter="pending">Pending</button>
+            <button class="filter-btn" data-filter="upcoming">Upcoming</button>
+            <button class="filter-btn" data-filter="done">Selesai</button>
+          </div>
+          <div id="matchList"></div>
+        </section>
+
+        <!-- Teams -->
+        <section class="panel" id="panel-teams">
+          <div id="teamsList"></div>
+        </section>
+
+        <!-- Activity Log -->
+        <section class="panel" id="panel-log">
+          <div id="logList"></div>
+        </section>
+
+      </div><!-- /mainContent -->
+    </div>
+  </main>
+
+  <!-- Reject result modal -->
+  <div class="modal-backdrop" id="rejectModal">
+    <div class="modal">
+      <div class="card-header"><h2>Tolak Keputusan</h2></div>
+      <div class="card-body">
+        <label class="form-label" for="rejectReason">Sebab penolakan</label>
+        <textarea class="form-textarea" id="rejectReason" placeholder="Contoh: Skor tidak sepadan dengan bukti."></textarea>
+        <span class="form-error" id="errRejectReason">Sebab penolakan diperlukan.</span>
+        <div class="modal-actions">
+          <button class="btn btn-secondary" data-close-modal>Tutup</button>
+          <button class="btn btn-danger" id="btnConfirmReject">Tolak</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Walkover modal -->
+  <div class="modal-backdrop" id="walkoverModal">
+    <div class="modal">
+      <div class="card-header"><h2>Pilih Pemenang Walkover</h2></div>
+      <div class="card-body">
+        <label class="form-label" for="walkoverWinner">Pasukan menang</label>
+        <select class="form-select" id="walkoverWinner"></select>
+        <div class="modal-actions">
+          <button class="btn btn-secondary" data-close-modal>Tutup</button>
+          <button class="btn btn-primary" id="btnConfirmWalkover">Sahkan</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Reject application modal -->
+  <div class="modal-backdrop" id="rejectAppModal">
+    <div class="modal">
+      <div class="card-header"><h2 style="color:var(--red)">✕ Tolak Permohonan</h2></div>
+      <div class="card-body">
+        <label class="form-label" for="rejectAppReason">Sebab Penolakan <span style="color:var(--red)">*</span></label>
+        <textarea class="form-textarea" id="rejectAppReason" placeholder="Contoh: Roster tidak memenuhi syarat minimum."></textarea>
+        <span class="form-error" id="errRejectApp" style="display:none">Sebab penolakan diperlukan.</span>
+        <div class="modal-actions">
+          <button class="btn btn-secondary" data-close-modal>Batal</button>
+          <button class="btn btn-danger" id="btnConfirmRejectApp">✕ Tolak</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- End tournament modal -->
+  <div class="modal-backdrop" id="endModal">
+    <div class="modal">
+      <div class="card-header"><h2>⏹ Tamatkan Tournament</h2></div>
+      <div class="card-body">
+        <p class="text-muted" style="margin-bottom:.75rem">
+          Anda akan menamatkan tournament ini secara rasmi. Status akan dikunci dan bracket tidak boleh diubah lagi.
+        </p>
+        <p style="font-family:var(--font-head);font-size:18px;color:var(--txt);margin-bottom:.5rem" id="endTournamentName">—</p>
+        <p style="font-size:13px;color:var(--gold)">Pastikan semua keputusan sudah disahkan sebelum meneruskan.</p>
+        <div class="modal-actions">
+          <button class="btn btn-secondary" data-close-modal>Batal</button>
+          <button class="btn btn-danger" id="btnConfirmEnd">Ya, Tamatkan</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { requireOrganizer, logout } from "./js/auth.js";
+    import { db } from "./js/firebase-config.js";
+    import { advanceBracket, formatDate, setLoading } from "./js/utils.js";
+    import {
+      ref, get, update, push, set, onValue
+    } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-database.js";
+
+    const tid = new URLSearchParams(window.location.search).get("id");
+
+    if (!tid) {
+      document.getElementById("loadingState").style.display  = "none";
+      document.getElementById("notFoundState").style.display = "block";
+    }
+
+    /* ── Utility ───────────────────────────────── */
+    function esc(s)  { return String(s ?? "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+    function escA(s) { return String(s ?? "").replace(/"/g,"&quot;").replace(/'/g,"&#39;"); }
+
+    function statusBadge(st) {
+      const k = st === "done" ? "done" : st === "live" ? "live" : "upcoming";
+      return `<span class="badge badge-${k}">${st}</span>`;
+    }
+    function matchLabel(m) {
+      return `${({wb:"WB",lb:"LB",gf:"GF"}[m.bracket]||"BR")} R${m.round} M${m.position}`;
+    }
+    function showAlert(msg, type = "error") {
+      document.getElementById("alertError").classList.remove("show");
+      document.getElementById("alertSuccess").classList.remove("show");
+      if (type === "success") {
+        document.getElementById("successMsg").textContent = msg;
+        document.getElementById("alertSuccess").classList.add("show");
+      } else {
+        document.getElementById("alertMsg").textContent = msg;
+        document.getElementById("alertError").classList.add("show");
+      }
+    }
+    function openModal(id) { document.getElementById(id).classList.add("show"); }
+    function closeModals() { document.querySelectorAll(".modal-backdrop").forEach(m => m.classList.remove("show")); }
+    async function logAction(entry) {
+      await set(push(ref(db, `activityLog/${tid}`)), { ...entry, timestamp: Date.now() });
+    }
+    async function reloadActivity() {
+      const snap = await get(ref(db, `activityLog/${tid}`));
+      state.activity = snap.exists()
+        ? Object.values(snap.val()).sort((a,b) => (b.timestamp||0)-(a.timestamp||0)) : [];
+    }
+    async function reloadApps() {
+      const snap = await get(ref(db, `applications/${tid}`));
+      state.applications = snap.exists()
+        ? Object.entries(snap.val()).map(([uid,a]) => ({ uid, ...a })) : [];
+    }
+
+    /* ── State ─────────────────────────────────── */
+    const state = { tournament:null, teams:{}, applications:[], activity:[], currentAction:{}, matchFilter:"all" };
+
+    /* ── Boot ──────────────────────────────────── */
+    requireOrganizer(async (user) => {
+      state.user = user;
+
+      document.getElementById("btnLogout").addEventListener("click", async () => {
+        const btn = document.getElementById("btnLogout");
+        setLoading(btn, true, btn.innerHTML);
+        await logout();
+      });
+
+      if (!tid) return;
+
+      const [teamsSnap, appsSnap, logSnap] = await Promise.all([
+        get(ref(db, "teams")),
+        get(ref(db, `applications/${tid}`)),
+        get(ref(db, `activityLog/${tid}`)),
+      ]);
+      state.teams        = teamsSnap.exists() ? teamsSnap.val() : {};
+      state.applications = appsSnap.exists()  ? Object.entries(appsSnap.val()).map(([uid,a]) => ({uid,...a})) : [];
+      state.activity     = logSnap.exists()   ? Object.values(logSnap.val()).sort((a,b)=>(b.timestamp||0)-(a.timestamp||0)) : [];
+
+      // Real-time listener — re-renders on every change from any admin
+      onValue(ref(db, `tournaments/${tid}`), (snap) => {
+        if (!snap.exists()) {
+          document.getElementById("loadingState").style.display  = "none";
+          document.getElementById("notFoundState").style.display = "block";
+          return;
+        }
+        const data = snap.val();
+        if (data.organizerId && data.organizerId !== user.uid) {
+          document.getElementById("loadingState").style.display  = "none";
+          document.getElementById("notFoundState").style.display = "block";
+          return;
+        }
+        state.tournament = { id: tid, ...data };
+        document.getElementById("loadingState").style.display  = "none";
+        document.getElementById("mainContent").style.display   = "block";
+        document.getElementById("liveBadge").style.display     = "inline-flex";
+        document.title = `Manage: ${data.name || "Tournament"} – MLBB OPS`;
+        renderAll();
+      });
+
+      bindTabs();
+      bindFilterBar();
+      bindActionDelegation();
+      bindModalButtons();
+
+      document.body.addEventListener("click", (e) => {
+        if (e.target.closest("[data-close-modal]")) closeModals();
+      });
+    });
+
+    /* ── Render ────────────────────────────────── */
+    function teamName(uid) { return state.teams[uid]?.teamName || (uid ? "TBD" : "—"); }
+
+    function renderAll() {
+      renderHero();
+      renderOverview();
+      renderMatches();
+      renderTeams();
+      renderLog();
+    }
+
+    function renderHero() {
+      const t = state.tournament;
+      const teamCount = t.teamCount || 0;
+      const maxTeams  = t.maxTeams  || 0;
+      const pct       = maxTeams > 0 ? Math.min(100, Math.round((teamCount / maxTeams) * 100)) : 0;
+      const matches   = Object.values(t.matches || {});
+      const pendCount = matches.filter(m => m.status === "pending").length;
+      const doneCount = matches.filter(m => m.status === "done" || m.status === "walkover").length;
+
+      // Poster
+      const pEl = document.getElementById("managePoster");
+      pEl.innerHTML = t.posterUrl
+        ? `<img src="${escA(t.posterUrl)}" alt="" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+           <div class="manage-poster-ph" style="display:none">HC</div>`
+        : `<div class="manage-poster-ph">HC</div>`;
+
+      document.getElementById("manageBadges").innerHTML =
+        `<span class="badge badge-${esc(t.category)}">${esc(t.category)}</span>${statusBadge(t.status)}`;
+      document.getElementById("manageTitle").textContent = t.name || "—";
+      document.getElementById("manageDate").textContent  = formatDate(t.startDate);
+
+      document.getElementById("manageStats").innerHTML = `
+        <div class="m-stat">
+          <span class="m-stat-val">${teamCount}/${maxTeams}</span>
+          <span class="m-stat-lbl">Pasukan</span>
+        </div>
+        <div class="m-stat">
+          <span class="m-stat-val">${Math.max(0, maxTeams - teamCount)}</span>
+          <span class="m-stat-lbl">Slot Baki</span>
+        </div>
+        <div class="m-stat">
+          <span class="m-stat-val" style="${pendCount > 0 ? "color:var(--red)" : ""}">${pendCount}</span>
+          <span class="m-stat-lbl">Pending</span>
+        </div>
+        <div class="m-stat">
+          <span class="m-stat-val">${doneCount}/${matches.length || 0}</span>
+          <span class="m-stat-lbl">Match Selesai</span>
+        </div>
+        <div class="m-stat">
+          <span class="m-stat-val" style="font-size:13px;color:var(--txt2)">${esc(t.format || "—")}</span>
+          <span class="m-stat-lbl">Format</span>
+        </div>`;
+
+      document.getElementById("manageRegFill").style.width = `${pct}%`;
+      document.getElementById("manageRegPct").textContent  = `${teamCount}/${maxTeams} · ${pct}%`;
+
+      const isDone = t.status === "done";
+      const isLive = t.status === "live";
+      document.getElementById("manageHeroActions").innerHTML = `
+        ${!isDone && !isLive
+          ? `<button class="btn btn-primary btn-sm" data-action="start">▶ Mulakan Tournament</button>` : ""}
+        <a class="btn btn-secondary btn-sm" href="organizer-create.html?edit=${tid}">✏ Edit Tournament</a>
+        ${!isDone
+          ? `<button class="btn btn-danger btn-sm" data-action="end-prompt">⏹ End Tournament</button>` : ""}
+        ${isDone ? `<span class="badge badge-done" style="padding:6px 14px;font-size:12px">Tournament Selesai</span>` : ""}`;
+
+      // Tab badges
+      const mpb = document.getElementById("matchPendingBadge");
+      if (pendCount > 0) { mpb.textContent = pendCount; mpb.style.display = ""; } else mpb.style.display = "none";
+
+      const appPend = state.applications.filter(a => a.status === "pending_review" || a.status === "payment_submitted").length;
+      const apb = document.getElementById("appPendingBadge");
+      if (appPend > 0) { apb.textContent = appPend; apb.style.display = ""; } else apb.style.display = "none";
+    }
+
+    function renderOverview() {
+      const t = state.tournament;
+      const matches     = Object.values(t.matches || {});
+      const doneCount   = matches.filter(m => m.status === "done" || m.status === "walkover").length;
+      const pendCount   = matches.filter(m => m.status === "pending").length;
+      const upCount     = matches.filter(m => m.status === "upcoming").length;
+      const appPend     = state.applications.filter(a => a.status === "pending_review" || a.status === "payment_submitted").length;
+      const appApproved = state.applications.filter(a => a.status === "approved").length;
+      const matchPct    = matches.length ? Math.round((doneCount / matches.length) * 100) : 0;
+
+      document.getElementById("ovGrid").innerHTML = `
+        <div class="ov-card"><strong>${t.teamCount||0}/${t.maxTeams||0}</strong><span>Pasukan Daftar</span></div>
+        <div class="ov-card"><strong style="${pendCount>0?"color:var(--red)":""}">${pendCount}</strong><span>Match Pending</span></div>
+        <div class="ov-card"><strong>${upCount}</strong><span>Match Upcoming</span></div>
+        <div class="ov-card"><strong>${doneCount}</strong><span>Match Selesai</span></div>
+        <div class="ov-card"><strong style="${appPend>0?"color:var(--red)":""}">${appPend}</strong><span>Permohonan Pending</span></div>
+        <div class="ov-card"><strong>${appApproved}</strong><span>Permohonan Lulus</span></div>`;
+
+      document.getElementById("ovMatchProgress").innerHTML = `
+        <p class="sub-heading" style="margin-bottom:10px">Kemajuan Match</p>
+        <div style="display:flex;justify-content:space-between;font-family:var(--font-mono);font-size:10px;color:var(--txt3);letter-spacing:.8px;margin-bottom:4px">
+          <span>Match Selesai</span><span>${doneCount}/${matches.length} (${matchPct}%)</span>
+        </div>
+        <div style="height:6px;background:var(--border);border-radius:3px;overflow:hidden">
+          <div style="height:100%;width:${matchPct}%;background:linear-gradient(to right,var(--green),var(--gold));border-radius:3px;transition:width .4s;min-width:${matches.length?'2px':'0'}"></div>
+        </div>`;
+    }
+
+    function renderMatches() {
+      const filter = state.matchFilter;
+      const allMatches = Object.entries(state.tournament.matches || {})
+        .map(([matchId, m]) => ({ matchId, ...m }))
+        .sort((a, b) => {
+          const bo = { wb:0, lb:1, gf:2 };
+          if ((bo[a.bracket]||0) !== (bo[b.bracket]||0)) return (bo[a.bracket]||0) - (bo[b.bracket]||0);
+          if (a.round !== b.round) return a.round - b.round;
+          return a.position - b.position;
+        });
+
+      const filtered = filter === "all" ? allMatches : allMatches.filter(m => m.status === filter);
+
+      if (!filtered.length) {
+        document.getElementById("matchList").innerHTML =
+          `<div class="empty-state">${filter === "all" ? "Tiada match dijumpai." : `Tiada match "${filter}".`}</div>`;
+        return;
+      }
+
+      document.getElementById("matchList").innerHTML = filtered.map(m => {
+        const isPending  = m.status === "pending";
+        const isUpcoming = m.status === "upcoming";
+        const isDone     = m.status === "done" || m.status === "walkover";
+        return `<div class="match-card ${isPending?"status-pending":""} ${isDone?"status-done":""}">
+          <div class="match-head">
+            <span class="match-id-lbl">${matchLabel(m)}</span>
+            <span class="badge badge-${isDone?"done":isUpcoming?"upcoming":"live"}">${m.status}</span>
+          </div>
+          <div class="match-teams">
+            <span class="match-team">${esc(teamName(m.team1))}</span>
+            <div class="match-score-box">
+              ${(isPending || isDone) && (m.score1 != null)
+                ? `<span>${m.score1??0}</span><span class="match-score-vs">vs</span><span>${m.score2??0}</span>`
+                : `<span class="match-score-vs">vs</span>`}
+            </div>
+            <span class="match-team right">${esc(teamName(m.team2))}</span>
+          </div>
+          <div class="match-footer">
+            <span class="match-meta">
+              ${m.submittedAt ? `Dihantar: ${formatDate(m.submittedAt)}` : ""}
+              ${m.winnerId ? ` · Pemenang: ${esc(teamName(m.winnerId))}` : ""}
+            </span>
+            <div class="match-actions-row">
+              ${isPending ? `
+                <button class="btn btn-primary btn-sm"   data-action="approve"  data-mid="${escA(m.matchId)}">✓ Lulus</button>
+                <button class="btn btn-danger  btn-sm"   data-action="reject"   data-mid="${escA(m.matchId)}">✕ Tolak</button>
+                <button class="btn btn-secondary btn-sm" data-action="walkover" data-mid="${escA(m.matchId)}" data-t1="${escA(m.team1)}" data-t2="${escA(m.team2)}">Walkover</button>
+              ` : ""}
+              ${isUpcoming ? `
+                <button class="btn btn-secondary btn-sm" data-action="walkover" data-mid="${escA(m.matchId)}" data-t1="${escA(m.team1)}" data-t2="${escA(m.team2)}">Walkover</button>
+              ` : ""}
+            </div>
+          </div>
+        </div>`;
+      }).join("");
+    }
+
+    function renderTeams() {
+      const t = state.tournament;
+      const approvedUids = Object.keys(t.teams || {});
+      const pendApps = state.applications.filter(a => a.status === "pending_review" || a.status === "payment_submitted");
+      let html = "";
+
+      if (pendApps.length) {
+        html += `<p class="sub-heading">Permohonan Pending (${pendApps.length})</p>`;
+        html += pendApps.map(app => `
+          <div class="app-card">
+            <div class="app-card-inner">
+              <div style="flex:1;min-width:0">
+                <div class="app-status-badge">⏳ Menunggu Semakan</div>
+                <div style="font-size:15px;font-weight:700;color:var(--txt);margin-bottom:4px">
+                  [${esc(app.teamTag||"")}] ${esc(app.teamName||"")}
+                </div>
+                <div style="font-size:12px;color:var(--txt2)">
+                  Kapten: ${esc(app.captainName||"—")}${app.captainRank ? ` · ${esc(app.captainRank)}` : ""}
+                  · Mohon: ${app.appliedAt ? formatDate(app.appliedAt) : "—"}
+                </div>
+              </div>
+              <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;flex-shrink:0">
+                <button class="btn btn-primary btn-sm" data-action="approve-app" data-app-uid="${escA(app.uid)}">✅ Lulus</button>
+                <button class="btn btn-danger  btn-sm" data-action="reject-app"  data-app-uid="${escA(app.uid)}">❌ Tolak</button>
+              </div>
+            </div>
+          </div>`).join("");
+      }
+
+      const mt = pendApps.length ? "1.25rem" : "0";
+      html += `<p class="sub-heading" style="margin-top:${mt}">Pasukan Berdaftar (${approvedUids.length})</p>`;
+      html += approvedUids.length
+        ? approvedUids.map(uid => {
+            const team = state.teams[uid];
+            if (!team) return "";
+            return `<div class="team-row">
+              <span class="team-tag-lbl">[${esc(team.teamTag||"—")}]</span>
+              <span class="team-name-lbl">${esc(team.teamName||"Unnamed")}</span>
+              <span class="team-meta-lbl">Kapten: ${esc(team.displayName||"—")}</span>
+              ${team.serverRegion ? `<span class="team-meta-lbl">🌐 ${esc(team.serverRegion)}</span>` : ""}
+            </div>`;
+          }).join("")
+        : `<div class="empty-state">Belum ada pasukan yang diluluskan.</div>`;
+
+      document.getElementById("teamsList").innerHTML = html;
+    }
+
+    function renderLog() {
+      if (!state.activity.length) {
+        document.getElementById("logList").innerHTML = `<div class="empty-state">Belum ada aktiviti.</div>`;
+        return;
+      }
+      const LABELS = {
+        APPROVE_RESULT:"Lulus Keputusan", REJECT_RESULT:"Tolak Keputusan",
+        WALKOVER:"Walkover", END_TOURNAMENT:"Tamatkan Tournament", START_TOURNAMENT:"Mulakan Tournament"
+      };
+      const dotCls = a => a.includes("APPROVE")||a.includes("START") ? "approve"
+        : a.includes("REJECT") ? "reject" : a.includes("WALKOVER") ? "walkover"
+        : a.includes("END")    ? "end"    : "";
+
+      document.getElementById("logList").innerHTML = `<div>` +
+        state.activity.map(e => `
+          <div class="log-entry">
+            <div class="log-dot ${dotCls(e.action||"")}"></div>
+            <div style="flex:1;min-width:0">
+              <div class="log-text">${esc(LABELS[e.action]||e.action||"—")}${e.matchId?` — ${esc(e.matchId)}`:""}${e.reason?` (${esc(e.reason)})`:""}${e.teamId?` · ${esc(teamName(e.teamId))}`:""}
+              </div>
+              <div class="log-time">${e.timestamp ? formatDate(e.timestamp) : "—"}</div>
+            </div>
+          </div>`).join("") + `</div>`;
+    }
+
+    /* ── Tabs & filters ────────────────────────── */
+    function bindTabs() {
+      document.getElementById("tabs").addEventListener("click", (e) => {
+        const btn = e.target.closest("[data-tab]");
+        if (!btn) return;
+        document.querySelectorAll(".tab-btn").forEach(b => b.classList.toggle("active", b === btn));
+        document.querySelectorAll(".panel").forEach(p => p.classList.toggle("active", p.id === `panel-${btn.dataset.tab}`));
+      });
+    }
+    function bindFilterBar() {
+      document.getElementById("matchFilter").addEventListener("click", (e) => {
+        const btn = e.target.closest(".filter-btn");
+        if (!btn) return;
+        document.querySelectorAll(".filter-btn").forEach(b => b.classList.toggle("active", b === btn));
+        state.matchFilter = btn.dataset.filter;
+        renderMatches();
+      });
+    }
+
+    /* ── Action delegation ─────────────────────── */
+    function bindActionDelegation() {
+      document.getElementById("mainContent").addEventListener("click", async (e) => {
+        const btn = e.target.closest("[data-action]");
+        if (!btn) return;
+        const action = btn.dataset.action;
+
+        if (action === "start") {
+          const orig = btn.innerHTML;
+          setLoading(btn, true, orig);
+          try {
+            await update(ref(db, `tournaments/${tid}`), { status: "live" });
+            await logAction({ action:"START_TOURNAMENT", matchId:null, organizerId:state.user.uid });
+            await reloadActivity();
+            showAlert("Tournament dimulakan.", "success");
+          } catch { showAlert("Ralat memulakan tournament."); setLoading(btn, false, orig); }
+          return;
+        }
+
+        if (action === "end-prompt") {
+          document.getElementById("endTournamentName").textContent = state.tournament?.name || "—";
+          openModal("endModal");
+          return;
+        }
+
+        if (action === "approve") {
+          const matchId = btn.dataset.mid;
+          const orig = btn.innerHTML;
+          setLoading(btn, true, orig);
+          try {
+            const m = state.tournament.matches?.[matchId];
+            if (!m?.winnerId || !m?.loserId) throw new Error("Missing winner");
+            await update(ref(db, `tournaments/${tid}/matches/${matchId}`), { status:"done", completedAt:Date.now() });
+            await advanceBracket(db, tid, matchId, m.winnerId, m.loserId, state.tournament.format);
+            await logAction({ action:"APPROVE_RESULT", matchId, organizerId:state.user.uid });
+            await reloadActivity();
+            showAlert("Keputusan diluluskan.", "success");
+          } catch { showAlert("Ralat meluluskan keputusan."); setLoading(btn, false, orig); }
+          return;
+        }
+
+        if (action === "reject") {
+          state.currentAction.matchId = btn.dataset.mid;
+          document.getElementById("rejectReason").value = "";
+          document.getElementById("errRejectReason").classList.remove("show");
+          openModal("rejectModal");
+          return;
+        }
+
+        if (action === "walkover") {
+          state.currentAction.matchId = btn.dataset.mid;
+          document.getElementById("walkoverWinner").innerHTML = `
+            <option value="${escA(btn.dataset.t1)}">${esc(teamName(btn.dataset.t1))}</option>
+            <option value="${escA(btn.dataset.t2)}">${esc(teamName(btn.dataset.t2))}</option>`;
+          openModal("walkoverModal");
+          return;
+        }
+
+        if (action === "approve-app") {
+          const appUid = btn.dataset.appUid;
+          const orig = btn.innerHTML;
+          setLoading(btn, true, orig);
+          try {
+            await update(ref(db, `applications/${tid}/${appUid}`), {
+              status:"approved", reviewedAt:Date.now(), reviewedBy:state.user.uid
+            });
+            await placeTeamInBracket(appUid);
+            await reloadApps();
+            renderTeams();
+            showAlert("Permohonan diluluskan. Pasukan dimasukkan ke bracket.", "success");
+          } catch { showAlert("Ralat meluluskan permohonan."); setLoading(btn, false, orig); }
+          return;
+        }
+
+        if (action === "reject-app") {
+          state.currentAction.rejectAppUid = btn.dataset.appUid;
+          document.getElementById("rejectAppReason").value = "";
+          document.getElementById("errRejectApp").style.display = "none";
+          openModal("rejectAppModal");
+          return;
+        }
+      });
+    }
+
+    async function placeTeamInBracket(teamUid) {
+      const snap = await get(ref(db, `tournaments/${tid}`));
+      if (!snap.exists()) return;
+      const t = snap.val();
+      const r1 = Object.entries(t.matches||{})
+        .filter(([,m]) => m.bracket==="wb" && m.round===1)
+        .sort(([,a],[,b]) => a.position-b.position);
+      const upd = {};
+      for (const [mid, m] of r1) {
+        if (!m.team1) { upd[`tournaments/${tid}/matches/${mid}/team1`]=teamUid; if(m.team2) upd[`tournaments/${tid}/matches/${mid}/status`]="upcoming"; break; }
+        if (!m.team2) { upd[`tournaments/${tid}/matches/${mid}/team2`]=teamUid; if(m.team1) upd[`tournaments/${tid}/matches/${mid}/status`]="upcoming"; break; }
+      }
+      upd[`tournaments/${tid}/teams/${teamUid}`] = true;
+      upd[`tournaments/${tid}/teamCount`] = (t.teamCount||0)+1;
+      await update(ref(db), upd);
+    }
+
+    /* ── Modal confirmations ───────────────────── */
+    function bindModalButtons() {
+      document.getElementById("btnConfirmReject").addEventListener("click", async () => {
+        const reason = document.getElementById("rejectReason").value.trim();
+        if (!reason) { document.getElementById("errRejectReason").classList.add("show"); return; }
+        const btn = document.getElementById("btnConfirmReject");
+        const orig = btn.innerHTML;
+        setLoading(btn, true, orig);
+        try {
+          const matchId = state.currentAction.matchId;
+          await update(ref(db, `tournaments/${tid}/matches/${matchId}`), {
+            score1:0, score2:0, winnerId:null, loserId:null, status:"upcoming",
+            confirmedBy:null, submittedAt:null, completedAt:null,
+            rejection:{ reason, rejectedAt:Date.now() }
+          });
+          await logAction({ action:"REJECT_RESULT", matchId, reason, organizerId:state.user.uid });
+          await reloadActivity();
+          closeModals();
+          showAlert("Keputusan ditolak. Match dibuka semula.", "success");
+        } catch { showAlert("Ralat menolak keputusan."); }
+        finally { setLoading(btn, false, orig); }
+      });
+
+      document.getElementById("btnConfirmWalkover").addEventListener("click", async () => {
+        const btn = document.getElementById("btnConfirmWalkover");
+        const orig = btn.innerHTML;
+        const winnerId = document.getElementById("walkoverWinner").value;
+        setLoading(btn, true, orig);
+        try {
+          const matchId = state.currentAction.matchId;
+          const m = state.tournament.matches?.[matchId];
+          const loserId = m?.team1===winnerId ? m?.team2 : m?.team1;
+          await update(ref(db, `tournaments/${tid}/matches/${matchId}`), {
+            winnerId, loserId, status:"walkover", completedAt:Date.now()
+          });
+          await advanceBracket(db, tid, matchId, winnerId, loserId, state.tournament.format);
+          await logAction({ action:"WALKOVER", matchId, teamId:winnerId, organizerId:state.user.uid });
+          await reloadActivity();
+          closeModals();
+          showAlert("Walkover berjaya disahkan.", "success");
+        } catch { showAlert("Ralat menyimpan walkover."); }
+        finally { setLoading(btn, false, orig); }
+      });
+
+      document.getElementById("btnConfirmRejectApp").addEventListener("click", async () => {
+        const reason = document.getElementById("rejectAppReason").value.trim();
+        const errEl  = document.getElementById("errRejectApp");
+        if (!reason) { errEl.style.display = "block"; return; }
+        errEl.style.display = "none";
+        const btn = document.getElementById("btnConfirmRejectApp");
+        const orig = btn.innerHTML;
+        setLoading(btn, true, orig);
+        try {
+          await update(ref(db, `applications/${tid}/${state.currentAction.rejectAppUid}`), {
+            status:"rejected", rejectionReason:reason, reviewedAt:Date.now(), reviewedBy:state.user.uid
+          });
+          await reloadApps();
+          closeModals();
+          renderTeams();
+          showAlert("Permohonan telah ditolak.", "success");
+        } catch { showAlert("Ralat menolak permohonan."); }
+        finally { setLoading(btn, false, orig); }
+      });
+
+      document.getElementById("btnConfirmEnd").addEventListener("click", async () => {
+        const btn = document.getElementById("btnConfirmEnd");
+        const orig = btn.innerHTML;
+        setLoading(btn, true, orig);
+        try {
+          await update(ref(db, `tournaments/${tid}`), { status:"done", finalizedAt:Date.now() });
+          await logAction({ action:"END_TOURNAMENT", matchId:null, organizerId:state.user.uid });
+          await reloadActivity();
+          closeModals();
+          showAlert("Tournament telah ditamatkan.", "success");
+        } catch { showAlert("Ralat menamatkan tournament."); }
+        finally { setLoading(btn, false, orig); }
+      });
+    }
+  </script>
+</body>
+</html>

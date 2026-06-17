@@ -295,19 +295,44 @@
 
       .section-card { margin-bottom: .75rem; }
       .section-header { padding: 11px 14px; }
-      .section-body   { padding: 14px; }
+      .section-body   { padding: 14px; overflow-x: auto; -webkit-overflow-scrolling: touch; }
 
       .apply-card { padding: 14px; }
 
       /* Bracket scroll — tight on mobile */
       .bracket-section { min-width: 520px; }
+      .bracket-card .section-body { padding: 12px 0 16px; }
+      .bracket-scroll { padding: 0 12px 14px; }
       .round-grid { grid-auto-columns: 170px; gap: 7px; }
-      .match-card { padding: 6px; }
-      .team-row   { font-size: 11px; }
+      .bracket-track .match-card { padding: 6px 8px; }
+      .team-row   { font-size: 11px; min-height: 22px; }
       .team-score { font-size: 11px; }
 
       .prize-row  { gap: 10px; padding: 8px 0; }
+      .prize-place { font-size: 15px; min-width: 26px; }
+      .prize-name  { font-size: 12px; }
       .prize-amount { font-size: 13px; }
+
+      /* Stage table horizontal scroll */
+      .stage-table { min-width: 260px; font-size: 12px; }
+      .stage-table th, .stage-table td { padding: 7px 9px; }
+
+      /* Participant chips compact */
+      .participant-chip { padding: 8px 10px; gap: 7px; }
+      .participant-name { font-size: 12px; }
+      .participant-rank { font-size: 10px; }
+      .participant-tag  { font-size: 10px; }
+
+      /* Nav fix for mobile */
+      .home-links { flex-wrap: wrap; flex: 1 1 100%; overflow: visible; justify-content: center; }
+      .home-actions { justify-content: center; width: 100%; }
+    }
+
+    @media (max-width: 360px) {
+      .info-grid { grid-template-columns: 1fr; }
+      .info-val { font-size: 12px; }
+      .home-links a { font-size: 10px; padding: 4px 5px; }
+      .section-body { padding: 10px; }
     }
   </style>
 </head>

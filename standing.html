@@ -588,26 +588,50 @@
       .hero h1 { font-size: clamp(20px, 6vw, 32px); }
 
       .stats-strip { gap: 8px; }
+      .stat-box { padding: .75rem .85rem; }
       .stat-box strong { font-size: 18px; }
       .stat-box span   { font-size: 11px; }
 
       /* Standings table — show only rank, team, points */
       .standing-table th:nth-child(5),
-      .standing-table td:nth-child(5) { display: none; } /* Sejarah column hidden at 480 */
+      .standing-table td:nth-child(5) { display: none; }
+      .standing-table { min-width: 360px; }
 
       .rank-cell { width: 36px; font-size: 13px; }
       .team-name-cell { font-size: 13px; }
       .points-cell { font-size: 16px; }
       .team-tag-badge { font-size: 10px; padding: 2px 6px; margin-right: 4px; }
 
-      /* Modal */
-      .dp-modal { width: 99vw; border-radius: 8px; }
-      .dp-stats-body { padding: 14px 12px 10px; }
-      .dp-reserves { padding: 10px 12px; }
+      /* Modal bottom-sheet on mobile */
+      .modal-backdrop { padding: 0; align-items: flex-end; }
+      .dp-modal {
+        width: 100vw; max-width: 100vw; border-radius: 16px 16px 0 0;
+        max-height: 92vh; overflow-y: auto;
+      }
+
+      /* Player roster: 3-per-row grid */
+      .dp-players { flex-wrap: wrap; gap: 4px; }
+      .dp-pc-col { flex: 0 0 calc(33.33% - 3px); min-width: 0; }
+
+      .dp-stats-body { padding: 12px 10px 8px; }
+      .dp-reserves { padding: 8px 10px; }
       .dp-footer { padding: 10px 12px; }
       .dp-footer-pts strong { font-size: 20px; }
       .dp-s-value { font-size: 16px; }
-      .dp-stat-card { min-width: 56px; }
+      .dp-stat-card { min-width: 54px; padding: 8px 8px; }
+      .dp-s-label { font-size: 9px; }
+
+      /* Roster section header padding */
+      .dp-pc-nameplate { top: 32%; width: 100%; }
+      .dp-pc-name { font-size: 11px; }
+      .dp-pc-panel { padding: 9px 4px 10px; }
+    }
+
+    @media (max-width: 360px) {
+      .dp-pc-col { flex: 0 0 calc(50% - 3px); }
+      .stats-strip { grid-template-columns: 1fr; }
+      .season-bar { flex-direction: column; align-items: flex-start; gap: 6px; }
+      .dp-stat-card { min-width: 48px; }
     }
 
     /* ── Laman Utama Dropdown ──────────────────── */

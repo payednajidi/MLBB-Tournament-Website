@@ -491,6 +491,25 @@ a:hover { color: var(--gold); }
   .btn-lg { padding: 11px 20px; font-size: 14px; }
 }
 
+/* ── 360px — small mobile ────────────────────── */
+@media (max-width: 360px) {
+  .container   { padding: 0 .5rem; }
+  .page-wrap   { padding: .5rem 0 1.75rem; }
+  .card-body   { padding: .75rem; }
+  .card-header { padding: .55rem .75rem; gap: 6px; }
+
+  .navbar-inner { padding: 5px .5rem; gap: 4px; }
+  .logo-img     { height: 32px; width: 32px; }
+  .logo-name    { font-size: 13px; letter-spacing: 1px; }
+  .navbar-links a { font-size: 10px; padding: 4px 6px; letter-spacing: .6px; }
+
+  .btn    { padding: 8px 12px; font-size: 12px; }
+  .btn-sm { padding: 6px 10px; font-size: 11px; }
+  .btn-lg { padding: 10px 16px; font-size: 13px; }
+
+  .badge { font-size: 10px; padding: 3px 8px; }
+}
+
 /* ════════════════════════════════════════════════
    GLOBAL TOURNAMENT NOTIFICATION BANNER
    ════════════════════════════════════════════════ */
@@ -623,6 +642,21 @@ a:hover { color: var(--gold); }
   .tb-sep  { margin: 0 10px; }
   .tb-meta { font-size: 12px; }
   .tb-cta  { padding-left: 1rem; font-size: 11px; }
+}
+
+@media (max-width: 480px) {
+  .tb-link { height: auto; min-height: 44px; padding: 8px 1rem; flex-wrap: wrap; gap: 4px; white-space: normal; }
+  .tb-badge { font-size: 10px; padding: 3px 9px; margin-right: 8px; }
+  .tb-name  { font-size: 13px; }
+  .tb-sep   { display: none; }
+  .tb-meta  { font-size: 11px; }
+  .tb-cta   { margin-left: 0; padding-left: 0; font-size: 11px; width: 100%; }
+}
+
+@media (max-width: 360px) {
+  .tb-link { padding: 7px .75rem; }
+  .tb-name { font-size: 12px; }
+  .tb-badge { font-size: 9px; letter-spacing: 1.2px; }
 }
 
 /* ── Admin nav badge ────────────────────────── */

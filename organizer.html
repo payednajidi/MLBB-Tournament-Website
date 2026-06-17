@@ -469,6 +469,39 @@
       .edit-grid-2, .edit-grid-3, .edit-grid-4 { grid-template-columns: 1fr; }
     }
 
+    @media (max-width: 640px) {
+      .home-nav-inner { padding: 10px 1rem; flex-wrap: wrap; justify-content: center; gap: 8px; }
+      .navbar-logo    { flex: 1 1 100%; justify-content: center; }
+      .home-links     { flex-wrap: wrap; flex: 1 1 100%; overflow: visible; justify-content: center; }
+      .home-actions   { justify-content: center; width: 100%; }
+
+      .stats-row { gap: 8px; }
+      .stat-box  { padding: .9rem 1rem; }
+    }
+
+    @media (max-width: 480px) {
+      .home-nav-inner { padding: 8px .75rem; }
+      .home-links a   { font-size: 11px; padding: 5px 7px; min-height: 38px; }
+
+      .stat-box  { padding: .75rem .85rem; }
+      .stat-box strong { font-size: 22px; }
+      .stat-box span   { font-size: 11px; }
+
+      /* Tournament cards compact */
+      .tnm-card { padding: .85rem 1rem; }
+
+      /* Form rows */
+      .form-group { margin-bottom: 1.1rem; }
+
+      /* Page head */
+      .page-head { gap: 8px; margin-bottom: 1rem; }
+    }
+
+    @media (max-width: 360px) {
+      .home-links a   { font-size: 10px; padding: 4px 5px; }
+      .stats-row { grid-template-columns: 1fr; gap: 6px; }
+    }
+
     /* ── Laman Utama Dropdown ──────────────────── */
     .hnd-wrap { position: relative; }
     .hnd-trigger { display: inline-flex; align-items: center; gap: 5px; min-height: 44px; padding: 9px 10px; border-radius: var(--radius); color: var(--gold); background: color-mix(in srgb, var(--gold) 12%, transparent); border: 1px solid color-mix(in srgb, var(--gold) 25%, transparent); font-family: var(--font-head); font-size: 15px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; white-space: nowrap; cursor: pointer; transition: all .2s; }

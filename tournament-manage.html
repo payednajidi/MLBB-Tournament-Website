@@ -303,6 +303,97 @@
       .home-links a { font-size: 12px; padding: 7px 10px; }
     }
 
+    /* ── Tablet (≤640px) ────────────────────── */
+    @media (max-width: 640px) {
+      .home-nav-inner { padding: 10px 1rem; }
+      .home-links a   { font-size: 12px; padding: 7px 9px; }
+
+      /* Hero compact */
+      .manage-info { padding: 1rem 1.25rem; gap: 8px; }
+      .manage-title { font-size: clamp(18px, 4vw, 26px); }
+      .manage-stats { gap: 1rem; }
+      .manage-actions { gap: 6px; }
+      .manage-actions .btn { flex: 1 1 120px; }
+
+      /* Overview grid: 2 cols */
+      .ov-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+      .ov-card { padding: .85rem; }
+      .ov-card strong { font-size: 24px; }
+
+      /* Bracket progress: single column */
+      #ovBracketProgress [style*="grid-template-columns:1fr 1fr"] {
+        display: flex !important; flex-direction: column; gap: .85rem;
+      }
+
+      /* Tabs */
+      .tabs { gap: 5px; }
+      .tab-btn { padding: 9px 12px; font-size: 13px; letter-spacing: .8px; }
+
+      /* Filter bar */
+      .filter-row { gap: 5px; }
+      .filter-btn { padding: 5px 10px; font-size: 10px; letter-spacing: .8px; }
+
+      /* Match cards */
+      .match-card { padding: .9rem; }
+      .match-head { gap: 6px; margin-bottom: 6px; }
+      .match-id-lbl { font-size: 10px; letter-spacing: 1.5px; }
+      .mse-hint { font-size: 9px; }
+
+      /* Actions: stack vertically */
+      .match-actions-row { flex-direction: column; align-items: stretch; gap: 6px; }
+      .match-actions-row > .btn,
+      .match-actions-row > .more-actions-wrap { width: 100%; }
+      .match-actions-row > .more-actions-wrap > button { width: 100%; }
+      .more-actions-menu { left: 0; right: 0; min-width: auto; }
+
+      /* Team rows */
+      .team-row { flex-wrap: wrap; gap: 6px; }
+
+      /* Log entries */
+      .log-text { font-size: 10px; }
+    }
+
+    /* ── Mobile (≤480px) ────────────────────── */
+    @media (max-width: 480px) {
+      .home-nav-inner { padding: 8px .75rem; }
+      .home-links a   { font-size: 11px; padding: 5px 7px; min-height: 38px; }
+
+      .manage-hero { border-radius: var(--radius); }
+      .manage-poster { min-height: 160px; }
+      .manage-title { font-size: clamp(16px, 5vw, 22px); }
+      .m-stat-val { font-size: 17px; }
+      .manage-reg-label { font-size: 9px; }
+
+      /* Overview: 2-col stays, but tighter */
+      .ov-card strong { font-size: 22px; }
+      .ov-card span   { font-size: 11px; }
+
+      /* Match card */
+      .match-card { padding: .75rem; }
+      .match-team { font-size: 13px; }
+      .score-num  { font-size: 22px; }
+      .mse-input  { width: 44px; height: 42px; font-size: 19px; }
+      .mse-bo-badge { font-size: 9px; padding: 1px 6px; }
+
+      /* Tabs: scroll horizontally */
+      .tabs { flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 4px; scrollbar-width: none; }
+      .tabs::-webkit-scrollbar { display: none; }
+      .tab-btn { flex-shrink: 0; white-space: nowrap; }
+
+      /* Sub-headings */
+      .sub-heading { font-size: 10px; letter-spacing: 2px; }
+    }
+
+    /* ── Small mobile (≤360px) ──────────────── */
+    @media (max-width: 360px) {
+      .home-links a   { font-size: 10px; padding: 4px 5px; }
+      .manage-title   { font-size: 15px; }
+      .mse-input      { width: 40px; height: 40px; font-size: 17px; }
+      .mse-inputs-wrap { gap: 6px; }
+      .match-team     { font-size: 12px; }
+      .ov-grid { grid-template-columns: 1fr; }
+    }
+
     /* ── Laman Utama Dropdown ──────────────────── */
     .hnd-wrap { position: relative; }
     .hnd-trigger { display: inline-flex; align-items: center; gap: 5px; min-height: 44px; padding: 9px 10px; border-radius: var(--radius); color: var(--gold); background: color-mix(in srgb, var(--gold) 12%, transparent); border: 1px solid color-mix(in srgb, var(--gold) 25%, transparent); font-family: var(--font-head); font-size: 15px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; white-space: nowrap; cursor: pointer; transition: all .2s; }

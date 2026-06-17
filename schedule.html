@@ -264,7 +264,10 @@
       .tournament-list { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); }
     }
     @media (max-width: 480px) {
-      .home-nav-inner { padding: 8px .75rem; }
+      .home-nav-inner { padding: 8px .75rem; flex-wrap: wrap; justify-content: center; gap: 8px; }
+      .navbar-logo    { flex: 1 1 100%; justify-content: center; }
+      .home-links     { flex-wrap: wrap; flex: 1 1 100%; overflow: visible; justify-content: center; }
+      .home-actions   { justify-content: center; width: 100%; }
       .home-links a   { font-size: 11px; padding: 5px 7px; min-height: 38px; }
 
       .hero { padding: 1.25rem 0 1rem; }
@@ -273,9 +276,10 @@
       /* Two-column poster grid on small mobile */
       .tournament-list { grid-template-columns: repeat(2, 1fr); gap: .75rem; }
 
-      /* Filter tabs wrap and shrink */
-      .filter-tabs { gap: 6px; margin-bottom: 1rem; }
-      .tab-btn { padding: 7px 10px; font-size: 12px; }
+      /* Filter tabs: horizontal scroll */
+      .filter-tabs { gap: 6px; margin-bottom: 1rem; flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 4px; scrollbar-width: none; }
+      .filter-tabs::-webkit-scrollbar { display: none; }
+      .tab-btn { padding: 7px 10px; font-size: 12px; flex-shrink: 0; white-space: nowrap; }
 
       /* Poster card body tighter */
       .poster-body { padding: 9px 10px 10px; gap: 7px; }
@@ -285,6 +289,12 @@
       .poster-stat-val { font-size: 12px; }
       .poster-title-overlay { font-size: 13px; }
       .poster-cta   { font-size: 10px; }
+    }
+
+    @media (max-width: 360px) {
+      .home-links a { font-size: 10px; padding: 4px 5px; }
+      /* Single column on very small screens */
+      .tournament-list { grid-template-columns: 1fr; gap: .75rem; }
     }
 
     /* ── Laman Utama Dropdown ──────────────────── */

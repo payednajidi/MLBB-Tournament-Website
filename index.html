@@ -1515,13 +1515,9 @@
 
       .hero p { font-size: 15px; }
 
-      .hero-actions {
-        gap: 8px;
-      }
+      .hero-actions { gap: 8px; }
 
-      .hero-actions .btn {
-        flex: 1 1 140px;
-      }
+      .hero-actions .btn { flex: 1 1 140px; }
 
       .feature-card,
       .path-card {
@@ -1542,6 +1538,29 @@
       .admin-card--primary .admin-mascot img { height: 105px; width: auto; }
 
       .footer { font-size: 12px; padding: 1.25rem 0; }
+    }
+
+    @media (max-width: 360px) {
+      .home-links a { font-size: 10px; padding: 5px 5px; min-height: 36px; }
+      .home-nav-inner { padding: 8px .5rem; }
+
+      .hero-actions { flex-direction: column; }
+      .hero-actions .btn { width: 100%; }
+
+      .team-strip {
+        grid-template-columns: 1fr;
+        gap: 8px;
+      }
+      .team-slot-artwork { height: 220px; }
+
+      .feature-grid,
+      .path-grid,
+      .contact-grid { gap: .75rem; }
+
+      .section { padding: 2.25rem 0; }
+      .section-head p { font-size: 13px; }
+
+      .footer { font-size: 11px; }
     }
 
     /* ── Sokong Kami Redesign ─────────────────────── */

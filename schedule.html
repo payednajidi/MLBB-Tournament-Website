@@ -323,6 +323,26 @@
   </style>
 </head>
 <body>
+  <div class="nav-drawer" id="navDrawer">
+    <div class="nav-drawer-panel">
+      <div class="nav-drawer-hdr">
+        <a href="index.html" class="navbar-logo">
+          <img src="assets/logo_organizer.png" alt="HC" class="logo-img">
+          <span class="logo-name">Tournament <span>Organizer</span></span>
+        </a>
+        <button class="nav-drawer-close" id="navDrawerClose" aria-label="Tutup menu">✕</button>
+      </div>
+      <ul class="nav-drawer-links">
+        <li><a href="index.html">🏠 Laman Utama</a></li>
+        <li><a class="active" href="schedule.html">🏆 Tournaments</a></li>
+        <li><a href="standing.html">📊 Kedudukan</a></li>
+        <li class="player-nav"><a href="team-setup.html">📝 Daftar Pasukan</a></li>
+        <div class="nav-drawer-sep"></div>
+        <li class="admin-nav hidden"><a href="organizer.html">⚙️ Panel Penganjur</a></li>
+      </ul>
+    </div>
+  </div>
+
   <header class="home-nav">
     <div class="home-nav-inner">
       <a href="index.html" class="navbar-logo">
@@ -373,6 +393,9 @@
 
       </ul>
       <div class="home-actions" id="navActions" style="visibility:hidden"></div>
+      <button class="nav-hamburger" id="navHamburger" aria-label="Buka menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
     </div>
   </header>
   <div id="tournamentBanner" hidden></div>
@@ -589,6 +612,24 @@
     import { db } from "./js/firebase-config.js";
     import { initTournamentBanner } from "./js/tournament-banner.js";
     initTournamentBanner(db);
+  </script>
+  <script>
+  (function(){
+    var ham=document.getElementById('navHamburger'),drawer=document.getElementById('navDrawer'),close=document.getElementById('navDrawerClose');
+    function open(){drawer.classList.add('open');ham.setAttribute('aria-expanded','true');}
+    function shut(){drawer.classList.remove('open');ham.setAttribute('aria-expanded','false');}
+    if(ham)ham.addEventListener('click',open);
+    if(close)close.addEventListener('click',shut);
+    if(drawer)drawer.addEventListener('click',function(e){if(e.target===drawer)shut();});
+    document.addEventListener('keydown',function(e){if(e.key==='Escape')shut();});
+    var obs=new MutationObserver(function(){
+      var aEl=document.querySelectorAll('.home-links .admin-nav'),pEl=document.querySelectorAll('.home-links .player-nav');
+      var aH=aEl[0]&&aEl[0].classList.contains('hidden'),pH=pEl[0]&&pEl[0].classList.contains('hidden');
+      drawer.querySelectorAll('.admin-nav').forEach(function(el){el.classList.toggle('hidden',aH);});
+      drawer.querySelectorAll('.player-nav').forEach(function(el){el.classList.toggle('hidden',pH);});
+    });
+    document.querySelectorAll('.home-links .admin-nav,.home-links .player-nav').forEach(function(el){obs.observe(el,{attributes:true,attributeFilter:['class']});});
+  })();
   </script>
 </body>
 </html>

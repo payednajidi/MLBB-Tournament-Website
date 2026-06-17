@@ -334,9 +334,155 @@
       .home-links a { font-size: 10px; padding: 4px 5px; }
       .section-body { padding: 10px; }
     }
+
+    /* ── Mobile hero ────────────────────────────── */
+    @media (max-width: 640px) {
+      .hero-poster  { min-height: 130px !important; }
+      .hero-content { padding: 1rem 1rem .85rem; }
+      .hero-title   { font-size: clamp(16px, 5vw, 22px); }
+    }
+    @media (max-width: 480px) {
+      .hero-poster  { min-height: 100px !important; }
+      .hero-content { padding: .85rem .85rem .75rem; }
+    }
+
+    /* ── Info grid — bigger touch targets ───────── */
+    @media (max-width: 768px) {
+      .info-card { padding: 14px; }
+      .info-lbl  { font-size: 9px; margin-bottom: 5px; }
+      .info-val  { font-size: 15px; }
+    }
+
+    /* ── Mobile bracket — round-by-round accordion ── */
+    .desktop-bracket { display: block; }
+    .mobile-bracket  { display: none; }
+
+    .mbr-section { border-bottom: 1px solid var(--border); }
+    .mbr-section:last-child { border-bottom: none; }
+
+    .mbr-hdr {
+      display: flex; align-items: center; justify-content: space-between;
+      width: 100%; background: none; border: none; cursor: pointer;
+      padding: 13px 18px; color: var(--txt2);
+      font-family: var(--font-head); font-size: 12px; font-weight: 700;
+      letter-spacing: 1.4px; text-transform: uppercase;
+      transition: color .15s, background .15s;
+    }
+    .mbr-hdr:hover { background: rgba(168,85,247,.05); color: var(--gold); }
+    .mbr-hdr.has-active { color: var(--txt); }
+
+    .mbr-hdr-left { display: flex; align-items: center; gap: 7px; }
+    .mbr-count {
+      font-family: var(--font-mono); font-size: 10px;
+      color: var(--txt3); font-weight: 600; letter-spacing: 1px;
+    }
+    .mbr-live-dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--green); box-shadow: 0 0 6px var(--green);
+      animation: pulse-dot 1.4s ease-in-out infinite;
+      flex-shrink: 0;
+    }
+    .mbr-chevron {
+      font-size: 11px; line-height: 1; flex-shrink: 0;
+      color: var(--txt3);
+      transition: transform .2s ease;
+    }
+    .mbr-section.open .mbr-chevron { transform: rotate(180deg); color: var(--gold); }
+
+    .mbr-rounds { display: none; padding: 4px 14px 14px; }
+    .mbr-section.open .mbr-rounds { display: block; }
+
+    .mbr-round-group { margin-bottom: 12px; }
+    .mbr-round-group:last-child { margin-bottom: 0; }
+    .mbr-round-lbl {
+      font-family: var(--font-mono); font-size: 9px; letter-spacing: 2px;
+      text-transform: uppercase; color: var(--txt3);
+      margin-bottom: 6px; padding: 0 2px;
+    }
+    .mbr-match {
+      background: #0e0c22; border: 1px solid rgba(255,255,255,.07);
+      border-radius: var(--radius); padding: 10px 12px;
+      margin-bottom: 6px; display: flex; flex-direction: column; gap: 5px;
+      transition: border-color .15s;
+    }
+    .mbr-match:last-child { margin-bottom: 0; }
+    .mbr-match.done   { background: rgba(6,20,10,.9); border-color: rgba(74,222,128,.18); }
+    .mbr-match.active { background: #14103e; border-color: rgba(167,139,250,.55); box-shadow: 0 0 0 1px rgba(167,139,250,.1); }
+    .mbr-match.waiting { opacity: .45; }
+
+    .mbr-divider {
+      height: 1px; background: rgba(255,255,255,.06); margin: 2px 0;
+    }
+    .mbr-team {
+      display: flex; align-items: center; gap: 8px;
+      min-height: 24px; font-size: 13px; color: rgba(220,215,255,.82);
+    }
+    .mbr-team.winner { color: #fbbf24; font-weight: 700; }
+    .mbr-team.loser  { color: rgba(255,255,255,.26); text-decoration: line-through; }
+    .mbr-team.tbd    { color: rgba(200,190,255,.22); font-style: italic; }
+
+    .mbr-seed {
+      font-family: var(--font-mono); font-size: 9px; letter-spacing: 1px;
+      color: var(--txt3); flex-shrink: 0; min-width: 14px;
+    }
+    .mbr-tname {
+      flex: 1; min-width: 0; overflow: hidden;
+      text-overflow: ellipsis; white-space: nowrap;
+    }
+    .mbr-score {
+      font-family: var(--font-mono); font-size: 14px; font-weight: 700;
+      color: #fbbf24; min-width: 20px; text-align: right; flex-shrink: 0;
+    }
+    .mbr-score.neutral { color: var(--txt3); font-weight: 400; font-size: 12px; }
+    .mbr-status-tag {
+      font-family: var(--font-mono); font-size: 9px; letter-spacing: 1.5px;
+      padding: 2px 6px; border-radius: 3px; flex-shrink: 0; align-self: flex-start; margin-left: auto;
+    }
+    .mbr-status-tag.live    { background: rgba(239,68,68,.15); color: #f87171; border: 1px solid rgba(239,68,68,.3); }
+    .mbr-status-tag.done    { background: rgba(74,222,128,.08); color: rgba(74,222,128,.7); border: 1px solid rgba(74,222,128,.2); }
+    .mbr-status-tag.waiting { background: rgba(99,102,241,.1); color: #a5b4fc; border: 1px solid rgba(99,102,241,.2); }
+    .mbr-walkover-note {
+      font-family: var(--font-mono); font-size: 9px; color: var(--txt3);
+      letter-spacing: 1px; padding: 3px 0 0;
+    }
+
+    .mbr-bracket-lbl {
+      font-family: var(--font-head); font-size: 11px; font-weight: 700;
+      letter-spacing: 2px; text-transform: uppercase;
+      padding: 8px 18px 4px; color: var(--txt3);
+    }
+    .mbr-bracket-lbl.wb { color: color-mix(in srgb, var(--gold) 60%, var(--txt3)); }
+    .mbr-bracket-lbl.lb { color: color-mix(in srgb, var(--blue2) 60%, var(--txt3)); }
+    .mbr-bracket-lbl.gf { color: #fbbf24; }
+
+    @media (max-width: 640px) {
+      .desktop-bracket { display: none; }
+      .mobile-bracket  { display: block; }
+    }
   </style>
 </head>
 <body>
+  <!-- Mobile nav drawer -->
+  <div class="nav-drawer" id="navDrawer">
+    <div class="nav-drawer-panel">
+      <div class="nav-drawer-hdr">
+        <a href="index.html" class="navbar-logo">
+          <img src="assets/logo_organizer.png" alt="HC" class="logo-img">
+          <span class="logo-name">Tournament <span>Organizer</span></span>
+        </a>
+        <button class="nav-drawer-close" id="navDrawerClose" aria-label="Tutup menu">✕</button>
+      </div>
+      <ul class="nav-drawer-links">
+        <li><a href="index.html">🏠 Laman Utama</a></li>
+        <li><a class="active" href="schedule.html">🏆 Tournaments</a></li>
+        <li><a href="standing.html">📊 Kedudukan</a></li>
+        <li class="player-nav"><a href="team-setup.html">📝 Daftar Pasukan</a></li>
+        <div class="nav-drawer-sep"></div>
+        <li class="admin-nav hidden"><a href="organizer.html">⚙️ Panel Penganjur</a></li>
+      </ul>
+    </div>
+  </div>
+
   <header class="home-nav">
     <div class="home-nav-inner">
       <a href="index.html" class="navbar-logo">
@@ -351,6 +497,9 @@
         <li class="admin-nav hidden"><a href="organizer.html">Dashboard <span class="admin-nav-badge" style="display:none">0</span></a></li>
       </ul>
       <div class="home-actions" id="navActions" style="visibility:hidden"></div>
+      <button class="nav-hamburger" id="navHamburger" aria-label="Buka menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
     </div>
   </header>
   <div id="tournamentBanner" hidden></div>
@@ -718,6 +867,113 @@
       </div>`;
     }
 
+    function renderBracketMobile(matches) {
+      const allMatches = Object.values(matches || {});
+      if (!allMatches.length) return '<p class="text-muted" style="padding:1rem 18px">Bracket belum dijana.</p>';
+
+      const bOrder = { wb: 0, lb: 1, gf: 2 };
+      const sortedMatches = [...allMatches].sort((a, b) => {
+        const ba = bOrder[a.bracket] ?? 3, bb = bOrder[b.bracket] ?? 3;
+        if (ba !== bb) return ba - bb;
+        return a.round - b.round || a.position - b.position;
+      });
+
+      // Group: bracket → round → [matches]
+      const groups = {};
+      sortedMatches.forEach(m => {
+        (groups[m.bracket] ??= {})[m.round] ??= [];
+        groups[m.bracket][m.round].push(m);
+      });
+
+      const brackets = Object.keys(groups).sort((a,b)=>(bOrder[a]??3)-(bOrder[b]??3));
+      const bracketMeta = { wb:'Upper Bracket', lb:'Lower Bracket', gf:'Grand Final' };
+      const bracketCls  = { wb:'wb', lb:'lb', gf:'gf' };
+
+      function roundLabel(br, round, rounds) {
+        const last = rounds[rounds.length-1], prev = rounds[rounds.length-2];
+        if (br==='gf') return 'Grand Final';
+        if (br==='wb' && round===last) return 'UB Final';
+        if (br==='lb' && round===last) return 'LB Final';
+        if (br==='lb' && round===prev) return 'LB Semi-Final';
+        return `Round ${round}`;
+      }
+
+      function teamRow(uid, score, m, idx) {
+        const isWinner = m.winnerId === uid;
+        const isLoser  = m.loserId  === uid;
+        const label    = uid ? (teamNameCache[uid] || 'TBD') : (m.status==='bye' ? 'BYE' : 'TBD');
+        const cls      = !uid ? 'tbd' : isWinner ? 'winner' : isLoser ? 'loser' : '';
+        const scoreHtml = uid
+          ? `<span class="mbr-score${!isWinner&&!isLoser?' neutral':''}">${Number(score)||0}</span>`
+          : '';
+        return `<div class="mbr-team ${cls}">
+          <span class="mbr-seed">${idx+1}</span>
+          <span class="mbr-tname">${escHtml(label)}</span>
+          ${scoreHtml}
+        </div>`;
+      }
+
+      function matchCls(m) {
+        if (m.status==='done'||m.status==='walkover') return 'done';
+        if (m.status==='upcoming'||m.status==='live'||m.status==='pending') return 'active';
+        return 'waiting';
+      }
+      function statusTag(m) {
+        if (m.status==='live') return '<span class="mbr-status-tag live">LIVE</span>';
+        if (m.status==='done'||m.status==='walkover') return '<span class="mbr-status-tag done">SELESAI</span>';
+        if (m.status==='upcoming') return '<span class="mbr-status-tag waiting">AKAN DATANG</span>';
+        return '';
+      }
+
+      // Find first bracket+round with active matches
+      let activeBr = null;
+      outer: for (const br of brackets) {
+        for (const round of Object.keys(groups[br]).map(Number).sort((a,b)=>a-b)) {
+          if (groups[br][round].some(m=>m.status==='upcoming'||m.status==='live'||m.status==='pending')) {
+            activeBr = br; break outer;
+          }
+        }
+      }
+
+      const html = brackets.map(br => {
+        const roundNums = Object.keys(groups[br]).map(Number).sort((a,b)=>a-b);
+        const totalM    = roundNums.reduce((n,r)=>n+groups[br][r].length, 0);
+        const hasActive = roundNums.some(r => groups[br][r].some(m=>m.status==='upcoming'||m.status==='live'||m.status==='pending'));
+        const isOpen    = br === (activeBr ?? brackets[0]);
+
+        const roundsHtml = roundNums.map(round => {
+          const lbl = roundLabel(br, round, roundNums);
+          const matchesHtml = groups[br][round].map(m =>
+            `<div class="mbr-match ${matchCls(m)}">
+              <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:6px;margin-bottom:4px">
+                <div style="flex:1">${teamRow(m.team1,m.score1,m,0)}<div class="mbr-divider"></div>${teamRow(m.team2,m.score2,m,1)}</div>
+                <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">${statusTag(m)}</div>
+              </div>
+              ${m.status==='walkover'?'<div class="mbr-walkover-note">WALKOVER</div>':''}
+            </div>`
+          ).join('');
+          return `<div class="mbr-round-group">
+            <div class="mbr-round-lbl">${lbl}</div>
+            ${matchesHtml}
+          </div>`;
+        }).join('');
+
+        return `<div class="mbr-section${isOpen?' open':''}">
+          <button class="mbr-hdr${hasActive?' has-active':''}" data-mbr-toggle>
+            <div class="mbr-hdr-left">
+              ${hasActive?'<span class="mbr-live-dot"></span>':''}
+              <span>${escHtml(bracketMeta[br]||br.toUpperCase())}</span>
+              <span class="mbr-count">${totalM} perlawanan</span>
+            </div>
+            <span class="mbr-chevron">▾</span>
+          </button>
+          <div class="mbr-rounds">${roundsHtml}</div>
+        </div>`;
+      }).join('');
+
+      return `<div>${html}</div>`;
+    }
+
     async function renderBracket(matches, format, winnerId) {
       const allUids = new Set();
       Object.values(matches||{}).forEach(m => {
@@ -730,14 +986,21 @@
       }));
 
       const allMatches = Object.values(matches||{});
-      if (!allMatches.length) return '<p class="text-muted">Bracket belum dijana.</p>';
+      const empty = '<p class="text-muted">Bracket belum dijana.</p>';
+      if (!allMatches.length) return `<div class="desktop-bracket">${empty}</div><div class="mobile-bracket">${empty}</div>`;
 
-      if (format === "double") return renderBracketDouble(matches, winnerId);
+      const championHtml = `<div class="champion-box" style="margin:.6rem 0 0">🏆 Champion: ${winnerId ? escHtml(teamNameCache[winnerId]||"—") : "Belum ditentukan"}</div>`;
+      const mobileHtml = `<div class="mobile-bracket">${renderBracketMobile(matches)}${championHtml}</div>`;
 
-      return `<div class="bracket-scroll">
-        ${renderBracketSection("Upper Bracket", matches, "wb")}
-      </div>
-      <div class="champion-box">🏆 Champion: ${winnerId ? escHtml(teamNameCache[winnerId]||"—") : "Belum ditentukan"}</div>`;
+      if (format === "double") {
+        return `<div class="desktop-bracket">${renderBracketDouble(matches, winnerId)}</div>${mobileHtml}`;
+      }
+
+      const desktopHtml = `<div class="desktop-bracket">
+        <div class="bracket-scroll">${renderBracketSection("Upper Bracket", matches, "wb")}</div>
+        ${championHtml}
+      </div>`;
+      return desktopHtml + mobileHtml;
     }
 
     // ── Application section ──────────────────────────────────
@@ -1078,6 +1341,42 @@
     import { db } from "./js/firebase-config.js";
     import { initTournamentBanner } from "./js/tournament-banner.js";
     initTournamentBanner(db);
+  </script>
+  <!-- Mobile bracket accordion + hamburger drawer -->
+  <script>
+  (function () {
+    // Mobile bracket accordion — delegated because bracket renders later
+    document.addEventListener('click', function (e) {
+      var btn = e.target.closest('[data-mbr-toggle]');
+      if (btn) btn.closest('.mbr-section').classList.toggle('open');
+    });
+
+    // Hamburger drawer
+    var ham = document.getElementById('navHamburger');
+    var drawer = document.getElementById('navDrawer');
+    var close = document.getElementById('navDrawerClose');
+    var adminItems = document.querySelectorAll('.admin-nav');
+    var playerItems = document.querySelectorAll('.player-nav');
+
+    // Mirror admin/player nav visibility into drawer
+    var obs = new MutationObserver(function() {
+      var drawerAdmin  = drawer.querySelectorAll('.admin-nav');
+      var drawerPlayer = drawer.querySelectorAll('.player-nav');
+      var aHidden = adminItems[0] && adminItems[0].classList.contains('hidden');
+      var pHidden = playerItems[0] && playerItems[0].classList.contains('hidden');
+      drawerAdmin.forEach(function(el){ el.classList.toggle('hidden', aHidden); });
+      drawerPlayer.forEach(function(el){ el.classList.toggle('hidden', pHidden); });
+    });
+    adminItems.forEach(function(el){ obs.observe(el, {attributes:true, attributeFilter:['class']}); });
+    playerItems.forEach(function(el){ obs.observe(el, {attributes:true, attributeFilter:['class']}); });
+
+    function openDrawer()  { drawer.classList.add('open');    ham.setAttribute('aria-expanded','true'); }
+    function closeDrawer() { drawer.classList.remove('open'); ham.setAttribute('aria-expanded','false'); }
+    if (ham) ham.addEventListener('click', openDrawer);
+    if (close) close.addEventListener('click', closeDrawer);
+    if (drawer) drawer.addEventListener('click', function(e){ if(e.target===drawer) closeDrawer(); });
+    document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeDrawer(); });
+  })();
   </script>
 </body>
 </html>

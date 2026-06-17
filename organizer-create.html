@@ -400,9 +400,13 @@
     import { requireOrganizer, logout } from "./js/auth.js";
     import { db } from "./js/firebase-config.js";
     import { generateBracket, nextPowerOf2, formatDate, formatPrize, setLoading } from "./js/utils.js";
-    import { ref, push, set } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-database.js";
+    import { ref, push, set, get, update } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-database.js";
 
-    requireOrganizer((user) => {
+    requireOrganizer(async (user) => {
+      // ── Edit mode detection ──────────────────────
+      const editId = new URLSearchParams(location.search).get("edit");
+      const isEdit = !!editId;
+
       const form = document.getElementById("createForm");
       const btnCreate = document.getElementById("btnCreate");
       const alertError = document.getElementById("alertError");
@@ -416,6 +420,81 @@
       function val(id) { return el(id).value.trim(); }
       function num(id) { return Math.max(0, Number(val(id)) || 0); }
       function millis(id) { return val(id) ? new Date(val(id)).getTime() : 0; }
+
+      // ── Populate form from existing tournament data (edit mode) ──
+      function toDatetimeLocal(ms) {
+        if (!ms) return "";
+        const d = new Date(ms);
+        const pad = n => String(n).padStart(2, "0");
+        return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+      }
+
+      function setSelect(id, value) {
+        const sel = el(id);
+        if (!sel || value === undefined || value === null) return;
+        const opt = Array.from(sel.options).find(o => o.value === String(value));
+        if (opt) sel.value = opt.value;
+      }
+
+      if (isEdit) {
+        // Update UI for edit mode
+        document.querySelector("h1").textContent = "Edit Tournament";
+        document.querySelector(".page-head p").textContent = "Kemaskini maklumat tournament. Bracket & pasukan sedia ada tidak terjejas.";
+        el("alertSuccess").textContent = "Tournament berjaya dikemaskini!";
+        btnCreate.textContent = "Simpan Perubahan";
+
+        try {
+          const snap = await get(ref(db, `tournaments/${editId}`));
+          if (!snap.exists() || snap.val().organizerId !== user.uid) {
+            document.querySelector(".create-grid").innerHTML = `<div class="alert alert-error show">Tournament tidak dijumpai atau anda tidak mempunyai akses.</div>`;
+          } else {
+            const t = snap.val();
+            // Basic fields
+            el("name").value = t.name || "";
+            el("description").value = t.description || "";
+            setSelect("category", t.category);
+            setSelect("format", t.format);
+            setSelect("maxTeams", t.maxTeams);
+            // Dates
+            el("regOpenDate").value  = toDatetimeLocal(t.regOpenDate);
+            el("regCloseDate").value = toDatetimeLocal(t.regCloseDate);
+            el("startDate").value    = toDatetimeLocal(t.startDate);
+            // Financials
+            el("entryFee").value  = t.entryFee  ?? 0;
+            el("prizePool").value = t.prizePool ?? 0;
+            el("prize1").value    = t.prizeBreakdown?.first  ?? 0;
+            el("prize2").value    = t.prizeBreakdown?.second ?? 0;
+            el("prize3").value    = t.prizeBreakdown?.third  ?? 0;
+            // Text
+            el("rules").value           = t.rules           || "";
+            el("whatsappGroupId").value = t.whatsappGroupId || "";
+            // Poster
+            if (t.posterUrl) {
+              el("inputPosterUrl").value        = t.posterUrl;
+              el("posterUrlPreview").src        = t.posterUrl;
+              el("posterUrlPreview").style.display = "block";
+            }
+            // Stage formats
+            const sf = t.stageFormats || {};
+            if (t.format === "single") {
+              setSelect("sf_early", sf.earlyRounds);
+              setSelect("sf_qf",    sf.quarterFinal);
+              setSelect("sf_semi",  sf.semiFinal);
+              setSelect("sf_gf",    sf.grandFinal);
+            } else {
+              setSelect("sf_ub",  sf.upperBracket);
+              setSelect("sf_ubf", sf.upperBracketFinal);
+              setSelect("sf_lb",  sf.lowerBracket);
+              setSelect("sf_lbf", sf.lowerBracketFinal);
+              setSelect("sf_gf_de", sf.grandFinal);
+            }
+            updateStageFormats();
+            updatePreview();
+          }
+        } catch (err) {
+          document.querySelector(".create-grid").innerHTML = `<div class="alert alert-error show">Ralat memuatkan tournament: ${err.message}</div>`;
+        }
+      }
 
       function showAlert(message) {
         alertMsg.textContent = message;
@@ -523,8 +602,10 @@
 
       form.addEventListener("input", updatePreview);
       form.addEventListener("change", updatePreview);
-      updateStageFormats();
-      updatePreview();
+      if (!isEdit) {
+        updateStageFormats();
+        updatePreview();
+      }
 
       form.addEventListener("submit", async (event) => {
         event.preventDefault();
@@ -548,48 +629,61 @@
         const originalHTML = btnCreate.innerHTML;
         setLoading(btnCreate, true, originalHTML);
 
+        const posterUrl = posterInput.value.trim();
+        const stageFormats = buildStageFormatsObj();
+        const commonFields = {
+          name: val("name"),
+          description: val("description"),
+          category: val("category"),
+          format: val("format"),
+          maxTeams: num("maxTeams"),
+          prizePool: num("prizePool"),
+          entryFee: num("entryFee"),
+          prizeBreakdown: {
+            first: num("prize1"),
+            second: num("prize2"),
+            third: num("prize3"),
+          },
+          stageFormats,
+          regOpenDate,
+          regCloseDate,
+          startDate,
+          rules: val("rules"),
+          whatsappGroupId: val("whatsappGroupId"),
+          ...(posterUrl ? { posterUrl } : { posterUrl: null }),
+        };
+
         try {
-          const tournamentRef = push(ref(db, "tournaments"));
-          const tournamentId = tournamentRef.key;
-          const format = val("format");
-          const maxTeams = num("maxTeams");
-          const matches = generateBracket([], format, maxTeams);
-
-          const posterUrl = posterInput.value.trim();
-          const stageFormats = buildStageFormatsObj();
-
-          await set(tournamentRef, {
-            name: val("name"),
-            description: val("description"),
-            category: val("category"),
-            format,
-            status: "registration",
-            teamCount: 0,
-            maxTeams,
-            prizePool: num("prizePool"),
-            entryFee: num("entryFee"),
-            prizeBreakdown: {
-              first: num("prize1"),
-              second: num("prize2"),
-              third: num("prize3"),
-            },
-            stageFormats,
-            regOpenDate,
-            regCloseDate,
-            startDate,
-            rules: val("rules"),
-            whatsappGroupId: val("whatsappGroupId"),
-            organizerId: user.uid,
-            createdAt: Date.now(),
-            teams: {},
-            matches,
-            ...(posterUrl ? { posterUrl } : {}),
-          });
-
-          alertSuccess.classList.add("show");
-          setTimeout(() => { window.location.href = "organizer.html"; }, 1500);
+          if (isEdit) {
+            // ── Edit: update only mutable fields, preserve matches/teams/status
+            await update(ref(db, `tournaments/${editId}`), {
+              ...commonFields,
+              updatedAt: Date.now(),
+            });
+            alertSuccess.classList.add("show");
+            setTimeout(() => { window.location.href = `tournament-manage?id=${editId}`; }, 1500);
+          } else {
+            // ── Create: generate bracket and write full document
+            const format = val("format");
+            const maxTeams = num("maxTeams");
+            const matches = generateBracket([], format, maxTeams);
+            const tournamentRef = push(ref(db, "tournaments"));
+            await set(tournamentRef, {
+              ...commonFields,
+              format,
+              maxTeams,
+              status: "registration",
+              teamCount: 0,
+              organizerId: user.uid,
+              createdAt: Date.now(),
+              teams: {},
+              matches,
+            });
+            alertSuccess.classList.add("show");
+            setTimeout(() => { window.location.href = "organizer"; }, 1500);
+          }
         } catch (error) {
-          showAlert("Ralat mencipta tournament. Cuba lagi.");
+          showAlert(isEdit ? "Ralat mengemaskini tournament. Cuba lagi." : "Ralat mencipta tournament. Cuba lagi.");
           setLoading(btnCreate, false, originalHTML);
         }
       });

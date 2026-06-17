@@ -6,6 +6,22 @@
   <title>Manage Tournament – MLBB OPS</title>
   <link rel="stylesheet" href="css/global.css">
   <style>
+    /* ── Page Wallpaper ─────────────────────────── */
+    body {
+      background-image:
+        linear-gradient(
+          to bottom,
+          rgba(5, 3, 14, .82) 0%,
+          rgba(5, 3, 14, .76) 40%,
+          rgba(5, 3, 14, .88) 100%
+        ),
+        url('assets/Teamsetup_page_wallpaper.png');
+      background-size: cover;
+      background-position: center top;
+      background-attachment: fixed;
+      background-repeat: no-repeat;
+    }
+
     .home-nav {
       position: sticky; top: 0; z-index: 100;
       background: color-mix(in srgb, var(--bg) 94%, transparent);
@@ -19,7 +35,7 @@
     }
     .home-links {
       display: flex; align-items: center; justify-content: center;
-      gap: 2px; flex-wrap: nowrap; list-style: none; flex: 1 1 auto; overflow: hidden;
+      gap: 2px; flex-wrap: nowrap; list-style: none; flex: 1 1 auto; overflow: visible;
     }
     .home-links a {
       display: inline-flex; align-items: center; min-height: 44px;
@@ -220,6 +236,61 @@
       margin-bottom: 1.5rem; flex-wrap: wrap;
     }
 
+    /* ── Score Entry ─────────────────────────── */
+    .mse-bo-badge {
+      display: inline-flex; align-items: center; padding: 2px 8px;
+      border-radius: 4px;
+      background: color-mix(in srgb, var(--gold2) 12%, transparent);
+      border: 1px solid color-mix(in srgb, var(--gold2) 28%, transparent);
+      color: var(--gold2); font-family: var(--font-mono); font-size: 10px;
+      font-weight: 700; letter-spacing: 1.5px;
+    }
+    .mse-inputs-wrap {
+      display: flex; align-items: center; gap: 8px; justify-content: center;
+    }
+    .mse-input {
+      width: 52px; height: 44px; background: var(--bg);
+      border: 1.5px solid var(--border2); border-radius: var(--radius);
+      color: var(--txt); font-family: var(--font-head); font-size: 22px;
+      font-weight: 800; text-align: center;
+      transition: border-color .15s, box-shadow .15s; -moz-appearance: textfield;
+    }
+    .mse-input::-webkit-outer-spin-button,
+    .mse-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+    .mse-input:focus {
+      outline: none; border-color: var(--gold2);
+      box-shadow: 0 0 0 3px color-mix(in srgb, var(--gold2) 18%, transparent);
+    }
+    .mse-input.invalid { border-color: var(--red); animation: mse-shake .3s ease; }
+    @keyframes mse-shake {
+      0%,100%{transform:translateX(0)} 25%{transform:translateX(-4px)} 75%{transform:translateX(4px)}
+    }
+    .mse-hint {
+      font-family: var(--font-mono); font-size: 10px; color: var(--txt3);
+      letter-spacing: .7px; text-align: center; margin: 0 0 6px;
+    }
+    .match-team.winner { color: var(--gold); }
+    .score-num { font-family: var(--font-head); font-size: 28px; font-weight: 800; line-height: 1; }
+    .score-num.winner { color: var(--gold); }
+    .score-num.loser  { color: var(--txt3); }
+
+    /* ── More Actions Dropdown ────────────────── */
+    .more-actions-wrap { position: relative; }
+    .more-actions-menu {
+      position: absolute; bottom: calc(100% + 6px); right: 0; min-width: 210px;
+      background: var(--card); border: 1px solid var(--border2);
+      border-radius: var(--radius); box-shadow: 0 8px 28px rgba(0,0,0,.55);
+      z-index: 200; overflow: hidden;
+    }
+    .more-actions-menu button {
+      display: block; width: 100%; text-align: left; padding: 9px 14px;
+      background: none; border: none; border-radius: 0; color: var(--txt2);
+      font-size: 13px; cursor: pointer; transition: background .12s, color .12s;
+      border-bottom: 1px solid var(--border);
+    }
+    .more-actions-menu button:last-child { border-bottom: none; }
+    .more-actions-menu button:hover { background: var(--bg3); color: var(--txt); }
+
     @media (max-width: 1100px) {
       .home-nav-inner { flex-wrap: wrap; justify-content: center; gap: 8px; }
       .navbar-logo  { flex: 1 1 100%; justify-content: center; }
@@ -231,6 +302,30 @@
       .manage-poster { width: 100%; min-height: 200px; }
       .home-links a { font-size: 12px; padding: 7px 10px; }
     }
+
+    /* ── Laman Utama Dropdown ──────────────────── */
+    .hnd-wrap { position: relative; }
+    .hnd-trigger { display: inline-flex; align-items: center; gap: 5px; min-height: 44px; padding: 9px 10px; border-radius: var(--radius); color: var(--gold); background: color-mix(in srgb, var(--gold) 12%, transparent); border: 1px solid color-mix(in srgb, var(--gold) 25%, transparent); font-family: var(--font-head); font-size: 15px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; white-space: nowrap; cursor: pointer; transition: all .2s; }
+    .hnd-trigger:hover, .hnd-trigger[aria-expanded="true"] { background: color-mix(in srgb, var(--gold) 20%, transparent); border-color: color-mix(in srgb, var(--gold) 48%, transparent); box-shadow: 0 0 20px rgba(168,85,247,.28); }
+    .hnd-chevron { width: 13px; height: 13px; transition: transform .25s cubic-bezier(.25,.46,.45,.94); flex-shrink: 0; opacity: .7; }
+    .hnd-trigger[aria-expanded="true"] .hnd-chevron { transform: rotate(180deg); opacity: 1; }
+    .hnd-menu { position: absolute; top: calc(100% + 8px); left: 0; width: 270px; z-index: 500; pointer-events: none; opacity: 0; transform: translateY(-8px) scale(.97); transform-origin: top left; transition: opacity .2s ease, transform .2s ease; }
+    .hnd-menu.is-open { opacity: 1; transform: translateY(0) scale(1); pointer-events: all; }
+    .hnd-menu-inner { background: rgba(7,6,15,.97); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); border: 1px solid rgba(168,85,247,.3); border-top: 2px solid var(--gold2); border-radius: 0 var(--radius-lg) var(--radius-lg) var(--radius-lg); box-shadow: 0 16px 50px rgba(0,0,0,.7), 0 0 50px rgba(168,85,247,.13); padding: .45rem; overflow: hidden; }
+    .hnd-label-header { padding: .5rem .8rem .3rem; font-family: var(--font-mono); font-size: 9px; letter-spacing: 2.5px; text-transform: uppercase; color: var(--txt3); user-select: none; }
+    .hnd-item { display: flex; align-items: center; gap: .7rem; padding: .6rem .75rem; border-radius: var(--radius); text-decoration: none; position: relative; overflow: hidden; transition: background .15s; }
+    .hnd-item::before { content: ''; position: absolute; left: 0; top: 20%; bottom: 20%; width: 2.5px; background: var(--gold2); border-radius: 0 2px 2px 0; opacity: 0; transform: scaleY(0); transition: opacity .15s, transform .18s cubic-bezier(.25,.46,.45,.94); }
+    .hnd-item:hover { background: rgba(168,85,247,.1); }
+    .hnd-item:hover::before { opacity: 1; transform: scaleY(1); }
+    .hnd-icon { width: 32px; height: 32px; border-radius: 7px; background: rgba(168,85,247,.1); border: 1px solid rgba(168,85,247,.2); display: flex; align-items: center; justify-content: center; color: var(--gold2); flex-shrink: 0; transition: background .15s, border-color .15s, box-shadow .15s; }
+    .hnd-item:hover .hnd-icon { background: rgba(168,85,247,.2); border-color: rgba(168,85,247,.5); box-shadow: 0 0 14px rgba(168,85,247,.32); }
+    .hnd-text { display: flex; flex-direction: column; gap: 1px; }
+    .hnd-name { font-family: var(--font-head); font-size: 13px; font-weight: 700; letter-spacing: .7px; text-transform: uppercase; color: var(--txt2); transition: color .15s; line-height: 1.2; }
+    .hnd-item:hover .hnd-name { color: #fff; }
+    .hnd-sub { font-family: var(--font-mono); font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--txt3); line-height: 1; }
+    .hnd-divider { height: 1px; background: rgba(168,85,247,.13); margin: .3rem .75rem; }
+    @media (max-width: 640px) { .hnd-trigger { font-size: 12px; padding: 7px 8px; min-height: 38px; } .hnd-menu { width: 250px; } }
+    @media (max-width: 480px) { .hnd-trigger { font-size: 11px; padding: 6px 7px; } .hnd-menu { width: 230px; } }
   </style>
 </head>
 <body>
@@ -241,14 +336,46 @@
         <span class="logo-name">Tournament <span>Organizer</span></span>
       </a>
       <ul class="home-links">
-        <li><a href="index.html">Home</a></li>
-        <li><a href="index.html#tournaments">Tournaments</a></li>
-        <li><a href="index.html#teams">Teams</a></li>
-        <li><a href="index.html#about">About</a></li>
-        <li><a href="index.html#contact">Contact</a></li>
-        <li><a href="standing.html">Standing</a></li>
-        <li><a href="schedule.html">Schedule</a></li>
-        <li><a href="organizer.html" class="active">Organizer Dashboard</a></li>
+
+        <!-- ── Laman Utama Dropdown ── -->
+        <li class="hnd-wrap">
+          <button class="hnd-trigger" id="hndTrigger" aria-expanded="false" aria-haspopup="true">
+            Laman Utama
+            <svg class="hnd-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="hnd-menu" id="hndMenu" role="menu" aria-labelledby="hndTrigger">
+            <div class="hnd-menu-inner">
+              <div class="hnd-label-header">Navigasi Halaman</div>
+              <a href="index.html#tournaments" class="hnd-item" role="menuitem">
+                <span class="hnd-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2z"/></svg></span>
+                <span class="hnd-text"><span class="hnd-name">Kejohanan</span><span class="hnd-sub">Semak Pertandingan</span></span>
+              </a>
+              <a href="index.html#teams" class="hnd-item" role="menuitem">
+                <span class="hnd-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>
+                <span class="hnd-text"><span class="hnd-name">Pasukan</span><span class="hnd-sub">Senarai Peserta</span></span>
+              </a>
+              <div class="hnd-divider"></div>
+              <a href="index.html#contact" class="hnd-item" role="menuitem">
+                <span class="hnd-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></span>
+                <span class="hnd-text"><span class="hnd-name">Pusat Bantuan</span><span class="hnd-sub">Hubungi Admin</span></span>
+              </a>
+              <a href="index.html#sokong" class="hnd-item" role="menuitem">
+                <span class="hnd-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></span>
+                <span class="hnd-text"><span class="hnd-name">Sokong Kami</span><span class="hnd-sub">Sumbangan Komuniti</span></span>
+              </a>
+              <a href="index.html#rekrut" class="hnd-item" role="menuitem">
+                <span class="hnd-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg></span>
+                <span class="hnd-text"><span class="hnd-name">Sertai Pasukan Kami</span><span class="hnd-sub">Peluang Kerjaya</span></span>
+              </a>
+            </div>
+          </div>
+        </li>
+
+        <!-- ── Platform nav ── -->
+        <li><a href="standing.html">Kedudukan</a></li>
+        <li><a href="schedule.html">Jadual</a></li>
+        <li class="admin-nav"><a class="active" href="organizer.html">Panel Penganjur <span class="admin-nav-badge" style="display:none">0</span></a></li>
+
       </ul>
       <div class="home-actions">
         <span class="btn btn-primary btn-sm" style="cursor:default;user-select:none;pointer-events:none;">Admin</span>
@@ -256,6 +383,7 @@
       </div>
     </div>
   </header>
+  <div id="tournamentBanner" hidden></div>
 
   <main class="page-wrap">
     <div class="container">
@@ -318,6 +446,7 @@
         <section class="panel active" id="panel-overview">
           <div class="ov-grid" id="ovGrid"></div>
           <div class="row-card" id="ovMatchProgress" style="padding:1rem"></div>
+          <div id="ovBracketProgress"></div>
         </section>
 
         <!-- Matches -->
@@ -421,8 +550,23 @@
     const tid = new URLSearchParams(window.location.search).get("id");
 
     if (!tid) {
-      document.getElementById("loadingState").style.display  = "none";
-      document.getElementById("notFoundState").style.display = "block";
+      (async () => {
+        try {
+          const snap = await get(ref(db, "tournaments"));
+          if (snap.exists()) {
+            const active = Object.entries(snap.val())
+              .map(([id, t]) => ({ id, ...t }))
+              .filter(t => t.status === "live" || t.status === "registration")
+              .sort((a, b) => (a.status === "live" ? 0 : 1) - (b.status === "live" ? 0 : 1));
+            if (active.length) {
+              window.location.replace(`tournament-manage?id=${encodeURIComponent(active[0].id)}`);
+              return;
+            }
+          }
+        } catch {}
+        document.getElementById("loadingState").style.display  = "none";
+        document.getElementById("notFoundState").style.display = "block";
+      })();
     }
 
     /* ── Utility ───────────────────────────────── */
@@ -435,6 +579,23 @@
     }
     function matchLabel(m) {
       return `${({wb:"WB",lb:"LB",gf:"GF"}[m.bracket]||"BR")} R${m.round} M${m.position}`;
+    }
+    function getMatchBo(m) {
+      const t = state.tournament;
+      if (m.bo) return Number(m.bo);
+      if (t.stages?.[m.bracket]?.bo) return Number(t.stages[m.bracket].bo);
+      if (t.bo) return Number(t.bo);
+      return 1;
+    }
+    function boWins(bo) { return Math.ceil(bo / 2); }
+    function validScores(bo) {
+      const w = boWins(bo), out = [];
+      for (let i = 0; i < w; i++) { out.push(`${w}-${i}`); out.push(`${i}-${w}`); }
+      return out;
+    }
+    function isValidScore(s1, s2, bo) {
+      const w = boWins(bo);
+      return (s1 === w && s2 >= 0 && s2 < w) || (s2 === w && s1 >= 0 && s1 < w);
     }
     function showAlert(msg, type = "error") {
       document.getElementById("alertError").classList.remove("show");
@@ -620,6 +781,64 @@
         <div style="height:6px;background:var(--border);border-radius:3px;overflow:hidden">
           <div style="height:100%;width:${matchPct}%;background:linear-gradient(to right,var(--green),var(--gold));border-radius:3px;transition:width .4s;min-width:${matches.length?'2px':'0'}"></div>
         </div>`;
+
+      // ── Bracket Progression ──────────────────────────────────
+      const bpEl = document.getElementById("ovBracketProgress");
+      if (bpEl && matches.length > 0) {
+        const sortKey = m => ({ wb:0, lb:1, gf:2 }[m.bracket]||0)*100 + m.round*10 + m.position;
+        const doneM = matches.filter(m => m.status === "done" || m.status === "walkover")
+          .sort((a, b) => (b.submittedAt||0) - (a.submittedAt||0)).slice(0, 4);
+        const nextM = matches.filter(m => m.status === "upcoming" || m.status === "pending")
+          .sort((a, b) => sortKey(a) - sortKey(b)).slice(0, 4);
+
+        const wbActive = matches.filter(m => m.bracket==="wb" && (m.status==="upcoming"||m.status==="pending"));
+        const lbActive = matches.filter(m => m.bracket==="lb" && (m.status==="upcoming"||m.status==="pending"));
+        const gfActive = matches.filter(m => m.bracket==="gf" && (m.status==="upcoming"||m.status==="pending"||m.status==="live"));
+        const curWB = wbActive.length ? Math.min(...wbActive.map(m=>m.round)) : null;
+        const curLB = lbActive.length ? Math.min(...lbActive.map(m=>m.round)) : null;
+
+        const badge = (txt, col, bg, border) =>
+          `<span style="background:${bg};color:${col};border:1px solid ${border};padding:3px 10px;border-radius:4px;font-size:10px;font-weight:700;letter-spacing:1.5px;font-family:var(--font-mono);white-space:nowrap">${txt}</span>`;
+
+        const phaseBadges = gfActive.length
+          ? badge("🏆 GRAND FINAL","#fbbf24","rgba(251,191,36,.12)","rgba(251,191,36,.3)")
+          : [
+              curWB ? badge(`UB R${curWB}`,"#a78bfa","rgba(167,139,250,.12)","rgba(167,139,250,.3)") : "",
+              curLB ? badge(`LB R${curLB}`,"#34d399","rgba(52,211,153,.12)","rgba(52,211,153,.3)") : ""
+            ].filter(Boolean).join("") || badge("SELESAI","var(--txt3)","transparent","var(--border)");
+
+        const mkRow = (m, result) => {
+          const w1 = result && m.winnerId===m.team1, w2 = result && m.winnerId===m.team2;
+          return `<div style="display:grid;grid-template-columns:58px 1fr auto 1fr;gap:6px;align-items:center;padding:7px 0;border-bottom:1px solid var(--border)">
+            <span style="font-family:var(--font-mono);font-size:10px;letter-spacing:.8px;color:var(--txt3)">${esc(matchLabel(m))}</span>
+            <span style="font-size:13px;color:${w1?'var(--gold)':'var(--txt2)'};font-weight:${w1?'700':'400'};overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(teamName(m.team1))}</span>
+            <span style="font-family:var(--font-mono);font-size:12px;color:var(--txt3);text-align:center;white-space:nowrap;padding:0 4px">${result?`${m.score1??'—'}:${m.score2??'—'}`:'vs'}</span>
+            <span style="font-size:13px;color:${w2?'var(--gold)':'var(--txt2)'};font-weight:${w2?'700':'400'};text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(teamName(m.team2))}</span>
+          </div>`;
+        };
+
+        const doneHtml = doneM.length ? doneM.map(m => mkRow(m, true)).join("")
+          : `<p style="font-size:12px;color:var(--txt3);padding:6px 0">Belum ada match selesai.</p>`;
+        const nextHtml = nextM.length ? nextM.map(m => mkRow(m, false)).join("")
+          : `<p style="font-size:12px;color:var(--txt3);padding:6px 0">Tiada match upcoming.</p>`;
+
+        bpEl.innerHTML = `<div class="row-card" style="padding:1rem;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius)">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;gap:8px;flex-wrap:wrap">
+            <p class="sub-heading" style="margin:0;border:none;padding:0">Kemajuan Bracket</p>
+            <div style="display:flex;gap:6px;flex-wrap:wrap">${phaseBadges}</div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem">
+            <div>
+              <div style="font-family:var(--font-mono);font-size:10px;letter-spacing:2px;color:var(--txt3);margin-bottom:4px">KEPUTUSAN TERKINI</div>
+              ${doneHtml}
+            </div>
+            <div>
+              <div style="font-family:var(--font-mono);font-size:10px;letter-spacing:2px;color:var(--txt3);margin-bottom:4px">AKAN DATANG</div>
+              ${nextHtml}
+            </div>
+          </div>
+        </div>`;
+      }
     }
 
     function renderMatches() {
@@ -645,20 +864,56 @@
         const isPending  = m.status === "pending";
         const isUpcoming = m.status === "upcoming";
         const isDone     = m.status === "done" || m.status === "walkover";
+        const bo     = getMatchBo(m);
+        const wins   = boWins(bo);
+        const t1     = esc(teamName(m.team1));
+        const t2     = esc(teamName(m.team2));
+        const w1     = isDone && m.winnerId === m.team1;
+        const w2     = isDone && m.winnerId === m.team2;
+        const canAct = !!(m.team1 && m.team2);
+
+        const moreMenu = canAct ? `
+          <div class="more-actions-wrap">
+            <button class="btn btn-secondary btn-sm" type="button" data-action="more-toggle">··· Lain</button>
+            <div class="more-actions-menu" hidden>
+              <button type="button" data-action="walkover"
+                data-mid="${escA(m.matchId)}" data-t1="${escA(m.team1)}" data-t2="${escA(m.team2)}"
+                data-winner="${escA(m.team1)}">Walkover → ${t1}</button>
+              <button type="button" data-action="walkover"
+                data-mid="${escA(m.matchId)}" data-t1="${escA(m.team1)}" data-t2="${escA(m.team2)}"
+                data-winner="${escA(m.team2)}">Walkover → ${t2}</button>
+            </div>
+          </div>` : "";
+
+        let centerContent;
+        if (isUpcoming && canAct) {
+          centerContent = `<div class="mse-inputs-wrap">
+            <input class="mse-input" type="number" min="0" max="${wins}" step="1" value="0" data-score-role="s1">
+            <span class="match-score-vs">vs</span>
+            <input class="mse-input" type="number" min="0" max="${wins}" step="1" value="0" data-score-role="s2">
+          </div>`;
+        } else if ((isPending || isDone) && m.score1 != null) {
+          centerContent = `<div class="match-score-box">
+            <span class="score-num ${w1?'winner':isDone?'loser':''}">${m.score1}</span>
+            <span class="match-score-vs">vs</span>
+            <span class="score-num ${w2?'winner':isDone?'loser':''}">${m.score2}</span>
+          </div>`;
+        } else {
+          centerContent = `<div class="match-score-box"><span class="match-score-vs">vs</span></div>`;
+        }
+
         return `<div class="match-card ${isPending?"status-pending":""} ${isDone?"status-done":""}">
           <div class="match-head">
             <span class="match-id-lbl">${matchLabel(m)}</span>
             <span class="badge badge-${isDone?"done":isUpcoming?"upcoming":"live"}">${m.status}</span>
+            ${!isDone ? `<span class="mse-bo-badge">BO${bo}</span>` : ""}
           </div>
           <div class="match-teams">
-            <span class="match-team">${esc(teamName(m.team1))}</span>
-            <div class="match-score-box">
-              ${(isPending || isDone) && (m.score1 != null)
-                ? `<span>${m.score1??0}</span><span class="match-score-vs">vs</span><span>${m.score2??0}</span>`
-                : `<span class="match-score-vs">vs</span>`}
-            </div>
-            <span class="match-team right">${esc(teamName(m.team2))}</span>
+            <span class="match-team${w1?' winner':''}">${t1}</span>
+            ${centerContent}
+            <span class="match-team right${w2?' winner':''}">${t2}</span>
           </div>
+          ${isUpcoming && canAct ? `<p class="mse-hint">Skor sah: ${validScores(bo).join(', ')}</p>` : ""}
           <div class="match-footer">
             <span class="match-meta">
               ${m.submittedAt ? `Dihantar: ${formatDate(m.submittedAt)}` : ""}
@@ -666,13 +921,17 @@
             </span>
             <div class="match-actions-row">
               ${isPending ? `
-                <button class="btn btn-primary btn-sm"   data-action="approve"  data-mid="${escA(m.matchId)}">✓ Lulus</button>
-                <button class="btn btn-danger  btn-sm"   data-action="reject"   data-mid="${escA(m.matchId)}">✕ Tolak</button>
-                <button class="btn btn-secondary btn-sm" data-action="walkover" data-mid="${escA(m.matchId)}" data-t1="${escA(m.team1)}" data-t2="${escA(m.team2)}">Walkover</button>
-              ` : ""}
-              ${isUpcoming ? `
-                <button class="btn btn-secondary btn-sm" data-action="walkover" data-mid="${escA(m.matchId)}" data-t1="${escA(m.team1)}" data-t2="${escA(m.team2)}">Walkover</button>
-              ` : ""}
+                <button class="btn btn-primary btn-sm" data-action="approve" data-mid="${escA(m.matchId)}">✓ Lulus</button>
+                <button class="btn btn-danger btn-sm"  data-action="reject"  data-mid="${escA(m.matchId)}">✕ Tolak</button>
+                ${moreMenu}` : ""}
+              ${isUpcoming && canAct ? `
+                <button class="btn btn-primary btn-sm"
+                  data-action="score-submit" data-mid="${escA(m.matchId)}"
+                  data-t1="${escA(m.team1)}" data-t2="${escA(m.team2)}" data-bo="${bo}">
+                  ✓ Simpan Keputusan
+                </button>
+                ${moreMenu}` : ""}
+              ${isUpcoming && !canAct ? `<span style="font-size:12px;color:var(--txt3)">Menunggu pasukan...</span>` : ""}
             </div>
           </div>
         </div>`;
@@ -733,9 +992,10 @@
       }
       const LABELS = {
         APPROVE_RESULT:"Lulus Keputusan", REJECT_RESULT:"Tolak Keputusan",
-        WALKOVER:"Walkover", END_TOURNAMENT:"Tamatkan Tournament", START_TOURNAMENT:"Mulakan Tournament"
+        SUBMIT_SCORE:"Simpan Skor", WALKOVER:"Walkover",
+        END_TOURNAMENT:"Tamatkan Tournament", START_TOURNAMENT:"Mulakan Tournament"
       };
-      const dotCls = a => a.includes("APPROVE")||a.includes("START") ? "approve"
+      const dotCls = a => a.includes("APPROVE")||a.includes("START")||a.includes("SUBMIT") ? "approve"
         : a.includes("REJECT") ? "reject" : a.includes("WALKOVER") ? "walkover"
         : a.includes("END")    ? "end"    : "";
 
@@ -795,6 +1055,53 @@
           return;
         }
 
+        if (action === "more-toggle") {
+          const wrap = btn.closest('.more-actions-wrap');
+          const menu = wrap?.querySelector('.more-actions-menu');
+          if (!menu) return;
+          const wasOpen = !menu.hidden;
+          document.querySelectorAll('.more-actions-menu').forEach(m => { m.hidden = true; });
+          if (!wasOpen) menu.hidden = false;
+          return;
+        }
+
+        if (action === "score-submit") {
+          const matchId = btn.dataset.mid;
+          const bo   = parseInt(btn.dataset.bo) || 1;
+          const card = btn.closest('.match-card');
+          const s1El = card.querySelector('[data-score-role="s1"]');
+          const s2El = card.querySelector('[data-score-role="s2"]');
+          const s1   = parseInt(s1El?.value) || 0;
+          const s2   = parseInt(s2El?.value) || 0;
+          if (!isValidScore(s1, s2, bo)) {
+            showAlert(`Skor tidak sah untuk BO${bo}. Skor yang valid: ${validScores(bo).join(', ')}`);
+            [s1El, s2El].forEach(el => {
+              if (!el) return;
+              el.classList.add('invalid');
+              setTimeout(() => el.classList.remove('invalid'), 2000);
+            });
+            return;
+          }
+          const m = state.tournament.matches?.[matchId];
+          if (!m) { showAlert("Match tidak dijumpai."); return; }
+          const winnerId = s1 > s2 ? m.team1 : m.team2;
+          const loserId  = s1 > s2 ? m.team2 : m.team1;
+          const orig = btn.innerHTML;
+          setLoading(btn, true, orig);
+          try {
+            await update(ref(db, `tournaments/${tid}/matches/${matchId}`), {
+              score1: s1, score2: s2, winnerId, loserId,
+              status: "done", completedAt: Date.now(), submittedAt: Date.now(),
+              confirmedBy: state.user.uid
+            });
+            await advanceBracket(db, tid, matchId, winnerId, loserId, state.tournament.format);
+            await logAction({ action:"SUBMIT_SCORE", matchId, organizerId:state.user.uid });
+            await reloadActivity();
+            showAlert("Keputusan berjaya disimpan.", "success");
+          } catch { showAlert("Ralat menyimpan keputusan."); setLoading(btn, false, orig); }
+          return;
+        }
+
         if (action === "approve") {
           const matchId = btn.dataset.mid;
           const orig = btn.innerHTML;
@@ -821,9 +1128,12 @@
 
         if (action === "walkover") {
           state.currentAction.matchId = btn.dataset.mid;
-          document.getElementById("walkoverWinner").innerHTML = `
+          const sel = document.getElementById("walkoverWinner");
+          sel.innerHTML = `
             <option value="${escA(btn.dataset.t1)}">${esc(teamName(btn.dataset.t1))}</option>
             <option value="${escA(btn.dataset.t2)}">${esc(teamName(btn.dataset.t2))}</option>`;
+          if (btn.dataset.winner) sel.value = btn.dataset.winner;
+          document.querySelectorAll('.more-actions-menu').forEach(m => { m.hidden = true; });
           openModal("walkoverModal");
           return;
         }
@@ -850,6 +1160,11 @@
           document.getElementById("errRejectApp").style.display = "none";
           openModal("rejectAppModal");
           return;
+        }
+      });
+      document.addEventListener('click', (e) => {
+        if (!e.target.closest('.more-actions-wrap')) {
+          document.querySelectorAll('.more-actions-menu').forEach(m => { m.hidden = true; });
         }
       });
     }
@@ -949,6 +1264,26 @@
         finally { setLoading(btn, false, orig); }
       });
     }
+  </script>
+
+  <!-- ── Laman Utama Dropdown JS ── -->
+  <script>
+    (function () {
+      var trigger = document.getElementById('hndTrigger');
+      var menu    = document.getElementById('hndMenu');
+      if (!trigger || !menu) return;
+      function open()  { menu.classList.add('is-open');    trigger.setAttribute('aria-expanded', 'true'); }
+      function close() { menu.classList.remove('is-open'); trigger.setAttribute('aria-expanded', 'false'); }
+      function toggle() { if (menu.classList.contains('is-open')) { close(); } else { open(); } }
+      trigger.addEventListener('click', function (e) { e.stopPropagation(); toggle(); });
+      document.addEventListener('click', function (e) { if (!trigger.contains(e.target) && !menu.contains(e.target)) { close(); } });
+      document.addEventListener('keydown', function (e) { if (e.key === 'Escape') { close(); trigger.blur(); } });
+    })();
+  </script>
+  <script type="module">
+    import { db } from "./js/firebase-config.js";
+    import { initTournamentBanner } from "./js/tournament-banner.js";
+    initTournamentBanner(db);
   </script>
 </body>
 </html>

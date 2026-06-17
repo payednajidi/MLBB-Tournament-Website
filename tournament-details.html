@@ -150,20 +150,51 @@
     .rules-body { font-size: 14px; color: var(--txt2); line-height: 1.75; white-space: pre-wrap; }
 
     /* ── Bracket ─────────────────────────────── */
-    .bracket-scroll { overflow-x: auto; padding-bottom: 8px; }
-    .bracket-section { min-width: 700px; margin-bottom: 1.4rem; }
-    .bracket-title { color: var(--gold); font-size: 16px; margin-bottom: .6rem; font-family: var(--font-head); letter-spacing: 1px; }
-    .round-grid { display: grid; grid-auto-flow: column; grid-auto-columns: 210px; gap: 10px; align-items: start; }
-    .round { display: grid; gap: 8px; }
-    .round h4 { color: var(--txt3); font-size: 12px; margin-bottom: 2px; font-family: var(--font-mono); letter-spacing: 1.5px; text-transform: uppercase; }
-    .match-card { border: 1px solid var(--border); background: var(--bg3); border-radius: var(--radius); padding: 8px; display: grid; gap: 5px; }
-    .match-card.current { border-color: var(--gold); box-shadow: 0 0 0 2px color-mix(in srgb, var(--gold) 15%, transparent); }
-    .team-row { display: grid; grid-template-columns: 1fr auto; gap: 6px; align-items: center; color: var(--txt2); font-size: 12px; }
-    .team-row.winner { color: var(--gold); }
-    .team-row.loser  { color: var(--txt3); text-decoration: line-through; }
-    .team-score { font-family: var(--font-mono); color: var(--txt); font-size: 13px; }
-    .bye, .tbd { color: var(--txt3); }
-    .champion-box { border: 1px solid var(--gold); border-radius: var(--radius); padding: 1rem; background: var(--bg3); color: var(--gold); font-family: var(--font-head); letter-spacing: 1px; margin-top: .6rem; }
+    .bracket-card {
+      position: relative;
+      width: 100vw;
+      left: 50%;
+      transform: translateX(-50%);
+      border-left: none;
+      border-right: none;
+      border-radius: 0;
+      margin-bottom: 1.5rem;
+    }
+    .bracket-card .section-body { padding: 16px 0 22px; }
+    .bracket-scroll { overflow-x: auto; overflow-y: hidden; padding: 0 24px 20px; cursor: grab; -webkit-overflow-scrolling: touch; touch-action: pan-y; user-select: none; min-height: 120px; }
+    .bracket-scroll.is-dragging { cursor: grabbing; }
+    .bracket-scroll::-webkit-scrollbar { width: 5px; height: 5px; }
+    .bracket-scroll::-webkit-scrollbar-track { background: transparent; }
+    .bracket-scroll::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+    .bracket-scroll::-webkit-scrollbar-thumb:hover { background: var(--txt3); }
+    /* bracket outer frame — isolates from wallpaper */
+    .bracket-outer {
+      background: rgba(7, 5, 20, 0.93);
+      border: 1px solid rgba(100, 80, 200, 0.28);
+      border-radius: 10px; padding: 14px 0 0;
+      margin-bottom: 1rem; overflow: hidden;
+    }
+    .bracket-section { margin-bottom: 2.4rem; min-width: max-content; }
+    .bracket-title { color: #a78bfa; font-size: 15px; margin-bottom: .8rem; font-family: var(--font-head); letter-spacing: 2px; text-transform: uppercase; padding: 0 20px; }
+    .bracket-track { display: flex; align-items: flex-start; padding-top: 38px; width: max-content; }
+    .round-col { position: relative; flex-shrink: 0; overflow: visible; }
+    .round-label { position: absolute; top: -28px; left: 0; right: 0; text-align: center; font-size: 11px; font-weight: 700; color: rgba(200, 190, 255, 0.55); text-transform: uppercase; letter-spacing: 1.5px; font-family: var(--font-mono); white-space: nowrap; }
+    .bracket-track .match-card { position: absolute; left: 0; border: 1px solid rgba(255, 255, 255, 0.1); background: #0e0c22; border-radius: var(--radius); padding: 10px 14px; display: grid; gap: 6px; box-sizing: border-box; overflow: visible; align-content: center; transition: border-color .15s, box-shadow .15s, background .15s; }
+    .bracket-track .match-card:hover { border-color: rgba(167, 139, 250, 0.45); }
+    .bracket-track .match-card.current { background: #14103e; border-color: rgba(167, 139, 250, 0.7); box-shadow: 0 0 0 1px rgba(167, 139, 250, 0.15), 0 2px 10px rgba(0, 0, 0, 0.6); }
+    .bracket-track .match-card.done { background: #090f0a; border-color: rgba(74, 222, 128, 0.3); }
+    .bracket-track .match-card.waiting { background: #09081c; border-color: rgba(255, 255, 255, 0.05); }
+    .team-row { display: grid; grid-template-columns: 1fr auto; gap: 8px; align-items: center; color: rgba(220, 215, 255, 0.8); font-size: 13px; min-height: 26px; }
+    .match-card.waiting .team-row { color: rgba(180, 170, 220, 0.28); }
+    .team-row.winner { color: #fbbf24; font-weight: 700; }
+    .team-row.loser  { color: rgba(255, 255, 255, 0.28); text-decoration: line-through; }
+    .team-score { font-family: var(--font-mono); color: #fbbf24; font-size: 14px; font-weight: 700; min-width: 22px; text-align: right; }
+    .bye, .tbd { color: rgba(200, 190, 255, 0.25); font-style: italic; }
+    .bracket-conn { position: absolute; background: rgba(139, 92, 246, 0.45); pointer-events: none; border-radius: 1px; }
+    .bracket-unified { min-width: max-content; }
+    .bracket-subtitle { font-family: var(--font-head); font-size: 12px; font-weight: 900; color: #a78bfa; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 8px; padding-bottom: 5px; border-bottom: 1px solid rgba(167, 139, 250, 0.28); line-height: 1.2; }
+    .bracket-subtitle--gf { color: #fbbf24; border-bottom-color: rgba(251, 191, 36, 0.28); }
+    .champion-box { border: 1px solid rgba(251, 191, 36, 0.5); border-radius: var(--radius); padding: 1rem 1.25rem; background: rgba(14, 12, 34, 0.95); color: #fbbf24; font-family: var(--font-head); letter-spacing: 1px; margin: .6rem 20px; font-size: 15px; }
 
     /* ── Application section ─────────────────── */
     .apply-card {
@@ -202,8 +233,8 @@
     .home-links a {
       display: inline-flex; align-items: center; min-height: 44px;
       padding: 9px 10px; border-radius: var(--radius);
-      color: var(--txt2); font-family: var(--font-head); font-size: 14px;
-      font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; white-space: nowrap;
+      color: var(--txt2); font-family: var(--font-head); font-size: clamp(13px, 1.4vw, 17px);
+      font-weight: 600; letter-spacing: 1.6px; text-transform: uppercase; white-space: nowrap;
       transition: all .2s;
     }
     .home-links a:hover, .home-links a.active { color: var(--gold); background: color-mix(in srgb, var(--gold) 12%, transparent); }
@@ -227,7 +258,7 @@
       .navbar-logo { flex: 1 1 100%; justify-content: center; }
       .home-links  { flex-wrap: wrap; flex: 1 1 100%; overflow: visible; justify-content: center; }
       .home-actions { justify-content: center; width: 100%; }
-      .home-links a { font-size: 12px; padding: 7px 8px; }
+      .home-links a { font-size: 13px; padding: 7px 8px; }
 
       .details-wrap { padding: 0 1rem 3rem; }
       .hero-poster  { min-height: 200px !important; }
@@ -297,6 +328,7 @@
       <div class="home-actions" id="navActions" style="visibility:hidden"></div>
     </div>
   </header>
+  <div id="tournamentBanner" hidden></div>
 
   <div class="details-wrap">
     <div id="detailsRoot" class="details-loading"><span class="spinner"></span> Memuatkan...</div>
@@ -401,7 +433,13 @@
       return `<div class="team-row ${state} ${muted}"><span>${escHtml(label)}</span><span class="team-score">${Number(score)||0}</span></div>`;
     }
 
+    // ── Bracket rendering ────────────────────────────────────
     function renderBracketSection(title, matches, bracket) {
+      const CARD_H = 72;
+      const CARD_W = 300;
+      const CONN_W = 64;
+      const R1_GAP = 18;
+
       const grouped = {};
       Object.values(matches || {})
         .filter(m => m.bracket === bracket)
@@ -409,22 +447,253 @@
         .forEach(m => { grouped[m.round] ||= []; grouped[m.round].push(m); });
       const rounds = Object.keys(grouped).map(Number).sort((a,b) => a-b);
       if (!rounds.length) return "";
+
+      const topsByRound = {};
+      rounds.forEach((r, ri) => {
+        const cur = grouped[r];
+        if (ri === 0) {
+          topsByRound[r] = cur.map((_, i) => i * (CARD_H + R1_GAP));
+          return;
+        }
+        const prev     = grouped[rounds[ri - 1]];
+        const prevTops = topsByRound[rounds[ri - 1]];
+        topsByRound[r] = cur.map((_, i) => {
+          if (prev.length === 2 * cur.length) {
+            const t0 = prevTops[i * 2]     ?? prevTops[0];
+            const t1 = prevTops[i * 2 + 1] ?? prevTops[prevTops.length - 1];
+            return (t0 + t1) / 2;
+          }
+          return prevTops[i] ?? i * (CARD_H + R1_GAP);
+        });
+      });
+
+      const maxHeight = Math.max(...rounds.map(r => {
+        const tops = topsByRound[r];
+        return (tops[tops.length - 1] || 0) + CARD_H;
+      }));
+
+      const cols = rounds.map((r, ri) => {
+        const cur       = grouped[r];
+        const tops      = topsByRound[r];
+        const isFirst   = ri === 0;
+        const isLast    = ri === rounds.length - 1;
+        const nextLen   = isLast ? 0 : grouped[rounds[ri + 1]].length;
+        const branching = !isLast && cur.length === 2 * nextLen;
+
+        const cards = cur.map((m, i) => {
+          const top  = tops[i];
+          const midY = Math.round(CARD_H / 2) - 1;
+          let conns = "";
+          if (!isFirst) {
+            conns += `<div class="bracket-conn" style="right:100%;top:${midY}px;width:${CONN_W}px;height:3px;"></div>`;
+          }
+          if (!isLast) {
+            conns += `<div class="bracket-conn" style="left:100%;top:${midY}px;width:${CONN_W}px;height:3px;"></div>`;
+            if (branching && i % 2 === 0 && i + 1 < tops.length) {
+              const vH = tops[i + 1] - tops[i];
+              conns += `<div class="bracket-conn" style="left:calc(100% + ${CONN_W - 1}px);top:${midY - 1}px;width:3px;height:${vH + 2}px;"></div>`;
+            }
+          }
+          const isDone   = m.status === "done" || m.status === "walkover";
+          const isActive = m.status === "upcoming" || m.status === "pending" || m.status === "live";
+          const cardCls  = isDone ? "done" : isActive ? "current" : "waiting";
+          return `<div class="match-card ${cardCls}" style="top:${top}px;width:${CARD_W}px;height:${CARD_H}px;">
+            ${renderTeamRow(m.team1, m.score1, m)}
+            ${renderTeamRow(m.team2, m.score2, m)}
+            ${conns}
+          </div>`;
+        });
+
+        return `<div class="round-col" style="width:${CARD_W}px;height:${maxHeight}px;${isLast ? "" : `margin-right:${CONN_W * 2}px;`}">
+          <div class="round-label">Round ${r}</div>
+          ${cards.join("")}
+        </div>`;
+      });
+
       return `<div class="bracket-section">
         <h3 class="bracket-title">${title}</h3>
-        <div class="round-grid">
-          ${rounds.map(r => `<div class="round">
-            <h4>Round ${r}</h4>
-            ${grouped[r].map(m => `<div class="match-card ${m.status==="upcoming"||m.status==="live"?"current":""}">
-              ${renderTeamRow(m.team1, m.score1, m)}
-              ${renderTeamRow(m.team2, m.score2, m)}
-            </div>`).join("")}
-          </div>`).join("")}
+        <div class="bracket-track">
+          ${cols.join("")}
         </div>
       </div>`;
     }
 
+    function renderBracketDouble(matches, winnerId) {
+      const CARD_H   = 72;
+      const CARD_W   = 300;
+      const CONN_W   = 64;
+      const R1_GAP   = 18;
+      const TRACK_PT = 28;
+      const TITLE_H  = 16;
+      const TITLE_MB = 6;
+      const ROW_GAP  = 36;
+      const PAD_TOP  = 12;
+
+      function computeLayout(bracket) {
+        const grouped = {};
+        Object.values(matches || {})
+          .filter(m => m.bracket === bracket)
+          .sort((a,b) => a.round - b.round || a.position - b.position)
+          .forEach(m => { grouped[m.round] ||= []; grouped[m.round].push(m); });
+        const rounds = Object.keys(grouped).map(Number).sort((a,b) => a-b);
+        if (!rounds.length) return null;
+
+        const topsByRound = {};
+        rounds.forEach((r, ri) => {
+          const cur = grouped[r];
+          if (ri === 0) {
+            topsByRound[r] = cur.map((_, i) => i * (CARD_H + R1_GAP));
+            return;
+          }
+          const prev     = grouped[rounds[ri - 1]];
+          const prevTops = topsByRound[rounds[ri - 1]];
+          topsByRound[r] = cur.map((_, i) => {
+            if (prev.length === 2 * cur.length) {
+              const t0 = prevTops[i * 2]     ?? prevTops[0];
+              const t1 = prevTops[i * 2 + 1] ?? prevTops[prevTops.length - 1];
+              return (t0 + t1) / 2;
+            }
+            return prevTops[i] ?? i * (CARD_H + R1_GAP);
+          });
+        });
+
+        const maxHeight = Math.max(...rounds.map(r => {
+          const tops = topsByRound[r];
+          return (tops[tops.length - 1] || 0) + CARD_H;
+        }));
+
+        const trackWidth = rounds.reduce((w, _r, ri) => {
+          return w + CARD_W + (ri < rounds.length - 1 ? CONN_W * 2 : 0);
+        }, 0);
+
+        const lastRound = rounds[rounds.length - 1];
+        const lastTops  = topsByRound[lastRound];
+        const finalMidY = lastTops[lastTops.length - 1] + CARD_H / 2;
+
+        return { grouped, rounds, topsByRound, maxHeight, trackWidth, finalMidY };
+      }
+
+      function renderMatchCols(layout, opts = {}) {
+        const { grouped, rounds, topsByRound, maxHeight } = layout;
+        const { hasLeftStub = false, labelFn = r => `Round ${r}` } = opts;
+
+        return rounds.map((r, ri) => {
+          const cur      = grouped[r];
+          const tops     = topsByRound[r];
+          const isFirst  = ri === 0;
+          const isLast   = ri === rounds.length - 1;
+          const nextLen  = isLast ? 0 : grouped[rounds[ri + 1]].length;
+          const branching = !isLast && cur.length === 2 * nextLen;
+
+          const cards = cur.map((m, i) => {
+            const top  = tops[i];
+            const midY = Math.round(CARD_H / 2) - 1;
+            let conns = "";
+
+            if (!isFirst || hasLeftStub) {
+              conns += `<div class="bracket-conn" style="right:100%;top:${midY}px;width:${CONN_W}px;height:3px;"></div>`;
+            }
+            if (!isLast) {
+              conns += `<div class="bracket-conn" style="left:100%;top:${midY}px;width:${CONN_W}px;height:3px;"></div>`;
+              if (branching && i % 2 === 0 && i + 1 < tops.length) {
+                const vH = tops[i + 1] - tops[i];
+                conns += `<div class="bracket-conn" style="left:calc(100% + ${CONN_W - 1}px);top:${midY - 1}px;width:3px;height:${vH + 2}px;"></div>`;
+              }
+            }
+
+            const isDone   = m.status === "done" || m.status === "walkover";
+            const isActive = m.status === "upcoming" || m.status === "pending" || m.status === "live";
+            const cardCls  = isDone ? "done" : isActive ? "current" : "waiting";
+            return `<div class="match-card ${cardCls}" style="top:${top}px;width:${CARD_W}px;height:${CARD_H}px;">
+              ${renderTeamRow(m.team1, m.score1, m)}
+              ${renderTeamRow(m.team2, m.score2, m)}
+              ${conns}
+            </div>`;
+          });
+
+          return `<div class="round-col" style="width:${CARD_W}px;height:${maxHeight}px;${isLast ? "" : `margin-right:${CONN_W * 2}px;`}">
+            <div class="round-label">${labelFn(r)}</div>
+            ${cards.join("")}
+          </div>`;
+        }).join("");
+      }
+
+      const wb = computeLayout("wb");
+      const lb = computeLayout("lb");
+      const gf = computeLayout("gf");
+
+      if (!wb) return '<p class="text-muted">Bracket belum dijana.</p>';
+
+      const titleBlock     = TITLE_H + TITLE_MB;
+      const wbTop          = PAD_TOP;
+      const wbTrackStart   = wbTop + titleBlock + TRACK_PT;
+      const wbFinalAbsMidY = wb ? (wbTrackStart + wb.finalMidY) : 0;
+      const wbSectionH     = titleBlock + TRACK_PT + (wb?.maxHeight || 0);
+
+      const lbTop          = wbTop + wbSectionH + ROW_GAP;
+      const lbTrackStart   = lbTop + titleBlock + TRACK_PT;
+      const lbFinalAbsMidY = lb ? (lbTrackStart + lb.finalMidY) : wbFinalAbsMidY;
+
+      const gfCardAbsMidY   = lb ? Math.round((wbFinalAbsMidY + lbFinalAbsMidY) / 2) : wbFinalAbsMidY;
+      const gfFirstCardMidY = gf ? ((gf.topsByRound[gf.rounds[0]][0] || 0) + CARD_H / 2) : CARD_H / 2;
+      const gfTrackContentY = gfCardAbsMidY - gfFirstCardMidY;
+      const gfTop           = Math.max(PAD_TOP, gfTrackContentY - TRACK_PT - titleBlock);
+
+      const mainW  = Math.max(wb?.trackWidth || 0, lb?.trackWidth || 0);
+      const railX  = mainW + CONN_W;
+      const gfLeft = mainW + CONN_W * 2;
+
+      const connectors = [];
+      if (wb && gf) {
+        connectors.push(`<div class="bracket-conn" style="position:absolute;left:${wb.trackWidth}px;top:${Math.round(wbFinalAbsMidY) - 1}px;width:${railX - wb.trackWidth}px;height:3px;"></div>`);
+      }
+      if (lb && gf) {
+        connectors.push(`<div class="bracket-conn" style="position:absolute;left:${lb.trackWidth}px;top:${Math.round(lbFinalAbsMidY) - 1}px;width:${railX - lb.trackWidth}px;height:3px;"></div>`);
+        const vTop = Math.min(wbFinalAbsMidY, lbFinalAbsMidY);
+        const vH   = Math.abs(lbFinalAbsMidY - wbFinalAbsMidY);
+        connectors.push(`<div class="bracket-conn" style="position:absolute;left:${railX - 1}px;top:${Math.round(vTop)}px;width:3px;height:${Math.round(vH)}px;"></div>`);
+      }
+
+      const lbBottom = lb ? (lbTop + titleBlock + TRACK_PT + lb.maxHeight) : 0;
+      const gfBottom = gf ? (gfTop + titleBlock + TRACK_PT + gf.maxHeight) : 0;
+      const totalH   = Math.max(wbTop + wbSectionH, lbBottom, gfBottom) + 24;
+      const totalW   = gfLeft + (gf?.trackWidth || CARD_W) + 24;
+
+      const champion = `<div class="champion-box">🏆 Champion: ${winnerId ? escHtml(teamNameCache[winnerId]||"—") : "Belum ditentukan"}</div>`;
+
+      const wbLabelFn = r => {
+        if (r === wb.rounds[wb.rounds.length - 1]) return "UB Final";
+        return `Round ${r}`;
+      };
+      const lbLabelFn = lb ? r => {
+        if (r === lb.rounds[lb.rounds.length - 1]) return "LB Final";
+        if (r === lb.rounds[lb.rounds.length - 2]) return "LB Semi-Final";
+        return `Round ${r}`;
+      } : null;
+
+      return `<div class="bracket-outer">
+      <div class="bracket-scroll">
+        <div class="bracket-unified" style="position:relative;height:${totalH}px;width:${totalW}px;">
+          ${wb ? `<div style="position:absolute;top:${wbTop}px;left:0;">
+            <div class="bracket-subtitle">Upper Bracket</div>
+            <div class="bracket-track">${renderMatchCols(wb, { labelFn: wbLabelFn })}</div>
+          </div>` : ""}
+          ${lb ? `<div style="position:absolute;top:${lbTop}px;left:0;">
+            <div class="bracket-subtitle">Lower Bracket</div>
+            <div class="bracket-track">${renderMatchCols(lb, { labelFn: lbLabelFn })}</div>
+          </div>` : ""}
+          ${connectors.join("")}
+          ${gf ? `<div style="position:absolute;top:${gfTop}px;left:${gfLeft}px;">
+            <div class="bracket-subtitle bracket-subtitle--gf">Grand Final</div>
+            <div class="bracket-track">${renderMatchCols(gf, { hasLeftStub: true, labelFn: () => "Grand Final" })}</div>
+          </div>` : ""}
+        </div>
+      </div>
+      ${champion}
+      </div>`;
+    }
+
     async function renderBracket(matches, format, winnerId) {
-      // Pre-load all team names
       const allUids = new Set();
       Object.values(matches||{}).forEach(m => {
         if (m.team1) allUids.add(m.team1);
@@ -437,10 +706,11 @@
 
       const allMatches = Object.values(matches||{});
       if (!allMatches.length) return '<p class="text-muted">Bracket belum dijana.</p>';
+
+      if (format === "double") return renderBracketDouble(matches, winnerId);
+
       return `<div class="bracket-scroll">
-        ${renderBracketSection("Winners Bracket", matches, "wb")}
-        ${format==="double" ? renderBracketSection("Losers Bracket", matches, "lb") : ""}
-        ${format==="double" ? renderBracketSection("Grand Final", matches, "gf") : ""}
+        ${renderBracketSection("Upper Bracket", matches, "wb")}
       </div>
       <div class="champion-box">🏆 Champion: ${winnerId ? escHtml(teamNameCache[winnerId]||"—") : "Belum ditentukan"}</div>`;
     }
@@ -590,7 +860,20 @@
     // ── Main render ──────────────────────────────────────────
     async function render() {
       if (!tournamentId) {
-        root.innerHTML = '<div class="section-card"><div class="section-body empty-state">ID Tournament tidak ditemui.</div></div>';
+        try {
+          const aSnap = await get(ref(db, "tournaments"));
+          if (aSnap.exists()) {
+            const active = Object.entries(aSnap.val())
+              .map(([id, t]) => ({ id, ...t }))
+              .filter(t => t.status === "live" || t.status === "registration")
+              .sort((a, b) => (a.status === "live" ? 0 : 1) - (b.status === "live" ? 0 : 1));
+            if (active.length) {
+              window.location.replace(`tournament-details?id=${encodeURIComponent(active[0].id)}`);
+              return;
+            }
+          }
+        } catch {}
+        root.innerHTML = '<div class="section-card"><div class="section-body empty-state">Tiada tournament aktif.</div></div>';
         return;
       }
 
@@ -735,7 +1018,7 @@
       </div>
 
       <!-- Bracket -->
-      <div class="section-card">
+      <div class="section-card bracket-card">
         <div class="section-header"><div class="section-icon">📊</div><span class="section-title">Bracket</span></div>
         <div class="section-body">${bracketHtml}</div>
       </div>
@@ -744,9 +1027,32 @@
       // Render apply section now that DOM exists
       renderApplySection();
       document.title = `${t.name} - MLBB OPS`;
+
+      // ── Bracket: horizontal drag-to-pan only ────────────────
+      document.querySelectorAll('.bracket-scroll').forEach(el => {
+        let down = false, ox = 0, sl = 0;
+        el.addEventListener('mousedown', e => {
+          if (e.button !== 0) return;
+          down = true; ox = e.clientX; sl = el.scrollLeft;
+          el.classList.add('is-dragging');
+          e.preventDefault();
+        });
+        document.addEventListener('mousemove', e => {
+          if (!down) return;
+          el.scrollLeft = sl - (e.clientX - ox);
+        });
+        document.addEventListener('mouseup', () => {
+          if (down) { down = false; el.classList.remove('is-dragging'); }
+        });
+      });
     }
 
     render();
+  </script>
+  <script type="module">
+    import { db } from "./js/firebase-config.js";
+    import { initTournamentBanner } from "./js/tournament-banner.js";
+    initTournamentBanner(db);
   </script>
 </body>
 </html>

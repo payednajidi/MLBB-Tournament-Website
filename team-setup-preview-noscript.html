@@ -15,55 +15,6 @@
       z-index: 1;
     }
 
-    /* ── Tournament Banner ───────────────────── */
-    .tournament-banner {
-      background: linear-gradient(135deg, #0d1520 0%, #1a2535 50%, #0d1a2a 100%);
-      border-bottom: 1px solid var(--border);
-      border-left: 3px solid var(--gold);
-      position: relative;
-      overflow: hidden;
-    }
-    .tournament-banner::before {
-      content: '';
-      position: absolute; inset: 0; pointer-events: none;
-      background:
-        linear-gradient(135deg, color-mix(in srgb, var(--gold) 5%, transparent) 0%, transparent 60%),
-        repeating-linear-gradient(45deg, transparent, transparent 20px,
-          rgba(240,165,0,.015) 20px, rgba(240,165,0,.015) 21px);
-    }
-    .tournament-banner-inner {
-      max-width: 1280px; margin: 0 auto;
-      padding: 1rem 1.5rem;
-      display: flex; align-items: center; gap: 1.5rem;
-      position: relative; flex-wrap: wrap;
-    }
-    .tnm-badge {
-      display: flex; align-items: center; gap: 7px;
-      background: color-mix(in srgb, var(--gold) 14%, transparent);
-      border: 1px solid color-mix(in srgb, var(--gold) 35%, transparent);
-      border-radius: 6px; padding: 4px 12px;
-      font-family: var(--font-mono); font-size: 10px;
-      letter-spacing: 2px; text-transform: uppercase;
-      color: var(--gold); white-space: nowrap; flex-shrink: 0;
-    }
-    .tnm-name {
-      font-family: var(--font-head); font-size: 17px;
-      font-weight: 700; letter-spacing: 1.5px; color: var(--txt); flex: 1;
-    }
-    .tnm-stats { display: flex; gap: 1.5rem; flex-wrap: wrap; }
-    .tnm-stat { display: flex; flex-direction: column; gap: 2px; }
-    .tnm-stat-lbl {
-      font-family: var(--font-mono); font-size: 9px;
-      letter-spacing: 2px; text-transform: uppercase; color: var(--txt3);
-    }
-    .tnm-stat-val {
-      font-family: var(--font-head); font-size: 13px;
-      font-weight: 700; letter-spacing: 1px; color: var(--txt);
-    }
-    .tnm-stat-val.gold { color: var(--gold); }
-    .tnm-stat-val.green { color: var(--green); }
-    .tnm-stat-val.blue { color: var(--blue2); }
-
     /* ── Page Hero ───────────────────────────── */
     .page-hero {
       padding: 1.5rem 0 1.25rem;
@@ -669,34 +620,6 @@
       background: rgba(240, 165, 0, .16);
     }
 
-    .tournament-banner {
-      border-bottom-color: #40506a;
-    }
-
-    .tnm-badge {
-      color: #ffd166;
-      border-color: rgba(240, 165, 0, .48);
-      background: rgba(240, 165, 0, .16);
-      font-size: 11px;
-      font-weight: 700;
-    }
-
-    .tnm-name {
-      color: #ffffff;
-      font-size: 20px;
-    }
-
-    .tnm-stat-lbl {
-      color: #c9d4e4;
-      font-size: 10px;
-      font-weight: 700;
-    }
-
-    .tnm-stat-val {
-      color: #ffffff;
-      font-size: 15px;
-    }
-
     .step-circle {
       color: #d8e2f1;
       background: #182130;
@@ -1163,34 +1086,7 @@
     </div>
   </header>
 
-  <!-- ── Tournament Banner ───────────────────── -->
-  <div class="tournament-banner" id="tournamentBanner" style="display:none">
-    <div class="tournament-banner-inner">
-      <div class="tnm-badge">
-        <span class="live-dot"></span>
-        <span id="tnmStatus">Pendaftaran Dibuka</span>
-      </div>
-      <div class="tnm-name" id="tnmName">MLBB OPS Tournament</div>
-      <div class="tnm-stats">
-        <div class="tnm-stat">
-          <span class="tnm-stat-lbl">Format</span>
-          <span class="tnm-stat-val" id="tnmFormat">—</span>
-        </div>
-        <div class="tnm-stat">
-          <span class="tnm-stat-lbl">Hadiah</span>
-          <span class="tnm-stat-val gold" id="tnmPrize">—</span>
-        </div>
-        <div class="tnm-stat">
-          <span class="tnm-stat-lbl">Kapasiti</span>
-          <span class="tnm-stat-val blue" id="tnmSlots">—</span>
-        </div>
-        <div class="tnm-stat">
-          <span class="tnm-stat-lbl">Status</span>
-          <span class="tnm-stat-val green" id="tnmRemaining">—</span>
-        </div>
-      </div>
-    </div>
-  </div>
+  <div id="tournamentBanner" hidden></div>
 
   <!-- ── Main Content ────────────────────────── -->
   <main class="setup-wrap">

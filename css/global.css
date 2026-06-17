@@ -3,7 +3,8 @@
    Vibrant purples · Electric blues · Pinks · Cyans
    ───────────────────────────────────────────── */
 
-@import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Exo+2:wght@300;400;600;800&family=Share+Tech+Mono&display=swap');
+/* Inter (body) + Rajdhani (headings/labels) — two-font system */
+@import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Inter:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&display=swap');
 
 /* ── CSS Variables ──────────────────────────── */
 :root {
@@ -26,15 +27,15 @@
   --pink:        #ec4899;   /* Hot pink                     */
   --cyan:        #22d3ee;   /* Bright cyan                  */
 
-  /* Text — increased contrast throughout */
+  /* Text */
   --txt:         #f0ecff;   /* Near-white, slight purple tint  */
-  --txt2:        #bbaee2;   /* Brighter mid-purple (was #a393d4) */
-  --txt3:        #7264a8;   /* Accessible muted purple (was #504080) */
+  --txt2:        #bbaee2;   /* Brighter mid-purple             */
+  --txt3:        #8b7cc0;   /* Accessible muted purple — 5.3:1 contrast on --bg */
 
-  /* Fonts */
-  --font-main:   'Exo 2', sans-serif;
+  /* Fonts — two families only */
+  --font-main:   'Inter', system-ui, sans-serif;
   --font-head:   'Rajdhani', sans-serif;
-  --font-mono:   'Share Tech Mono', monospace;
+  --font-mono:   ui-monospace, 'Cascadia Code', 'Courier New', monospace;
 
   /* Shape */
   --radius:      8px;
@@ -52,7 +53,7 @@ body {
   color:       var(--txt);
   font-family: var(--font-main);
   font-size:   16px;
-  line-height: 1.7;
+  line-height: 1.75;
   min-height:  100vh;
   overflow-x:  hidden;
 }
@@ -76,10 +77,11 @@ h1, h2, h3, h4 {
   color: var(--txt);
 }
 
-h1 { font-size: clamp(28px, 4.5vw, 52px); }
-h2 { font-size: clamp(22px, 3.5vw, 38px); }
-h3 { font-size: clamp(18px, 2vw, 23px); }
-h4 { font-size: 17px; }
+/* Fluid type scale — min | preferred (vw) | max */
+h1 { font-size: clamp(28px, 3.8vw, 50px); }
+h2 { font-size: clamp(24px, 3.2vw, 40px); }
+h3 { font-size: clamp(20px, 2.5vw, 30px); }
+h4 { font-size: clamp(16px, 1.6vw, 20px); }
 
 a { color: var(--blue2); text-decoration: none; }
 a:hover { color: var(--gold); }
@@ -134,13 +136,14 @@ a:hover { color: var(--gold); }
   flex-shrink: 0;
 }
 
-/* Keep .logo-hex hidden if it still exists anywhere */
 .logo-hex { display: none; }
 
 .logo-name {
   font-family: var(--font-head);
-  font-size: 19px; font-weight: 700;
-  letter-spacing: 1.5px; color: var(--txt);
+  font-size: clamp(16px, 1.6vw, 20px);
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  color: var(--txt);
   line-height: 1.1;
 }
 
@@ -152,9 +155,12 @@ a:hover { color: var(--gold); }
 
 .navbar-links a {
   font-family: var(--font-head);
-  font-size: 15px; font-weight: 700;
-  letter-spacing: 1.8px; text-transform: uppercase;
-  color: var(--txt2); padding: 10px 16px;
+  font-size: clamp(14px, 1.4vw, 17px);
+  font-weight: 600;
+  letter-spacing: 1.6px;
+  text-transform: uppercase;
+  color: var(--txt2);
+  padding: 10px 16px;
   border-radius: var(--radius);
   transition: all .2s;
 }
@@ -172,9 +178,12 @@ a:hover { color: var(--gold); }
   display: inline-flex; align-items: center; justify-content: center;
   gap: 8px;
   font-family: var(--font-head);
-  font-size: 14px; font-weight: 700;
-  letter-spacing: 1.2px; text-transform: uppercase;
-  padding: 11px 24px; border-radius: var(--radius);
+  font-size: clamp(14px, 1.3vw, 16px);
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  padding: 12px 26px;
+  border-radius: var(--radius);
   border: none; cursor: pointer;
   transition: all .2s; white-space: nowrap;
   text-decoration: none;
@@ -209,8 +218,8 @@ a:hover { color: var(--gold); }
 }
 .btn-danger:hover { background: rgba(244,63,94,0.22); box-shadow: 0 4px 14px rgba(244,63,94,.2); }
 
-.btn-sm { padding: 7px 16px; font-size: 12px; letter-spacing: 1px; }
-.btn-lg { padding: 15px 36px; font-size: 17px; letter-spacing: 1.5px; }
+.btn-sm { padding: 9px 18px; font-size: 13px; letter-spacing: 1.2px; }
+.btn-lg { padding: 15px 38px; font-size: clamp(16px, 1.5vw, 18px); letter-spacing: 1.5px; }
 .btn-full { width: 100%; }
 
 .btn:disabled {
@@ -240,15 +249,26 @@ a:hover { color: var(--gold); }
 
 .card-body { padding: 1.5rem; }
 
+/* List items inside card bodies — accessible sizing */
+.card-body ul li,
+.card-body ol li {
+  font-size: clamp(15px, 1.4vw, 17px);
+  font-weight: 500;
+  color: var(--txt2);
+  line-height: 1.7;
+}
+
 /* ── Form elements ──────────────────────────── */
 .form-group { margin-bottom: 1.4rem; }
 
 .form-label {
   display: block;
-  font-family: var(--font-mono);
-  font-size: 12px; letter-spacing: 2px;
-  text-transform: uppercase; color: var(--txt2);
-  margin-bottom: 7px;
+  font-family: var(--font-main);
+  font-size: 13px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--txt2);
+  margin-bottom: 8px;
   font-weight: 600;
 }
 
@@ -261,7 +281,7 @@ a:hover { color: var(--gold); }
   border-radius: var(--radius);
   color: var(--txt);
   font-family: var(--font-main);
-  font-size: 15px;
+  font-size: 16px;
   padding: 10px 14px;
   transition: border-color .2s, box-shadow .2s;
   outline: none;
@@ -278,7 +298,7 @@ a:hover { color: var(--gold); }
 
 .form-input.error { border-color: var(--red); }
 .form-error {
-  font-size: 12px; color: var(--red);
+  font-size: 13px; color: var(--red);
   margin-top: 4px; display: none;
 }
 .form-error.show { display: block; }
@@ -297,10 +317,13 @@ a:hover { color: var(--gold); }
 /* ── Badges ─────────────────────────────────── */
 .badge {
   display: inline-block;
-  font-family: var(--font-mono);
-  font-size: 11px; letter-spacing: 1.5px;
-  text-transform: uppercase; font-weight: 600;
-  padding: 4px 11px; border-radius: 4px;
+  font-family: var(--font-head);
+  font-size: 12px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  font-weight: 700;
+  padding: 5px 13px;
+  border-radius: 4px;
 }
 
 .badge-marhaen { background: rgba(6,182,212,.18);  border: 1px solid rgba(6,182,212,.5);  color: #2ee8ff; }
@@ -312,9 +335,10 @@ a:hover { color: var(--gold); }
 
 /* ── Alert / Toast ──────────────────────────── */
 .alert {
-  padding: 12px 16px;
+  padding: 12px 18px;
   border-radius: var(--radius);
-  font-size: 14px; margin-bottom: 1rem;
+  font-size: 15px;
+  margin-bottom: 1rem;
   display: none;
 }
 .alert.show { display: flex; align-items: center; gap: 8px; }
@@ -338,7 +362,7 @@ a:hover { color: var(--gold); }
 /* ── Divider ────────────────────────────────── */
 .divider {
   display: flex; align-items: center; gap: 12px;
-  color: var(--txt3); font-size: 13px;
+  color: var(--txt3); font-size: 14px;
   margin: 1.5rem 0;
 }
 .divider::before, .divider::after {
@@ -393,7 +417,6 @@ a:hover { color: var(--gold); }
 .form-select {
   min-height: 44px;
 }
-/* textarea keeps its own min-height (100px) — don't override */
 
 /* ── 1024px — tablet landscape ───────────────── */
 @media (max-width: 1024px) {
@@ -407,14 +430,13 @@ a:hover { color: var(--gold); }
     padding: 0 1.25rem;
   }
   .logo-img  { height: 50px; width: 50px; }
-  .logo-name { font-size: 16px; }
 
   .navbar-links a {
-    font-size: 13px;
+    font-size: 14px;
     padding: 8px 11px;
   }
 
-  .btn-lg { padding: 13px 28px; font-size: 15px; }
+  .btn-lg { padding: 13px 30px; font-size: 16px; }
 }
 
 /* ── 768px — tablet portrait ─────────────────── */
@@ -433,7 +455,6 @@ a:hover { color: var(--gold); }
   }
   .navbar-logo { flex: 0 1 auto; }
   .logo-img    { height: 42px; width: 42px; }
-  .logo-name   { font-size: 14px; }
 
   .navbar-links {
     flex-wrap: wrap;
@@ -441,18 +462,18 @@ a:hover { color: var(--gold); }
     overflow: visible;
   }
   .navbar-links a {
-    font-size: 11px;
-    padding: 6px 8px;
-    letter-spacing: 1px;
+    font-size: 13px;
+    padding: 6px 10px;
+    letter-spacing: 1.2px;
   }
 
   .navbar-actions { gap: 6px; }
 
-  .btn    { padding: 9px 18px; font-size: 13px; }
-  .btn-lg { padding: 11px 22px; font-size: 14px; }
-  .btn-sm { padding: 6px 12px; font-size: 11px; }
+  .btn    { padding: 10px 20px; font-size: 14px; }
+  .btn-lg { padding: 12px 24px; font-size: 15px; }
+  .btn-sm { padding: 7px 14px;  font-size: 12px; letter-spacing: 1px; }
 
-  .badge { font-size: 10px; padding: 3px 8px; }
+  .badge { font-size: 11px; padding: 4px 10px; }
 }
 
 /* ── 480px — mobile ──────────────────────────── */
@@ -464,11 +485,144 @@ a:hover { color: var(--gold); }
 
   .navbar-inner { padding: 6px .75rem; }
   .logo-img     { height: 36px; width: 36px; }
-  .logo-name    { font-size: 13px; }
-  .navbar-links a { font-size: 10px; padding: 5px 6px; letter-spacing: .8px; }
+  .navbar-links a { font-size: 11px; padding: 5px 7px; letter-spacing: .8px; }
 
-  .btn    { padding: 8px 14px; font-size: 12px; letter-spacing: .8px; }
-  .btn-lg { padding: 10px 18px; font-size: 13px; }
+  .btn    { padding: 9px 16px; font-size: 13px; letter-spacing: 1px; }
+  .btn-lg { padding: 11px 20px; font-size: 14px; }
+}
+
+/* ════════════════════════════════════════════════
+   GLOBAL TOURNAMENT NOTIFICATION BANNER
+   ════════════════════════════════════════════════ */
+.tournament-banner {
+  position: relative;
+  width: 100%;
+  z-index: 90;
+}
+.tournament-banner.tb-reg {
+  background: linear-gradient(90deg,
+    rgba(6, 182, 212, 0.10) 0%,
+    rgba(7, 6, 15, 0.97) 28%,
+    rgba(7, 6, 15, 0.97) 72%,
+    rgba(6, 182, 212, 0.06) 100%);
+  border-left: 3px solid #22d3ee;
+  border-bottom: 1px solid rgba(34, 211, 238, 0.20);
+}
+.tournament-banner.tb-live {
+  background: linear-gradient(90deg,
+    rgba(239, 68, 68, 0.12) 0%,
+    rgba(7, 6, 15, 0.97) 28%,
+    rgba(7, 6, 15, 0.97) 72%,
+    rgba(251, 146, 60, 0.07) 100%);
+  border-left: 3px solid #ef4444;
+  border-bottom: 1px solid rgba(251, 146, 60, 0.22);
+}
+.tb-link {
+  display: flex;
+  align-items: center;
+  height: 48px;
+  padding: 0 1.5rem;
+  max-width: 1400px;
+  margin: 0 auto;
+  text-decoration: none;
+  color: inherit;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  white-space: nowrap;
+  cursor: pointer;
+  gap: 0;
+}
+.tb-link::-webkit-scrollbar { display: none; }
+.tb-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 12px;
+  border-radius: 4px;
+  font-family: var(--font-head);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  flex-shrink: 0;
+  margin-right: 16px;
+}
+.tb-reg .tb-badge {
+  color: #22d3ee;
+  background: rgba(34, 211, 238, 0.10);
+  border: 1px solid rgba(34, 211, 238, 0.28);
+}
+.tb-live .tb-badge {
+  color: #fb923c;
+  background: rgba(251, 146, 60, 0.10);
+  border: 1px solid rgba(251, 146, 60, 0.32);
+}
+.tb-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.tb-reg .tb-dot {
+  background: #22d3ee;
+  box-shadow: 0 0 6px #22d3ee;
+  animation: tbDotPulse 2.2s ease-in-out infinite;
+}
+.tb-live .tb-dot {
+  background: #ef4444;
+  box-shadow: 0 0 8px #ef4444;
+  animation: tbDotPulse 1s ease-in-out infinite;
+}
+@keyframes tbDotPulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50%       { transform: scale(1.7); opacity: .35; }
+}
+.tb-name {
+  font-family: var(--font-head);
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: var(--txt);
+  flex-shrink: 0;
+}
+.tb-sep {
+  width: 1px;
+  height: 16px;
+  background: var(--border2);
+  flex-shrink: 0;
+  margin: 0 14px;
+}
+.tb-meta {
+  font-family: var(--font-main);
+  font-size: 13px;
+  color: var(--txt2);
+  flex-shrink: 0;
+}
+.tb-meta b { color: var(--txt); font-weight: 600; }
+.tb-cta {
+  margin-left: auto;
+  padding-left: 2rem;
+  flex-shrink: 0;
+  font-family: var(--font-head);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.tb-reg .tb-cta { color: #22d3ee; }
+.tb-live .tb-cta { color: #fb923c; }
+.tb-arr { transition: transform .2s; display: inline-block; }
+.tb-link:hover .tb-arr { transform: translateX(4px); }
+@media (max-width: 640px) {
+  .tb-link { padding: 0 1rem; }
+  .tb-sep  { margin: 0 10px; }
+  .tb-meta { font-size: 12px; }
+  .tb-cta  { padding-left: 1rem; font-size: 11px; }
 }
 
 /* ── Admin nav badge ────────────────────────── */
@@ -483,8 +637,8 @@ a:hover { color: var(--gold); }
   border-radius: 9px;
   background: #ef4444;
   color: #fff;
-  font-family: var(--font-mono);
-  font-size: 10px;
+  font-family: var(--font-main);
+  font-size: 11px;
   font-weight: 700;
   line-height: 1;
   vertical-align: middle;

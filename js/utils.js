@@ -98,97 +98,99 @@ function createMatch(bracket, round, position, team1 = null, team2 = null, statu
   };
 }
 
+function parseMatchId(matchId) {
+  const m = /^(wb|lb|gf)_r(\d+)_m(\d+)$/.exec(matchId);
+  if (!m) return null;
+  return { bracket: m[1], round: Number(m[2]), position: Number(m[3]) };
+}
+
 export function generateBracket(teams, format, slotCount) {
-  const slots = nextPowerOf2(slotCount);
-  const seededTeams = [...teams].slice(0, slots);
-  while (seededTeams.length < slots) seededTeams.push(null);
+  const slots  = nextPowerOf2(slotCount);
+  const seeded = [...teams].slice(0, slots);
+  while (seeded.length < slots) seeded.push(null);
 
   const rounds = Math.log2(slots);
+  const lbRoundCount = format === "double" ? Math.max(1, (rounds - 1) * 2) : 0;
   const matches = {};
 
-  for (let round = 1; round <= rounds; round++) {
-    const matchCount = slots / 2 ** round;
-    for (let position = 0; position < matchCount; position++) {
-      let team1 = null;
-      let team2 = null;
-      let status = "waiting";
-      let winnerId = null;
-
-      if (round === 1) {
-        team1 = seededTeams[position * 2] || null;
-        team2 = seededTeams[position * 2 + 1] || null;
+  // Upper Bracket
+  for (let r = 1; r <= rounds; r++) {
+    const cnt = slots / 2 ** r;
+    for (let p = 0; p < cnt; p++) {
+      let team1 = null, team2 = null, status = "waiting", winnerId = null;
+      if (r === 1) {
+        team1 = seeded[p * 2] || null;
+        team2 = seeded[p * 2 + 1] || null;
         status = "upcoming";
-
-        if ((team1 && !team2) || (!team1 && team2)) {
-          status = "bye";
-          winnerId = team1 || team2;
-        }
+        if ((team1 && !team2) || (!team1 && team2)) { status = "bye"; winnerId = team1 || team2; }
         if (!team1 && !team2) status = "waiting";
       }
 
-      matches[getMatchId("wb", round, position)] = createMatch("wb", round, position, team1, team2, status, winnerId);
+      let nextMatchId, nextSlot;
+      if (r < rounds) {
+        nextMatchId = getMatchId("wb", r + 1, Math.floor(p / 2));
+        nextSlot    = p % 2 === 0 ? "team1" : "team2";
+      } else {
+        nextMatchId = format === "double" ? getMatchId("gf", 1, 0) : null;
+        nextSlot    = "team1";
+      }
+
+      let lbDropMatchId = null, lbDropSlot = null;
+      if (format === "double") {
+        if (r === 1) {
+          lbDropMatchId = getMatchId("lb", 1, Math.floor(p / 2));
+          lbDropSlot    = p % 2 === 0 ? "team1" : "team2";
+        } else {
+          lbDropMatchId = getMatchId("lb", 2 * (r - 1), p);
+          lbDropSlot    = "team2";
+        }
+      }
+
+      matches[getMatchId("wb", r, p)] = {
+        ...createMatch("wb", r, p, team1, team2, status, winnerId),
+        nextMatchId,
+        nextSlot,
+        ...(lbDropMatchId ? { lbDropMatchId, lbDropSlot } : {}),
+      };
     }
   }
 
-  if (format === "double") {
-    const lbRoundCount = Math.max(1, (rounds - 1) * 2);
-    for (let round = 1; round <= lbRoundCount; round++) {
-      const matchCount = Math.max(1, Math.ceil(slots / 2 ** (Math.floor((round + 1) / 2) + 1)));
-      for (let position = 0; position < matchCount; position++) {
-        matches[getMatchId("lb", round, position)] = createMatch("lb", round, position);
+  if (format !== "double") return matches;
+
+  // Lower Bracket
+  for (let r = 1; r <= lbRoundCount; r++) {
+    const cnt = Math.max(1, Math.ceil(slots / 2 ** (Math.floor((r + 1) / 2) + 1)));
+    for (let p = 0; p < cnt; p++) {
+      let nextMatchId, nextSlot;
+      if (r === lbRoundCount) {
+        nextMatchId = getMatchId("gf", 1, 0);
+        nextSlot    = "team2";
+      } else if (r % 2 === 1) {
+        nextMatchId = getMatchId("lb", r + 1, p);
+        nextSlot    = "team1";
+      } else {
+        nextMatchId = getMatchId("lb", r + 1, Math.floor(p / 2));
+        nextSlot    = p % 2 === 0 ? "team1" : "team2";
       }
+      matches[getMatchId("lb", r, p)] = { ...createMatch("lb", r, p), nextMatchId, nextSlot };
     }
-    matches[getMatchId("gf", 1, 0)] = createMatch("gf", 1, 0);
   }
+
+  // Grand Final
+  matches[getMatchId("gf", 1, 0)] = { ...createMatch("gf", 1, 0), nextMatchId: null, nextSlot: null };
 
   return matches;
 }
 
-function parseMatchId(matchId) {
-  const match = /^(wb|lb|gf)_r(\d+)_m(\d+)$/.exec(matchId);
-  if (!match) return null;
-  return {
-    bracket: match[1],
-    round: Number(match[2]),
-    position: Number(match[3]),
-  };
-}
-
-export function getNextMatchId(matchId, format) {
-  const parsed = parseMatchId(matchId);
-  if (!parsed) return null;
-  const { bracket, round, position } = parsed;
-
-  if (bracket === "gf") return null;
-  if (bracket === "lb") return getMatchId("gf", 1, 0);
-  if (format === "single") return getMatchId("wb", round + 1, Math.floor(position / 2));
-  return getMatchId("wb", round + 1, Math.floor(position / 2));
-}
-
-export function getLBDropMatchId(matchId) {
-  const parsed = parseMatchId(matchId);
-  if (!parsed || parsed.bracket !== "wb") return null;
-  const lbRound = (parsed.round - 1) * 2 + 1;
-  return getMatchId("lb", lbRound, Math.floor(parsed.position / 2));
-}
-
-export function getSlotField(matchId, format) {
-  const parsed = parseMatchId(matchId);
-  if (!parsed) return "team1";
-  if (format === "double" && parsed.bracket === "lb") return "team2";
-  return parsed.position % 2 === 0 ? "team1" : "team2";
-}
-
 async function placeTeam(db, tournamentId, targetMatchId, slotField, teamId, updates) {
   if (!targetMatchId || !teamId) return;
-  const targetRef = ref(db, `tournaments/${tournamentId}/matches/${targetMatchId}`);
-  const snap = await get(targetRef);
+  const snap = await get(ref(db, `tournaments/${tournamentId}/matches/${targetMatchId}`));
   if (!snap.exists()) return;
 
   const target = snap.val();
   updates[`tournaments/${tournamentId}/matches/${targetMatchId}/${slotField}`] = teamId;
-  const otherField = slotField === "team1" ? "team2" : "team1";
-  if (target[otherField]) {
+  const other = slotField === "team1" ? "team2" : "team1";
+  if (target[other]) {
     updates[`tournaments/${tournamentId}/matches/${targetMatchId}/status`] = "upcoming";
   }
 }
@@ -200,35 +202,30 @@ export async function advanceBracket(db, tournamentId, matchId, winnerId, loserI
   const updates = {};
 
   if (parsed.bracket === "gf") {
-    updates[`tournaments/${tournamentId}/status`] = "done";
+    updates[`tournaments/${tournamentId}/status`]   = "done";
     updates[`tournaments/${tournamentId}/winnerId`] = winnerId;
     await update(ref(db), updates);
     return;
   }
 
-  let nextMatchId = getNextMatchId(matchId, format);
-  let nextSnap = nextMatchId ? await get(ref(db, `tournaments/${tournamentId}/matches/${nextMatchId}`)) : null;
+  const matchSnap = await get(ref(db, `tournaments/${tournamentId}/matches/${matchId}`));
+  if (!matchSnap.exists()) throw new Error(`Match ${matchId} not found`);
+  const match = matchSnap.val();
+  const { nextMatchId, nextSlot, lbDropMatchId, lbDropSlot } = match;
 
-  if (format === "single" && parsed.bracket === "wb" && (!nextSnap || !nextSnap.exists())) {
-    updates[`tournaments/${tournamentId}/status`] = "done";
+  if (format === "single" && !nextMatchId) {
+    updates[`tournaments/${tournamentId}/status`]   = "done";
     updates[`tournaments/${tournamentId}/winnerId`] = winnerId;
     await update(ref(db), updates);
     return;
   }
 
-  if (format === "double" && parsed.bracket === "wb" && (!nextSnap || !nextSnap.exists())) {
-    nextMatchId = getMatchId("gf", 1, 0);
-    nextSnap = await get(ref(db, `tournaments/${tournamentId}/matches/${nextMatchId}`));
+  if (nextMatchId && winnerId) {
+    await placeTeam(db, tournamentId, nextMatchId, nextSlot || "team1", winnerId, updates);
   }
 
-  const winnerSlot = parsed.bracket === "wb" && nextMatchId === getMatchId("gf", 1, 0)
-    ? "team1"
-    : getSlotField(matchId, format);
-  await placeTeam(db, tournamentId, nextMatchId, winnerSlot, winnerId, updates);
-
-  if (format === "double" && parsed.bracket === "wb" && loserId) {
-    const lbMatchId = getLBDropMatchId(matchId);
-    await placeTeam(db, tournamentId, lbMatchId, getSlotField(matchId, format), loserId, updates);
+  if (format === "double" && parsed.bracket === "wb" && loserId && lbDropMatchId) {
+    await placeTeam(db, tournamentId, lbDropMatchId, lbDropSlot || "team2", loserId, updates);
   }
 
   if (Object.keys(updates).length) {

@@ -772,11 +772,6 @@
           return;
         }
         const data = snap.val();
-        if (data.organizerId && data.organizerId !== user.uid) {
-          document.getElementById("loadingState").style.display  = "none";
-          document.getElementById("notFoundState").style.display = "block";
-          return;
-        }
         state.tournament = { id: tid, ...data };
         document.getElementById("loadingState").style.display  = "none";
         document.getElementById("mainContent").style.display   = "block";

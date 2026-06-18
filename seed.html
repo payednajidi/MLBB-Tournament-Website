@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Database Seeder — HC Community Cup</title>
+  <link rel="stylesheet" href="css/global.css">
+  <style>
+    body { background: #070512; padding: 40px 24px; min-height: 100vh; }
+    .seed-wrap { max-width: 640px; margin: 0 auto; }
+    h1 { font-family: var(--font-head); color: var(--gold); letter-spacing: 2px; font-size: clamp(22px, 4vw, 30px); margin: 0 0 6px; }
+    .subtitle { color: var(--txt2); font-size: 14px; margin-bottom: 32px; }
+    .warning-box { background: rgba(239,68,68,.08); border: 1px solid rgba(239,68,68,.28); border-radius: 10px; padding: 16px 18px; margin-bottom: 28px; color: #f87171; font-size: 13.5px; line-height: 1.6; }
+    .warning-box strong { color: #fca5a5; }
+    .info-card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 18px 20px; margin-bottom: 16px; }
+    .info-card h3 { font-family: var(--font-head); color: var(--txt); font-size: 15px; margin: 0 0 10px; letter-spacing: .5px; }
+    .info-row { display: flex; justify-content: space-between; align-items: center; padding: 4px 0; border-bottom: 1px solid color-mix(in srgb, var(--border) 50%, transparent); font-size: 13px; }
+    .info-row:last-child { border-bottom: none; }
+    .info-row span:first-child { color: var(--txt2); }
+    .info-row span:last-child { color: var(--txt); font-weight: 600; font-family: var(--font-mono); font-size: 12px; }
+    .team-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
+    .team-chip { background: var(--bg3); border: 1px solid var(--border); border-radius: 6px; padding: 6px 10px; font-size: 12px; color: var(--txt2); display: flex; align-items: center; gap: 6px; }
+    .team-chip b { color: var(--txt); font-family: var(--font-head); font-size: 13px; letter-spacing: .5px; }
+    .team-chip .tag { font-family: var(--font-mono); font-size: 10px; color: var(--gold); background: rgba(168,85,247,.12); padding: 1px 5px; border-radius: 3px; }
+    #log { background: #0a0715; border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px; font-family: var(--font-mono); font-size: 12px; line-height: 1.8; max-height: 320px; overflow-y: auto; margin-top: 20px; display: none; }
+    .log-ok   { color: #4ade80; }
+    .log-err  { color: #f87171; }
+    .log-info { color: #94a3b8; }
+    .log-head { color: var(--gold); font-weight: 700; }
+    #btnSeed { width: 100%; margin-top: 20px; font-size: 16px; padding: 14px; letter-spacing: 2px; font-family: var(--font-head); background: linear-gradient(135deg, #7c3aed, #a855f7); border: none; border-radius: 8px; color: #fff; cursor: pointer; font-weight: 700; transition: opacity .2s; }
+    #btnSeed:hover:not(:disabled) { opacity: .88; }
+    #btnSeed:disabled { opacity: .45; cursor: not-allowed; }
+    #btnSetSeason { width: 100%; margin-top: 10px; font-size: 14px; padding: 12px; letter-spacing: 1.5px; font-family: var(--font-head); background: linear-gradient(135deg, #0f766e, #14b8a6); border: none; border-radius: 8px; color: #fff; cursor: pointer; font-weight: 700; transition: opacity .2s; }
+    #btnSetSeason:hover:not(:disabled) { opacity: .88; }
+    #btnSetSeason:disabled { opacity: .45; cursor: not-allowed; }
+    .auth-warn { display: none; background: rgba(99,102,241,.1); border: 1px solid rgba(99,102,241,.3); border-radius: 8px; padding: 14px 16px; color: #a5b4fc; font-size: 13px; margin-bottom: 20px; }
+    .success-banner { display: none; background: rgba(34,197,94,.1); border: 1px solid rgba(34,197,94,.28); border-radius: 10px; padding: 16px 18px; color: #4ade80; font-size: 14px; margin-top: 16px; line-height: 1.6; }
+    .success-banner a { color: var(--gold); text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <div class="seed-wrap">
+    <h1>⚙ Database Seeder</h1>
+    <p class="subtitle">Padam data dummy dan seed HC Grand Demo 2026 dengan 11 pasukan — bracket 16 slot dengan 5 BYE.</p>
+
+    <div class="warning-box">
+      <strong>⚠ Amaran:</strong> Tindakan ini akan <strong>memadam semua data sedia ada</strong> dalam
+      <code>teams/</code>, <code>tournaments/</code>, dan <code>applications/</code> sebelum mencipta data baharu.
+      Tidak boleh dibatalkan. Pastikan anda log masuk sebagai penganjur terlebih dahulu.
+    </div>
+
+    <div class="auth-warn" id="authWarn">
+      ⚠ Anda perlu <a href="login.html">log masuk</a> terlebih dahulu sebelum menjalankan seeder ini.
+    </div>
+
+    <div class="info-card">
+      <h3>🏆 Tournament Baharu</h3>
+      <div class="info-row"><span>Nama</span><span>HC Grand Demo 2026</span></div>
+      <div class="info-row"><span>Format</span><span>Double Elimination</span></div>
+      <div class="info-row"><span>Pasukan</span><span>11 pasukan → bracket 16 slot</span></div>
+      <div class="info-row"><span>BYE</span><span>5 slot BYE (auto-selesai)</span></div>
+      <div class="info-row"><span>Hadiah</span><span>RM 500 / RM 200 / RM 100</span></div>
+      <div class="info-row"><span>Status</span><span>Langsung (Live)</span></div>
+    </div>
+
+    <div class="info-card">
+      <h3>👥 11 Pasukan Baharu</h3>
+      <div class="team-grid" id="teamGrid"></div>
+    </div>
+
+    <button id="btnSeed" disabled>JALANKAN SEEDER</button>
+    <button id="btnSetSeason" disabled>🏆 TETAPKAN MUSIM PERDANA (TANPA PADAM DATA)</button>
+
+    <div class="success-banner" id="successBanner"></div>
+    <div id="log"></div>
+  </div>
+
+  <script type="module">
+    import { initializeApp }  from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-auth.js";
+    import { getDatabase, ref, set, remove, push, update } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-database.js";
+    import { seedAndLockBracket } from "./js/utils.js";
+
+    const firebaseConfig = {
+      apiKey:            "AIzaSyBRcY8jb7Yk4X_cxirqv7PsM5skgsPZXt0",
+      authDomain:        "mlbb-tournament-ee7d3.firebaseapp.com",
+      databaseURL:       "https://mlbb-tournament-ee7d3-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId:         "mlbb-tournament-ee7d3",
+      storageBucket:     "mlbb-tournament-ee7d3.firebasestorage.app",
+      messagingSenderId: "647971653478",
+      appId:             "1:647971653478:web:b6dae372e859ba809deaa7"
+    };
+
+    const app  = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db   = getDatabase(app);
+
+    // ── Seed data ──────────────────────────────────────────────────────────
+    const TEAMS = [
+      {
+        id: "seed_alpha_wolves",
+        teamName: "Alpha Wolves",  teamTag: "AWLF",
+        displayName: "AwlfCaptain", mlId: "101234567",
+        captainRole: "exp", captainRank: "Mythic Glory", captainRankStars: 3,
+        serverRegion: "sg",
+        members: [
+          { name: "AwlfGold",    mlId: "101234568", role: "gold",   rank: "Mythic", rankStars: 2 },
+          { name: "AwlfJungle",  mlId: "101234569", role: "jungle", rank: "Mythic", rankStars: 1 },
+          { name: "AwlfMid",     mlId: "101234570", role: "mid",    rank: "Legend", rankStars: 5 },
+          { name: "AwlfRoam",    mlId: "101234571", role: "roam",   rank: "Legend", rankStars: 4 },
+        ],
+      },
+      {
+        id: "seed_nexus_reborn",
+        teamName: "Nexus Reborn",  teamTag: "NEXS",
+        displayName: "NexsCapt", mlId: "202234567",
+        captainRole: "mid", captainRank: "Mythic", captainRankStars: 5,
+        serverRegion: "sg",
+        members: [
+          { name: "NexsExp",    mlId: "202234568", role: "exp",    rank: "Legend", rankStars: 5 },
+          { name: "NexsGold",   mlId: "202234569", role: "gold",   rank: "Legend", rankStars: 3 },
+          { name: "NexsJungle", mlId: "202234570", role: "jungle", rank: "Mythic", rankStars: 1 },
+          { name: "NexsRoam",   mlId: "202234571", role: "roam",   rank: "Legend", rankStars: 2 },
+        ],
+      },
+      {
+        id: "seed_shadow_phantom",
+        teamName: "Shadow Phantom", teamTag: "PHNT",
+        displayName: "PhntCapt", mlId: "303234567",
+        captainRole: "jungle", captainRank: "Legend", captainRankStars: 5,
+        serverRegion: "sg",
+        members: [
+          { name: "PhntExp",   mlId: "303234568", role: "exp",  rank: "Legend", rankStars: 4 },
+          { name: "PhntMid",   mlId: "303234569", role: "mid",  rank: "Legend", rankStars: 3 },
+          { name: "PhntGold",  mlId: "303234570", role: "gold", rank: "Legend", rankStars: 5 },
+          { name: "PhntRoam",  mlId: "303234571", role: "roam", rank: "Epic",   rankStars: 3 },
+        ],
+      },
+      {
+        id: "seed_titan_guard",
+        teamName: "Titan Guard",  teamTag: "TITN",
+        displayName: "TitnCapt", mlId: "404234567",
+        captainRole: "roam", captainRank: "Mythic Honor", captainRankStars: 2,
+        serverRegion: "sg",
+        members: [
+          { name: "TitnExp",    mlId: "404234568", role: "exp",    rank: "Mythic", rankStars: 1 },
+          { name: "TitnJungle", mlId: "404234569", role: "jungle", rank: "Mythic", rankStars: 2 },
+          { name: "TitnMid",    mlId: "404234570", role: "mid",    rank: "Legend", rankStars: 5 },
+          { name: "TitnGold",   mlId: "404234571", role: "gold",   rank: "Legend", rankStars: 4 },
+        ],
+      },
+      {
+        id: "seed_vortex_rising",
+        teamName: "Vortex Rising", teamTag: "VRTX",
+        displayName: "VrtxCapt", mlId: "505234567",
+        captainRole: "mid", captainRank: "Mythic Glory", captainRankStars: 1,
+        serverRegion: "sg",
+        members: [
+          { name: "VrtxExp",    mlId: "505234568", role: "exp",    rank: "Mythic", rankStars: 3 },
+          { name: "VrtxJungle", mlId: "505234569", role: "jungle", rank: "Mythic", rankStars: 2 },
+          { name: "VrtxGold",   mlId: "505234570", role: "gold",   rank: "Mythic", rankStars: 1 },
+          { name: "VrtxRoam",   mlId: "505234571", role: "roam",   rank: "Legend", rankStars: 5 },
+        ],
+      },
+      {
+        id: "seed_eclipse_xi",
+        teamName: "Eclipse XI",   teamTag: "ECLX",
+        displayName: "EclxCapt", mlId: "606234567",
+        captainRole: "exp", captainRank: "Legend", captainRankStars: 4,
+        serverRegion: "sg",
+        members: [
+          { name: "EclxMid",    mlId: "606234568", role: "mid",    rank: "Legend", rankStars: 4 },
+          { name: "EclxJungle", mlId: "606234569", role: "jungle", rank: "Legend", rankStars: 3 },
+          { name: "EclxGold",   mlId: "606234570", role: "gold",   rank: "Legend", rankStars: 2 },
+          { name: "EclxRoam",   mlId: "606234571", role: "roam",   rank: "Epic",   rankStars: 5 },
+        ],
+      },
+      {
+        id: "seed_nova_squad",
+        teamName: "Nova Squad",   teamTag: "NOVS",
+        displayName: "NovsCapt", mlId: "707234567",
+        captainRole: "gold", captainRank: "Mythic", captainRankStars: 3,
+        serverRegion: "sg",
+        members: [
+          { name: "NovsExp",    mlId: "707234568", role: "exp",    rank: "Legend", rankStars: 5 },
+          { name: "NovsMid",    mlId: "707234569", role: "mid",    rank: "Legend", rankStars: 5 },
+          { name: "NovsJungle", mlId: "707234570", role: "jungle", rank: "Mythic", rankStars: 1 },
+          { name: "NovsRoam",   mlId: "707234571", role: "roam",   rank: "Legend", rankStars: 3 },
+        ],
+      },
+      {
+        id: "seed_blaze_force",
+        teamName: "Blaze Force",  teamTag: "BLZF",
+        displayName: "BlzfCapt", mlId: "808234567",
+        captainRole: "jungle", captainRank: "Mythic Honor", captainRankStars: 3,
+        serverRegion: "sg",
+        members: [
+          { name: "BlzfExp",   mlId: "808234568", role: "exp",  rank: "Mythic", rankStars: 2 },
+          { name: "BlzfMid",   mlId: "808234569", role: "mid",  rank: "Mythic", rankStars: 1 },
+          { name: "BlzfGold",  mlId: "808234570", role: "gold", rank: "Legend", rankStars: 5 },
+          { name: "BlzfRoam",  mlId: "808234571", role: "roam", rank: "Legend", rankStars: 4 },
+        ],
+      },
+      {
+        id: "seed_iron_fang",
+        teamName: "Iron Fang",    teamTag: "IRNF",
+        displayName: "IrnfCapt",  mlId: "909234567",
+        captainRole: "exp",       captainRank: "Mythic", captainRankStars: 2,
+        serverRegion: "my",
+        members: [
+          { name: "IrnfMid",    mlId: "909234568", role: "mid",    rank: "Mythic", rankStars: 1 },
+          { name: "IrnfJungle", mlId: "909234569", role: "jungle", rank: "Legend", rankStars: 5 },
+          { name: "IrnfGold",   mlId: "909234570", role: "gold",   rank: "Legend", rankStars: 4 },
+          { name: "IrnfRoam",   mlId: "909234571", role: "roam",   rank: "Legend", rankStars: 3 },
+        ],
+      },
+      {
+        id: "seed_storm_riders",
+        teamName: "Storm Riders",  teamTag: "STRM",
+        displayName: "StrmCapt",   mlId: "101034567",
+        captainRole: "jungle",     captainRank: "Legend", captainRankStars: 5,
+        serverRegion: "my",
+        members: [
+          { name: "StrmExp",    mlId: "101034568", role: "exp",    rank: "Legend", rankStars: 4 },
+          { name: "StrmMid",    mlId: "101034569", role: "mid",    rank: "Legend", rankStars: 3 },
+          { name: "StrmGold",   mlId: "101034570", role: "gold",   rank: "Epic",   rankStars: 5 },
+          { name: "StrmRoam",   mlId: "101034571", role: "roam",   rank: "Epic",   rankStars: 4 },
+        ],
+      },
+      {
+        id: "seed_phantom_ace",
+        teamName: "Phantom Ace",   teamTag: "PHAC",
+        displayName: "PhacCapt",   mlId: "121234567",
+        captainRole: "gold",       captainRank: "Mythic Honor", captainRankStars: 1,
+        serverRegion: "my",
+        members: [
+          { name: "PhacExp",    mlId: "121234568", role: "exp",    rank: "Mythic", rankStars: 3 },
+          { name: "PhacMid",    mlId: "121234569", role: "mid",    rank: "Mythic", rankStars: 2 },
+          { name: "PhacJungle", mlId: "121234570", role: "jungle", rank: "Legend", rankStars: 5 },
+          { name: "PhacRoam",   mlId: "121234571", role: "roam",   rank: "Legend", rankStars: 4 },
+        ],
+      },
+    ];
+
+    // ── Bracket generator (mirrors utils.js logic) ──────────────────────
+    function nextPow2(n) { let p = 1; while (p < n) p *= 2; return p; }
+    function mid(bracket, r, p) { return `${bracket}_r${r}_m${p}`; }
+
+    function makeMatch(bracket, round, position, team1 = null, team2 = null, status = "waiting", winnerId = null) {
+      return { bracket, round, position, team1, team2, score1: null, score2: null, status, winnerId, loserId: null };
+    }
+
+    function generateBracket(teamIds) {
+      const slots  = nextPow2(teamIds.length);
+      const seeded = [...teamIds];
+      while (seeded.length < slots) seeded.push(null);
+      const rounds     = Math.log2(slots);
+      const lbRoundCnt = Math.max(1, (rounds - 1) * 2);
+      const matches    = {};
+
+      // Upper Bracket — routing baked into every match
+      for (let r = 1; r <= rounds; r++) {
+        const cnt = slots / 2 ** r;
+        for (let p = 0; p < cnt; p++) {
+          let t1 = null, t2 = null, status = "waiting", win = null;
+          if (r === 1) {
+            t1 = seeded[p * 2] || null; t2 = seeded[p * 2 + 1] || null;
+            status = "upcoming";
+            if ((t1 && !t2) || (!t1 && t2)) { status = "bye"; win = t1 || t2; }
+            if (!t1 && !t2) status = "waiting";
+          }
+          let nextMatchId, nextSlot;
+          if (r < rounds) {
+            nextMatchId = mid("wb", r + 1, Math.floor(p / 2));
+            nextSlot    = p % 2 === 0 ? "team1" : "team2";
+          } else {
+            nextMatchId = mid("gf", 1, 0); nextSlot = "team1";
+          }
+          let lbDropMatchId = null, lbDropSlot = null;
+          if (r === 1) {
+            lbDropMatchId = mid("lb", 1, Math.floor(p / 2));
+            lbDropSlot    = p % 2 === 0 ? "team1" : "team2";
+          } else {
+            lbDropMatchId = mid("lb", 2 * (r - 1), p);
+            lbDropSlot    = "team2";
+          }
+          matches[mid("wb", r, p)] = { ...makeMatch("wb", r, p, t1, t2, status, win), nextMatchId, nextSlot, lbDropMatchId, lbDropSlot };
+        }
+      }
+
+      // Lower Bracket
+      for (let r = 1; r <= lbRoundCnt; r++) {
+        const cnt = Math.max(1, Math.ceil(slots / 2 ** (Math.floor((r + 1) / 2) + 1)));
+        for (let p = 0; p < cnt; p++) {
+          let nextMatchId, nextSlot;
+          if (r === lbRoundCnt) {
+            nextMatchId = mid("gf", 1, 0); nextSlot = "team2";
+          } else if (r % 2 === 1) {
+            nextMatchId = mid("lb", r + 1, p); nextSlot = "team1";
+          } else {
+            nextMatchId = mid("lb", r + 1, Math.floor(p / 2));
+            nextSlot    = p % 2 === 0 ? "team1" : "team2";
+          }
+          matches[mid("lb", r, p)] = { ...makeMatch("lb", r, p), nextMatchId, nextSlot };
+        }
+      }
+
+      // Grand Final
+      matches[mid("gf", 1, 0)] = { ...makeMatch("gf", 1, 0), nextMatchId: null, nextSlot: null };
+
+      return matches;
+    }
+
+    // ── Populate team preview grid ────────────────────────────────────────
+    const grid = document.getElementById("teamGrid");
+    TEAMS.forEach(t => {
+      const chip = document.createElement("div");
+      chip.className = "team-chip";
+      chip.innerHTML = `<span class="tag">${t.teamTag}</span><b>${t.teamName}</b>`;
+      grid.appendChild(chip);
+    });
+
+    // ── Auth state ────────────────────────────────────────────────────────
+    const btn       = document.getElementById("btnSeed");
+    const btnSeason = document.getElementById("btnSetSeason");
+    const authWarn  = document.getElementById("authWarn");
+    let currentUser = null;
+
+    onAuthStateChanged(auth, user => {
+      currentUser = user;
+      if (user) {
+        btn.disabled       = false;
+        btnSeason.disabled = false;
+        authWarn.style.display = "none";
+      } else {
+        btn.disabled       = true;
+        btnSeason.disabled = true;
+        authWarn.style.display = "block";
+      }
+    });
+
+    // ── Logging ───────────────────────────────────────────────────────────
+    const logEl = document.getElementById("log");
+    function log(msg, cls = "log-info") {
+      logEl.style.display = "block";
+      const line = document.createElement("div");
+      line.className = cls;
+      line.textContent = msg;
+      logEl.appendChild(line);
+      logEl.scrollTop = logEl.scrollHeight;
+    }
+
+    // ── Run seeder ────────────────────────────────────────────────────────
+    btn.addEventListener("click", async () => {
+      if (!currentUser) { alert("Log masuk dahulu."); return; }
+      if (!confirm("Ini akan MEMADAM semua data sedia ada dan mencipta data baharu. Teruskan?")) return;
+
+      btn.disabled = true;
+      btn.textContent = "MEMPROSES...";
+      logEl.innerHTML = "";
+
+      try {
+        // 1 ── Clear existing data
+        log("── Memadamkan data lama ──", "log-head");
+        await remove(ref(db, "teams"));         log("✓ teams/ dipadam", "log-ok");
+        await remove(ref(db, "tournaments"));   log("✓ tournaments/ dipadam", "log-ok");
+        await remove(ref(db, "applications"));  log("✓ applications/ dipadam", "log-ok");
+
+        // 2 ── Seed teams
+        log("── Mencipta 11 pasukan ──", "log-head");
+        const now = Date.now();
+        for (const t of TEAMS) {
+          const teamData = {
+            teamName:      t.teamName,
+            teamTag:       t.teamTag,
+            displayName:   t.displayName,
+            mlId:          t.mlId,
+            captainRole:   t.captainRole,
+            captainRank:   t.captainRank,
+            captainRankStars: t.captainRankStars,
+            serverRegion:  t.serverRegion,
+            members:       t.members,
+            reserves:      [],
+            uid:           t.id,
+            createdAt:     now,
+            registrationStatus: "registered",
+            latestModRequest:   null,
+          };
+          await set(ref(db, `teams/${t.id}`), teamData);
+          log(`✓ ${t.teamName} [${t.teamTag}]`, "log-ok");
+        }
+
+        // 3 ── Create tournament
+        log("── Mencipta tournament ──", "log-head");
+        const teamIds  = TEAMS.map(t => t.id);
+        const { matches, bracketSize } = seedAndLockBracket(teamIds, "double", 16);
+        const byeCount = bracketSize - teamIds.length;
+        log(`✓ Bracket saiz ${bracketSize} — ${teamIds.length} pasukan, ${byeCount} BYE`, "log-ok");
+        const teams    = {};
+        teamIds.forEach(id => { teams[id] = true; });
+
+        const tRef = push(ref(db, "tournaments"));
+        const tid  = tRef.key;
+
+        const today         = new Date();
+        const regOpenDate   = new Date(today); regOpenDate.setDate(today.getDate() - 7);
+        const regCloseDate  = new Date(today); regCloseDate.setDate(today.getDate() - 1);
+        const startDate     = today;
+
+        await set(tRef, {
+          name:        "HC Grand Demo 2026",
+          description: "Turnamen demo HC Organization — 11 pasukan dalam bracket 16 slot dengan 5 BYE automatik. Format double elimination.",
+          category:    "competitive",
+          format:      "double",
+          status:      "live",
+          teamCount:   11,
+          maxTeams:    16,
+          bracketSize,
+          seededAt:    now,
+          prizePool:   500,
+          entryFee:    0,
+          prizeBreakdown: { first: 500, second: 200, third: 100 },
+          stageFormats: {},
+          regOpenDate:  regOpenDate.toISOString().slice(0, 10),
+          regCloseDate: regCloseDate.toISOString().slice(0, 10),
+          startDate:    startDate.toISOString().slice(0, 10),
+          rules: `1. Semua pemain mesti menggunakan akaun MY/SG.\n2. Perlawanan bermula mengikut jadual yang ditetapkan.\n3. Sebarang bantahan mesti diserahkan dalam masa 10 minit selepas perlawanan.\n4. Format BO3 untuk semua perlawanan kecuali Grand Final (BO5).\n5. Penganjur berhak membuat keputusan muktamad.`,
+          whatsappGroupId: "",
+          organizerId: currentUser.uid,
+          createdAt:   now,
+          teams,
+          matches,
+        });
+        log(`✓ Tournament dicipta: ${tid}`, "log-ok");
+
+        // 4 ── Seed applications (approved)
+        log("── Mencipta rekod aplikasi ──", "log-head");
+        for (const t of TEAMS) {
+          await set(ref(db, `applications/${tid}/${t.id}`), {
+            status:    "approved",
+            appliedAt: now,
+            teamId:    t.id,
+            teamName:  t.teamName,
+          });
+          log(`✓ Aplikasi ${t.teamName} diluluskan`, "log-ok");
+        }
+
+        // 5 ── Seed Musim Perdana
+        log("── Mencipta Musim Perdana ──", "log-head");
+        const musimStart = new Date("2026-01-01T00:00:00+08:00").getTime();
+        const musimEnd   = new Date("2026-12-31T23:59:59+08:00").getTime();
+        await set(ref(db, "seasons/perdana"), {
+          label:      "Musim Perdana",
+          startMs:    musimStart,
+          endMs:      musimEnd,
+          prizeBonus: false,
+          createdAt:  now,
+        });
+        await set(ref(db, "seasons/current"), { id: "perdana" });
+        log("✓ Musim Perdana (2026) ditetapkan sebagai musim aktif", "log-ok");
+
+        log("── SELESAI ──", "log-head");
+
+        const banner = document.getElementById("successBanner");
+        banner.style.display = "block";
+        banner.innerHTML = `✅ <strong>Seeder berjaya!</strong> HC Grand Demo 2026 telah dicipta — 11 pasukan, bracket 16 slot, ${byeCount} BYE automatik.<br>
+          <a href="index.html">← Kembali ke Laman Utama</a> &nbsp;|&nbsp;
+          <a href="tournament-details.html?id=${tid}">Lihat Tournament →</a> &nbsp;|&nbsp;
+          <a href="organizer.html">Dashboard Penganjur →</a>`;
+
+        btn.textContent = "✓ SELESAI";
+
+      } catch (err) {
+        log(`✗ RALAT: ${err.message}`, "log-err");
+        console.error(err);
+        btn.disabled = false;
+        btn.textContent = "CUBA LAGI";
+      }
+    });
+
+    // ── Tetapkan Musim Perdana sahaja (tanpa padam data) ──
+    document.getElementById("btnSetSeason").addEventListener("click", async () => {
+      const btn = document.getElementById("btnSetSeason");
+      btn.disabled = true;
+      btn.textContent = "SEDANG PROSES...";
+      const logEl = document.getElementById("log");
+      logEl.style.display = "block";
+
+      try {
+        const now        = Date.now();
+        const musimStart = new Date("2026-01-01T00:00:00+08:00").getTime();
+        const musimEnd   = new Date("2026-12-31T23:59:59+08:00").getTime();
+
+        await set(ref(db, "seasons/perdana"), {
+          label:      "Musim Perdana",
+          startMs:    musimStart,
+          endMs:      musimEnd,
+          prizeBonus: false,
+          createdAt:  now,
+        });
+        await set(ref(db, "seasons/current"), { id: "perdana" });
+
+        log("✓ Musim Perdana berjaya ditetapkan!", "log-ok");
+        log("✓ Pergi ke halaman Kedudukan untuk melihat perubahan.", "log-info");
+        btn.textContent = "✓ SELESAI";
+      } catch (err) {
+        log(`✗ RALAT: ${err.message}`, "log-err");
+        btn.disabled = false;
+        btn.textContent = "CUBA LAGI";
+      }
+    });
+  </script>
+</body>
+</html>

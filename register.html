@@ -244,6 +244,31 @@
   .pwd-eye:hover { color: var(--txt); }
   .pwd-eye svg { width: 18px; height: 18px; display: block; }
 
+  /* password input with eye toggle */
+  .pwd-field-wrap {
+    position: relative;
+  }
+  .pwd-field-wrap .form-input {
+    padding-right: 48px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  .pwd-field-eye {
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #9070c0;
+    padding: 0;
+    line-height: 1;
+    transition: color .15s;
+  }
+  .pwd-field-eye:hover { color: var(--txt); }
+  .pwd-field-eye svg { width: 18px; height: 18px; display: block; }
+
   .cred-note {
     font-size: 14px;
     font-weight: 600;
@@ -356,7 +381,7 @@
         <span class="logo-name">Tournament <span>Organizer</span></span>
       </a>
       <h1 class="auth-title" id="cardTitle">Daftar Player</h1>
-      <p class="auth-subtitle" id="cardSubtitle">Cipta akaun player — kata laluan dijana secara automatik</p>
+      <p class="auth-subtitle" id="cardSubtitle">Cipta akaun player dengan kata laluan pilihan anda</p>
     </div>
 
     <!-- ── Registration form ──────────────────── -->
@@ -367,17 +392,36 @@
 
       <form id="registerForm" novalidate>
         <div class="form-group">
-          <label class="form-label" for="inputName">Nama Paparan</label>
-          <input type="text" class="form-input" id="inputName"
-                 placeholder="Nama penuh atau nama panggilan" autocomplete="name">
-          <span class="form-error" id="errName">Nama paparan diperlukan.</span>
-        </div>
-
-        <div class="form-group">
           <label class="form-label" for="inputUsername">Username</label>
           <input type="text" class="form-input" id="inputUsername"
                  placeholder="3-20 aksara: huruf, nombor, _" autocomplete="username">
           <span class="form-error" id="errUsername">Username mesti 3–20 aksara tanpa ruang.</span>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="inputPassword">Kata Laluan</label>
+          <div class="pwd-field-wrap">
+            <input type="password" class="form-input" id="inputPassword"
+                   placeholder="Sekurang-kurangnya 6 aksara" autocomplete="new-password">
+            <button type="button" class="pwd-field-eye" id="togglePwd" title="Tunjuk / Sembunyi">
+              <svg id="eyePwdOpen" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12S5 4 12 4s11 8 11 8-4 8-11 8S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>
+              <svg id="eyePwdClosed" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20C5 20 1 12 1 12a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+            </button>
+          </div>
+          <span class="form-error" id="errPassword">Kata laluan mesti sekurang-kurangnya 6 aksara.</span>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="inputPasswordConfirm">Sahkan Kata Laluan</label>
+          <div class="pwd-field-wrap">
+            <input type="password" class="form-input" id="inputPasswordConfirm"
+                   placeholder="Masukkan semula kata laluan" autocomplete="new-password">
+            <button type="button" class="pwd-field-eye" id="togglePwdConfirm" title="Tunjuk / Sembunyi">
+              <svg id="eyyPwdCfOpen" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12S5 4 12 4s11 8 11 8-4 8-11 8S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>
+              <svg id="eyePwdCfClosed" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20C5 20 1 12 1 12a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+            </button>
+          </div>
+          <span class="form-error" id="errPasswordConfirm">Kata laluan tidak sepadan.</span>
         </div>
 
         <div class="terms-wrap" style="margin-top:.5rem">
@@ -400,7 +444,7 @@
 
       <div class="cred-card">
         <div class="cred-warning">
-          ⚠️ Simpan maklumat ini sekarang — ia tidak akan dipaparkan lagi!
+          ⚠️ Simpan Player ID anda — diperlukan untuk hubungi admin!
         </div>
         <div class="cred-body">
 
@@ -413,26 +457,13 @@
             </div>
           </div>
 
-          <!-- Password -->
+          <!-- Username -->
           <div class="cred-row">
-            <div class="cred-label">Kata Laluan</div>
+            <div class="cred-label">Username</div>
             <div class="cred-value-wrap">
-              <span class="cred-value" id="showPassword" style="filter:blur(5px);transition:filter .2s">—</span>
-              <button type="button" class="pwd-eye" id="toggleCredPwd" title="Tunjuk / Sembunyi">
-                <!-- eye icon -->
-                <svg id="eyeCredOpen" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M1 12S5 4 12 4s11 8 11 8-4 8-11 8S1 12 1 12z"/>
-                  <circle cx="12" cy="12" r="3"/>
-                </svg>
-                <svg id="eyeCredClosed" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none">
-                  <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20C5 20 1 12 1 12a18.45 18.45 0 0 1 5.06-5.94"/>
-                  <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>
-                  <line x1="1" y1="1" x2="23" y2="23"/>
-                </svg>
-              </button>
-              <button class="cred-copy" id="copyPassword">Salin</button>
+              <span class="cred-value" id="showUsername">—</span>
+              <button class="cred-copy" id="copyUsername">Salin</button>
             </div>
-            <p class="cred-note">⚠ Kata laluan ini tidak boleh dipulihkan sendiri. Hubungi admin dengan Player ID anda jika terlupa.</p>
           </div>
 
         </div>
@@ -457,14 +488,18 @@ const btnRegister = document.getElementById("btnRegister");
 const alertError  = document.getElementById("alertError");
 const alertMsg    = document.getElementById("alertMsg");
 
-/* ── Show / hide blur on generated password ── */
-let pwdVisible = false;
-document.getElementById("toggleCredPwd").addEventListener("click", () => {
-  pwdVisible = !pwdVisible;
-  document.getElementById("showPassword").style.filter = pwdVisible ? "none" : "blur(5px)";
-  document.getElementById("eyeCredOpen").style.display   = pwdVisible ? "none"  : "block";
-  document.getElementById("eyeCredClosed").style.display = pwdVisible ? "block" : "none";
-});
+/* ── Password eye toggles (form fields) ──── */
+function makeEyeToggle(btnId, inputId, openId, closedId) {
+  document.getElementById(btnId).addEventListener("click", () => {
+    const input = document.getElementById(inputId);
+    const isHidden = input.type === "password";
+    input.type = isHidden ? "text" : "password";
+    document.getElementById(openId).style.display   = isHidden ? "none"  : "block";
+    document.getElementById(closedId).style.display = isHidden ? "block" : "none";
+  });
+}
+makeEyeToggle("togglePwd",        "inputPassword",        "eyePwdOpen",    "eyePwdClosed");
+makeEyeToggle("togglePwdConfirm", "inputPasswordConfirm", "eyyPwdCfOpen",  "eyePwdCfClosed");
 
 /* ── Copy helpers ─────────────────────────── */
 function makeCopyBtn(btnId, sourceId) {
@@ -479,14 +514,14 @@ function makeCopyBtn(btnId, sourceId) {
   });
 }
 makeCopyBtn("copyPlayerId", "showPlayerId");
-makeCopyBtn("copyPassword", "showPassword");
+makeCopyBtn("copyUsername",  "showUsername");
 
 /* ── Validation helpers ───────────────────── */
 function showAlert(msg) { alertMsg.textContent = msg; alertError.classList.add("show"); }
 function clearErrors() {
   alertError.classList.remove("show");
-  ["errName", "errUsername", "errTerms"].forEach(id => document.getElementById(id).classList.remove("show"));
-  ["inputName", "inputUsername"].forEach(id => document.getElementById(id).classList.remove("error"));
+  ["errUsername", "errPassword", "errPasswordConfirm", "errTerms"].forEach(id => document.getElementById(id).classList.remove("show"));
+  ["inputUsername", "inputPassword", "inputPasswordConfirm"].forEach(id => document.getElementById(id).classList.remove("error"));
 }
 function mark(inputId, errorId) {
   document.getElementById(inputId)?.classList.add("error");
@@ -499,6 +534,7 @@ function parseError(error) {
   if (error.message === "reserved-username") return "Username 'admin' tidak boleh digunakan untuk akaun player.";
   const map = {
     "auth/email-already-in-use":   "Username ini sudah digunakan. Pilih username lain.",
+    "auth/weak-password":          "Kata laluan terlalu lemah. Gunakan sekurang-kurangnya 6 aksara.",
     "auth/network-request-failed": "Tiada sambungan internet.",
   };
   return map[error.code] || "Ralat berlaku. Sila cuba lagi.";
@@ -509,14 +545,16 @@ form.addEventListener("submit", async (e) => {
   e.preventDefault();
   clearErrors();
 
-  const name     = document.getElementById("inputName").value.trim();
   const username = document.getElementById("inputUsername").value.trim();
+  const password = document.getElementById("inputPassword").value;
+  const confirm  = document.getElementById("inputPasswordConfirm").value;
   const terms    = document.getElementById("chkTerms").checked;
   let valid      = true;
 
-  if (!name)              { mark("inputName", "errName");          valid = false; }
-  if (!validUsername(username)) { mark("inputUsername", "errUsername"); valid = false; }
-  if (!terms)             { document.getElementById("errTerms").classList.add("show"); valid = false; }
+  if (!validUsername(username))  { mark("inputUsername",        "errUsername");        valid = false; }
+  if (password.length < 6)       { mark("inputPassword",        "errPassword");        valid = false; }
+  if (password !== confirm)      { mark("inputPasswordConfirm", "errPasswordConfirm"); valid = false; }
+  if (!terms)                    { document.getElementById("errTerms").classList.add("show"); valid = false; }
   if (!valid) return;
 
   const originalHTML    = btnRegister.innerHTML;
@@ -524,15 +562,14 @@ form.addEventListener("submit", async (e) => {
   btnRegister.innerHTML = '<span class="spinner"></span> Mendaftar...';
 
   try {
-    const { playerId, generatedPassword } = await registerWithUsername(username, name);
+    const { playerId } = await registerWithUsername(username, password);
 
-    /* Show credentials card */
-    document.getElementById("showPlayerId").textContent = playerId;
-    document.getElementById("showPassword").textContent = generatedPassword;
+    document.getElementById("showPlayerId").textContent  = playerId;
+    document.getElementById("showUsername").textContent  = username;
     document.getElementById("formWrap").style.display    = "none";
     document.getElementById("successWrap").style.display = "block";
     document.getElementById("cardTitle").textContent     = "Pendaftaran Berjaya";
-    document.getElementById("cardSubtitle").textContent  = "Simpan maklumat di bawah sebelum teruskan";
+    document.getElementById("cardSubtitle").textContent  = "Simpan Player ID anda sebelum log masuk";
     document.getElementById("cardFooter").style.display  = "none";
 
   } catch (error) {

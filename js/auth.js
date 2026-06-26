@@ -88,43 +88,37 @@ async function generatePlayerId() {
 /* ── Auth functions ───────────────────────────────────── */
 
 /**
- * Registers a new player.
- * Password is auto-generated — caller does NOT supply one.
- * Returns { user, playerId, generatedPassword }
+ * Registers a new player with a user-supplied password.
+ * Returns { user, playerId }
  */
-export async function registerWithUsername(username, displayName) {
+export async function registerWithUsername(username, password) {
   const clean = cleanUsername(username);
   if (!validUsername(clean))      throw new Error("invalid-username");
   if (clean === ADMIN_USERNAME)   throw new Error("reserved-username");
 
-  const email             = usernameToEmail(clean);
-  const generatedPassword = generatePassword();
-  const playerId          = await generatePlayerId();
-  const now               = Date.now();
+  const email    = usernameToEmail(clean);
+  const playerId = await generatePlayerId();
+  const now      = Date.now();
 
-  const cred = await createUserWithEmailAndPassword(auth, email, generatedPassword);
+  const cred = await createUserWithEmailAndPassword(auth, email, password);
 
   const userData = {
-    displayName,
-    username:          clean,
+    username:    clean,
     email,
-    role:              "player",
+    role:        "player",
     playerId,
-    generatedPassword, // stored for admin credential recovery only
-    createdAt:         formatDateTime(now),
-    createdAtMs:       now,
+    createdAt:   formatDateTime(now),
+    createdAtMs: now,
   };
 
   await set(ref(db, `users/${cred.user.uid}`), userData);
 
-  // Player ID → uid lookup index for admin recovery
   await set(ref(db, `playerIndex/${playerId}`), {
     uid:      cred.user.uid,
     username: clean,
-    displayName,
   });
 
-  return { user: cred.user, playerId, generatedPassword };
+  return { user: cred.user, playerId };
 }
 
 async function ensureAdminAccount() {

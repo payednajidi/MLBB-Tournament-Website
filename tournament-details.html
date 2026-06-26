@@ -136,15 +136,32 @@
     .participant-grid { display: grid; gap: 8px; }
     .participant-chip {
       display: flex; align-items: center; gap: 10px;
-      padding: 9px 12px; border: 1px solid var(--border);
+      padding: 10px 14px; border: 1px solid var(--border);
       background: var(--bg3); border-radius: var(--radius);
     }
+    .participant-chip.pc-hidden { display: none; }
     .participant-tag {
       font-family: var(--font-mono); font-size: 11px; letter-spacing: 1px;
-      color: var(--gold); font-weight: 700;
+      color: var(--gold); font-weight: 700; flex-shrink: 0;
     }
-    .participant-name { font-size: 13px; color: var(--txt2); flex: 1; }
+    .participant-info { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+    .participant-name { font-size: 13px; color: var(--txt2); }
+    .participant-meta {
+      font-family: var(--font-mono); font-size: 10px; letter-spacing: .5px;
+      color: var(--txt3); display: flex; flex-wrap: wrap; gap: 6px;
+    }
+    .participant-meta-item { display: flex; align-items: center; gap: 3px; }
     .participant-rank { font-size: 11px; color: var(--txt3); }
+    .btn-expand-participants {
+      display: block; width: 100%; margin-top: 10px;
+      padding: 9px 14px; border: 1px dashed var(--border);
+      background: none; border-radius: var(--radius);
+      font-family: var(--font-mono); font-size: 11px; letter-spacing: 1px;
+      text-transform: uppercase; color: var(--txt3);
+      cursor: pointer; transition: color .15s, border-color .15s;
+      text-align: center;
+    }
+    .btn-expand-participants:hover { color: var(--gold); border-color: var(--gold); }
 
     /* ── Rules ──────────────────────────────── */
     .rules-body { font-size: 14px; color: var(--txt2); line-height: 1.75; white-space: pre-wrap; }
@@ -319,9 +336,9 @@
       .stage-table th, .stage-table td { padding: 7px 9px; }
 
       /* Participant chips compact */
-      .participant-chip { padding: 8px 10px; gap: 7px; }
+      .participant-chip { padding: 9px 11px; gap: 8px; }
       .participant-name { font-size: 12px; }
-      .participant-rank { font-size: 10px; }
+      .participant-meta { font-size: 9px; gap: 5px; }
       .participant-tag  { font-size: 10px; }
 
       /* Nav fix for mobile */
@@ -525,6 +542,16 @@
     let currentTeam = null;
     let tournament = null;
     const teamNameCache = {};
+    const teamDataCache = {};
+
+    async function getTeamData(uid) {
+      if (teamDataCache[uid]) return teamDataCache[uid];
+      const snap = await get(ref(db, `teams/${uid}`));
+      const d = snap.exists() ? snap.val() : {};
+      teamDataCache[uid] = { teamTag: d.teamTag || "—", displayName: d.displayName || "—", mlId: d.mlId || "—", whatsapp: d.whatsapp || "" };
+      if (!teamNameCache[uid]) teamNameCache[uid] = d.teamName || "Pasukan Tidak Dikenali";
+      return teamDataCache[uid];
+    }
 
     // ── Auth state ──────────────────────────────────────────
     onAuthStateChanged(auth, async (user) => {
@@ -1187,10 +1214,10 @@
       };
       const [statusCls, statusLbl] = statusMap[t.status] || ['upcoming', t.status||""];
 
-      // Pre-load approved participants
+      // Pre-load approved participants (full team data for tag + captain info)
       const approvedTeams = Object.entries(t.teams||{});
       if (approvedTeams.length) {
-        await Promise.all(approvedTeams.map(([uid]) => getTeamName(uid)));
+        await Promise.all(approvedTeams.map(([uid]) => getTeamData(uid)));
       }
 
       const bracketHtml = await renderBracket(t.matches, t.format, t.winnerId);
@@ -1295,15 +1322,32 @@
       <div class="section-card">
         <div class="section-header"><div class="section-icon">👥</div><span class="section-title">Peserta Diluluskan (${approvedTeams.length})</span></div>
         <div class="section-body">
-          ${approvedTeams.length
-            ? `<div class="participant-grid">${approvedTeams.map(([uid]) =>
-                `<div class="participant-chip">
-                  <span class="participant-tag">[${escHtml(t.teams[uid]?.teamTag||"—")}]</span>
-                  <span class="participant-name">${escHtml(teamNameCache[uid]||"—")}</span>
-                </div>`
-              ).join("")}</div>`
-            : '<p style="color:var(--txt3);font-size:13px">Belum ada pasukan diluluskan.</p>'
-          }
+          ${approvedTeams.length ? (() => {
+            const LIMIT = 5;
+            const chips = approvedTeams.map(([uid], i) => {
+              const td = teamDataCache[uid] || {};
+              const tag  = escHtml(td.teamTag || "—");
+              const name = escHtml(teamNameCache[uid] || td.teamName || "—");
+              const cap  = escHtml(td.displayName || "—");
+              const mlId = escHtml(td.mlId || "—");
+              const wa   = td.whatsapp ? `<span class="participant-meta-item">📱 <a href="https://wa.me/${td.whatsapp.replace(/\D/g,'')}" target="_blank" rel="noopener" style="color:var(--green);text-decoration:none">${escHtml(td.whatsapp)}</a></span>` : '';
+              return `<div class="participant-chip${i >= LIMIT ? ' pc-hidden' : ''}">
+                <span class="participant-tag">[${tag}]</span>
+                <div class="participant-info">
+                  <span class="participant-name">${name}</span>
+                  <span class="participant-meta">
+                    <span class="participant-meta-item">👤 ${cap}</span>
+                    <span class="participant-meta-item">🎮 ${mlId}</span>
+                    ${wa}
+                  </span>
+                </div>
+              </div>`;
+            }).join("");
+            const expandBtn = approvedTeams.length > LIMIT
+              ? `<button class="btn-expand-participants" id="btnExpandParticipants">Lihat Semua ${approvedTeams.length} Pasukan ▾</button>`
+              : '';
+            return `<div class="participant-grid">${chips}</div>${expandBtn}`;
+          })() : '<p style="color:var(--txt3);font-size:13px">Belum ada pasukan diluluskan.</p>'}
         </div>
       </div>
 
@@ -1317,6 +1361,12 @@
       // Render apply section now that DOM exists
       renderApplySection();
       document.title = `${t.name} - MLBB OPS`;
+
+      // Expand participants list
+      document.getElementById("btnExpandParticipants")?.addEventListener("click", function() {
+        document.querySelectorAll(".participant-chip.pc-hidden").forEach(el => el.classList.remove("pc-hidden"));
+        this.remove();
+      });
 
       // ── Bracket: horizontal drag-to-pan only ────────────────
       document.querySelectorAll('.bracket-scroll').forEach(el => {

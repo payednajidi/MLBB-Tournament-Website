@@ -3271,11 +3271,33 @@
       return Math.round(b * (POINTS_CFG.catMult[cat] ?? 1.0) * (POINTS_CFG.sizeMult[sz] ?? 1.0));
     }
 
-    function top3GetPlacement(t, uid) {
-      if (!t.finalResults) return null;
-      const rank = t.finalResults[uid];
-      if (rank === undefined || rank === null) return null;
-      return Number(rank);
+    function top3GetPlacement(tournament, uid) {
+      const matches = Object.values(tournament.matches || {});
+      if (!matches.length) return null;
+      if (!matches.some(m => m.team1 === uid || m.team2 === uid)) return null;
+      if (tournament.status !== "done" || !tournament.finalizedAt) return 0;
+      if (tournament.winnerId === uid) return 1;
+      const isDone = m => m.status === "done" || m.status === "walkover";
+      if (tournament.format === "single") {
+        const wb = matches.filter(m => m.bracket === "wb" && isDone(m));
+        if (!wb.length) return 0;
+        const maxR = Math.max(...wb.map(m => m.round));
+        if (wb.find(m => m.round === maxR)?.loserId === uid) return 2;
+        if (maxR > 1 && wb.filter(m => m.round === maxR - 1).some(m => m.loserId === uid)) return 3;
+      } else {
+        const gf = matches.filter(m => m.bracket === "gf" && isDone(m));
+        if (gf.length) {
+          const maxGf = Math.max(...gf.map(m => m.round));
+          if (gf.find(m => m.round === maxGf)?.loserId === uid) return 2;
+        }
+        const lb = matches.filter(m => m.bracket === "lb" && isDone(m));
+        if (lb.length) {
+          const maxLb = Math.max(...lb.map(m => m.round));
+          if (lb.find(m => m.round === maxLb)?.loserId === uid) return 3;
+          if (maxLb > 1 && lb.filter(m => m.round === maxLb - 1).some(m => m.loserId === uid)) return 4;
+        }
+      }
+      return 0;
     }
 
     function top3BuildStandings(teams, tournaments) {
@@ -3306,7 +3328,7 @@
         b.wins1st - a.wins1st ||
         b.tournamentsPlayed - a.tournamentsPlayed
       );
-      return rows.slice(0, 3);
+      return rows.filter(r => r.points > 0 || r.tournamentsPlayed > 0).slice(0, 3);
     }
 
     function top3EscHtml(s) {

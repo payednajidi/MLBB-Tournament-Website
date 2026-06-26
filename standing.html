@@ -181,25 +181,6 @@
     .tier-maharaja { background: rgba(233,30,99,.1);    color: #e91e63; border: 1px solid rgba(233,30,99,.25); }
     .tier-agung    { background: rgba(168,85,247,.12);  color: #a855f7; border: 1px solid rgba(168,85,247,.28); }
 
-    /* ── Season selector ────────────────────────── */
-    .season-bar {
-      display: flex; align-items: center; gap: 12px;
-      justify-content: space-between; flex-wrap: wrap;
-      margin-bottom: 1rem;
-    }
-    .season-select-wrap { display: flex; align-items: center; gap: 8px; }
-    .season-select-lbl {
-      font-family: var(--font-mono); font-size: 10px;
-      letter-spacing: 2px; text-transform: uppercase; color: var(--txt3);
-      white-space: nowrap;
-    }
-    .season-select {
-      background: var(--bg3); border: 1px solid var(--border);
-      color: var(--txt); border-radius: var(--radius);
-      padding: 7px 12px; font-family: var(--font-mono);
-      font-size: 12px; cursor: pointer; min-width: 160px;
-    }
-
     .members-count {
       font-family: var(--font-mono); font-size: 12px;
       color: var(--txt2);
@@ -575,9 +556,6 @@
       #standingBody { overflow-x: auto; -webkit-overflow-scrolling: touch; }
       .standing-table { min-width: 480px; }
 
-      /* Season bar wraps gracefully */
-      .season-bar { flex-direction: column; align-items: flex-start; gap: 8px; }
-
       /* Modal fills screen */
       .dp-modal { width: min(98vw, 960px); border-radius: 12px; }
       .modal-backdrop { padding: 1vh .5rem; }
@@ -682,7 +660,6 @@
     @media (max-width: 360px) {
       .dp-pc-col { flex: 0 0 calc(50% - 3px); }
       .stats-strip { grid-template-columns: 1fr; }
-      .season-bar { flex-direction: column; align-items: flex-start; gap: 6px; }
       .dp-stat-card { min-width: 48px; }
     }
 
@@ -818,17 +795,6 @@
           <div class="stat-box"><strong id="statMax">—</strong><span>Mata Tertinggi</span></div>
         </div>
 
-        <!-- Season selector + standings table -->
-        <div class="season-bar">
-          <div class="season-select-wrap">
-            <span class="season-select-lbl">Musim</span>
-            <select class="season-select" id="seasonSelect">
-              <option value="all">Sepanjang Masa</option>
-            </select>
-          </div>
-          <span id="seasonInfo" style="font-family:var(--font-mono);font-size:11px;color:var(--txt3)"></span>
-        </div>
-
         <div class="table-card">
           <div class="table-card-header">
             <h2>Kedudukan Pasukan</h2>
@@ -959,12 +925,10 @@
       { min:1200, max:Infinity, key:"agung",    label:"Agung",    color:"#a855f7" },
     ];
 
-    let allStandings    = [];
-    let allTournaments  = [];  // all done tournaments (unfiltered)
-    let teamUsers       = {};  // uid → user record
-    let allSeasons      = {};  // id → season config
-    let activeSeason    = null; // null = all-time, else { startMs, endMs, label, prizeBonus }
-    let allTeamsRaw     = {};  // uid → team (unfiltered)
+    let allStandings   = [];
+    let allTournaments = [];
+    let teamUsers      = {};
+    let allTeamsRaw    = {};
 
     /* ── Nav auth ─────────────────────────────── */
     onAuthStateChanged(auth, async (user) => {
@@ -1082,19 +1046,13 @@
     }
 
     /* ── Build standings ──────────────────────── */
-    function buildStandings(teams, tournaments, seasonFilter) {
-      const filtered = seasonFilter
-        ? tournaments.filter(t => t.startDate >= seasonFilter.startMs && t.startDate <= seasonFilter.endMs)
-        : tournaments;
-
-      const prizeBonus = activeSeason?.prizeBonus ?? false;
-
+    function buildStandings(teams, tournaments) {
       const rows = Object.entries(teams).map(([uid, team]) => {
         let points = 0;
         let wins1st = 0, wins2nd = 0, wins3rd = 0, wins4th = 0, tournamentsPlayed = 0;
         const history = [];
 
-        for (const t of filtered) {
+        for (const t of tournaments) {
           const pl = getTeamPlacement(t, uid);
           if (pl === null) continue; // didn't participate
           if (!playedRealMatch(uid, t)) continue; // all byes/walkovers — no points
@@ -1106,7 +1064,7 @@
             effectivePl = tier === "top8" ? 5 : tier === "top16" ? 9 : 0;
           }
 
-          const pts = computePoints(effectivePl, t.category, t.maxTeams, t.prizePool, prizeBonus);
+          const pts = computePoints(effectivePl, t.category, t.maxTeams, t.prizePool, false);
           points += pts;
           if (pl === 1) wins1st++;
           if (pl === 2) wins2nd++;
@@ -1205,35 +1163,14 @@
     }
 
     /* ── Update stats ─────────────────────────── */
-    function updateStats(standings, filteredTournaments) {
-      const uniqueChamps = new Set(filteredTournaments.map(t => t.winnerId).filter(Boolean)).size;
+    function updateStats(standings, tournaments) {
+      const uniqueChamps = new Set(tournaments.map(t => t.winnerId).filter(Boolean)).size;
       const maxPts = standings.filter(r => r.points > 0).length ? standings[0].points : 0;
-      const active = standings.filter(r => r.tournamentsPlayed > 0).length;
 
       document.getElementById("statTeams").textContent       = standings.length;
-      document.getElementById("statTournaments").textContent  = filteredTournaments.length;
+      document.getElementById("statTournaments").textContent = tournaments.length;
       document.getElementById("statChampions").textContent   = uniqueChamps;
       document.getElementById("statMax").textContent         = maxPts;
-
-      // Season info strip
-      const seasonInfo = document.getElementById("seasonInfo");
-      if (activeSeason) {
-        seasonInfo.textContent = `${activeSeason.label} · ${active} pasukan aktif · ${filteredTournaments.length} tournament`;
-      } else {
-        seasonInfo.textContent = `Sepanjang Masa · ${active} pasukan aktif · ${filteredTournaments.length} tournament`;
-      }
-    }
-
-    /* ── Apply season filter & re-render ─────── */
-    function applySeasonAndRender() {
-      const sel = document.getElementById("seasonSelect").value;
-      activeSeason = sel === "all" ? null : (allSeasons[sel] || null);
-      allStandings = buildStandings(allTeamsRaw, allTournaments, activeSeason);
-      renderTable(allStandings);
-      const filteredT = activeSeason
-        ? allTournaments.filter(t => t.startDate >= activeSeason.startMs && t.startDate <= activeSeason.endMs)
-        : allTournaments;
-      updateStats(allStandings, filteredT);
     }
 
     /* ── Load data ────────────────────────────── */
@@ -1241,58 +1178,23 @@
       document.getElementById("standingBody").innerHTML =
         '<div class="empty-state"><span class="spinner"></span></div>';
 
-      const [teamsSnap, tournamentsSnap, usersSnap, seasonsSnap] = await Promise.all([
+      const [teamsSnap, tournamentsSnap, usersSnap] = await Promise.all([
         get(ref(db, "teams")),
         get(ref(db, "tournaments")),
         get(ref(db, "users")),
-        get(ref(db, "seasons")),
       ]);
 
-      allTeamsRaw = teamsSnap.exists()  ? teamsSnap.val()  : {};
-      teamUsers   = usersSnap.exists()  ? usersSnap.val()  : {};
+      allTeamsRaw = teamsSnap.exists() ? teamsSnap.val() : {};
+      teamUsers   = usersSnap.exists() ? usersSnap.val() : {};
 
       const tournamentsObj = tournamentsSnap.exists() ? tournamentsSnap.val() : {};
       allTournaments = Object.entries(tournamentsObj)
         .map(([id, t]) => ({ id, ...t }))
-        .filter(t => t.status === "done" && t.finalizedAt); // only fully finalised
+        .filter(t => t.status === "done" && t.finalizedAt);
 
-      // Build season selector
-      const seasonsData = seasonsSnap.exists() ? seasonsSnap.val() : {};
-      const currentSeasonId = seasonsData.current?.id || null;
-      allSeasons = {};
-      const sel = document.getElementById("seasonSelect");
-      sel.innerHTML = "";  // clear existing options
-
-      // Add named seasons (sorted by startMs desc)
-      const seasonEntries = Object.entries(seasonsData)
-        .filter(([k]) => k !== "current")
-        .sort(([, a], [, b]) => (b.startMs || 0) - (a.startMs || 0));
-
-      for (const [id, s] of seasonEntries) {
-        allSeasons[id] = s;
-        const opt = document.createElement("option");
-        opt.value = id;
-        opt.textContent = s.label || id;
-        if (id === currentSeasonId) opt.selected = true;
-        sel.appendChild(opt);
-      }
-      // All-time option at the end
-      const allOpt = document.createElement("option");
-      allOpt.value = "all";
-      allOpt.textContent = "Sepanjang Masa";
-      if (!currentSeasonId || !allSeasons[currentSeasonId]) allOpt.selected = true;
-      sel.appendChild(allOpt);
-
-      // Set activeSeason
-      const selVal = sel.value;
-      activeSeason = selVal === "all" ? null : (allSeasons[selVal] || null);
-
-      allStandings = buildStandings(allTeamsRaw, allTournaments, activeSeason);
+      allStandings = buildStandings(allTeamsRaw, allTournaments);
       renderTable(allStandings);
-      const filteredT = activeSeason
-        ? allTournaments.filter(t => t.startDate >= activeSeason.startMs && t.startDate <= activeSeason.endMs)
-        : allTournaments;
-      updateStats(allStandings, filteredT);
+      updateStats(allStandings, allTournaments);
     }
 
     /* ── Helpers ──────────────────────────────── */
@@ -1484,9 +1386,6 @@
     document.getElementById("detailModal").addEventListener("click", e => {
       if (e.target === document.getElementById("detailModal")) closeDetail();
     });
-
-    /* ── Season selector ─────────────────────── */
-    document.getElementById("seasonSelect").addEventListener("change", applySeasonAndRender);
 
     /* ── Recalculate (admin) ──────────────────── */
     document.getElementById("btnRecalculate").addEventListener("click", async () => {

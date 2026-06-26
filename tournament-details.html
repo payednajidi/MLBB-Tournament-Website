@@ -17,7 +17,7 @@
 
     /* ── Hero poster ─────────────────────────── */
     .hero-poster {
-      position: relative; width: 100%; min-height: 280px;
+      position: relative; width: 100%; min-height: 420px;
       display: flex; align-items: flex-end;
       overflow: hidden; border-radius: 0 0 var(--radius-lg) var(--radius-lg);
       margin-bottom: 1.5rem;
@@ -338,13 +338,13 @@
 
     /* ── Mobile hero ────────────────────────────── */
     @media (max-width: 640px) {
-      .hero-poster  { min-height: 130px !important; }
-      .hero-content { padding: 1rem 1rem .85rem; }
-      .hero-title   { font-size: clamp(16px, 5vw, 22px); }
+      .hero-poster  { min-height: 300px !important; }
+      .hero-content { padding: 1.25rem 1rem 1rem; }
+      .hero-title   { font-size: clamp(20px, 6vw, 28px); }
     }
     @media (max-width: 480px) {
-      .hero-poster  { min-height: 100px !important; }
-      .hero-content { padding: .85rem .85rem .75rem; }
+      .hero-poster  { min-height: 280px !important; }
+      .hero-content { padding: 1rem .85rem .9rem; }
     }
 
     /* ── Info grid — bigger touch targets ───────── */
@@ -1197,7 +1197,7 @@
 
       root.innerHTML = `
       <!-- Hero poster -->
-      <div class="hero-poster" style="min-height:${t.posterUrl ? '360px' : '200px'}">
+      <div class="hero-poster" style="min-height:${t.posterUrl ? '480px' : '420px'}">
         ${t.posterUrl
           ? `<img class="hero-poster-img" src="${escHtml(t.posterUrl)}" alt="${escHtml(t.name)}" onerror="this.style.display='none'">`
           : `<div class="hero-poster-placeholder">${escHtml((t.name||"?")[0])}</div>`

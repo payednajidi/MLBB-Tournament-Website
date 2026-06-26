@@ -342,8 +342,32 @@
       .stage-table { min-width: 260px; font-size: 12px; }
       .stage-table th, .stage-table td { padding: 7px 9px; }
 
-      /* Participant chips compact */
-      .participant-chip { padding: 9px 11px; gap: 8px; }
+      /* Participant chips — full-bleed, same width as section card */
+      .participant-grid {
+        margin-left: -18px;
+        margin-right: -18px;
+        margin-bottom: -16px;
+      }
+      .participant-chip {
+        border-radius: 0;
+        border-left: none;
+        border-right: none;
+        border-top: none;
+        border-bottom: 1px solid var(--border);
+        padding: 11px 18px;
+        gap: 10px;
+      }
+      .btn-expand-participants {
+        border-radius: 0;
+        border-left: none;
+        border-right: none;
+        border-top: none;
+        margin-left: -18px;
+        margin-right: -18px;
+        width: calc(100% + 36px);
+        margin-bottom: -16px;
+        padding: 11px 18px;
+      }
       .participant-name { font-size: 12px; }
       .participant-meta { font-size: 9px; gap: 5px; }
       .participant-tag  { font-size: 10px; }

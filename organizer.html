@@ -1537,14 +1537,17 @@
         }
       });
 
-      panel.innerHTML = state.tournaments.map((t) => {
+      const active  = state.tournaments.filter(t => t.status !== "done");
+      const history = state.tournaments.filter(t => t.status === "done");
+
+      function buildCard(t, isHistory) {
         const teamCount  = t.teamCount || 0;
         const maxTeams   = t.maxTeams  || 0;
         const slotsLeft  = Math.max(0, maxTeams - teamCount);
         const pct        = maxTeams > 0 ? Math.min(100, Math.round((teamCount / maxTeams) * 100)) : 0;
         const pendingApp = pendingAppsMap[t.id] || 0;
 
-        return `<article class="t-card">
+        return `<article class="t-card" style="${isHistory ? "opacity:.6;filter:saturate(.45);" : ""}">
           <div class="t-card-poster">
             ${t.posterUrl
               ? `<img class="t-card-poster-img" src="${escHtmlAttr(t.posterUrl)}" alt=""
@@ -1587,17 +1590,32 @@
             <div class="t-card-actions">
               <a class="btn btn-primary btn-sm" href="tournament-manage.html?id=${t.id}">Manage</a>
               <a class="btn btn-secondary btn-sm" href="organizer-create.html?edit=${t.id}">Edit Tournament</a>
-              ${t.status === "registration" ? `<button class="btn btn-sm" data-action="seed" data-tid="${t.id}"
+              ${!isHistory && t.status === "registration" ? `<button class="btn btn-sm" data-action="seed" data-tid="${t.id}"
                       data-tformat="${escHtmlAttr(t.format)}" data-tmax="${t.maxTeams}"
                       style="background:rgba(20,184,166,.15);border:1px solid rgba(20,184,166,.45);color:#2dd4bf;font-family:var(--font-head);letter-spacing:.5px">
                 🎲 Semai &amp; Kunci Bracket</button>` : ""}
-              <button class="btn btn-danger btn-sm" data-action="end" data-tid="${t.id}">End Tournament</button>
+              ${!isHistory ? `<button class="btn btn-danger btn-sm" data-action="end" data-tid="${t.id}">End Tournament</button>` : ""}
               <button class="btn btn-danger btn-sm" data-action="delete" data-tid="${t.id}"
                       data-tname="${escHtmlAttr(t.name)}" data-tcount="${teamCount}">🗑 Hapus</button>
             </div>
           </div>
         </article>`;
-      }).join("");
+      }
+
+      const activeHtml = active.length
+        ? `<div style="display:grid;gap:1rem">${active.map(t => buildCard(t, false)).join("")}</div>`
+        : '<div class="empty-state">Tiada tournament aktif atau dalam pendaftaran.</div>';
+
+      const historyHtml = history.length ? `
+        <div style="margin-top:2rem">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:1rem;padding-bottom:.75rem;border-bottom:1px solid var(--border)">
+            <span style="font-family:var(--font-head);font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--txt3)">🏆 Sejarah Tournament</span>
+            <span style="background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:1px 8px;font-family:var(--font-mono);font-size:11px;color:var(--txt3)">${history.length}</span>
+          </div>
+          <div style="display:grid;gap:1rem">${history.map(t => buildCard(t, true)).join("")}</div>
+        </div>` : "";
+
+      panel.innerHTML = activeHtml + historyHtml;
     }
 
     function renderPending(state) {

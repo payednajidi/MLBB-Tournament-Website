@@ -1733,7 +1733,7 @@
                 <option value="roster_change">Perubahan Roster / Ahli</option>
                 <option value="team_name">Tukar Nama / Tag Pasukan</option>
                 <option value="captain_change">Penukaran Kapten</option>
-                <option value="add_remove_reserve">Tambah / Buang Pemain Rizab</option>
+                <option value="add_remove_reserve">Tambah / Buang Pemain Simpanan</option>
                 <option value="region_change">Tukar Server Region</option>
                 <option value="new_team">Daftar Pasukan Baru</option>
                 <option value="registration_error">Pembetulan Kesilapan Pendaftaran</option>
@@ -1907,6 +1907,20 @@
                 </div>
               </div>
 
+              <div class="form-group mb-3">
+                <label class="form-label" for="whatsapp">Nombor WhatsApp Kapten</label>
+                <div style="position:relative">
+                  <span style="position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:15px;line-height:1;pointer-events:none">📱</span>
+                  <input class="form-input" id="whatsapp" type="tel" maxlength="15"
+                         placeholder="+601X-XXXXXXXX" autocomplete="tel"
+                         value="+60" style="padding-left:38px">
+                </div>
+                <div style="font-size:11px;color:var(--txt3);margin-top:4px;font-family:var(--font-mono)">
+                  Taip nombor selepas +60 — <strong style="color:var(--gold)">jangan mulakan dengan 0</strong>. Contoh: <span style="color:var(--txt2)">+6012-3456789</span>
+                </div>
+                <span class="form-error" id="errWhatsapp">Nombor WhatsApp diperlukan.</span>
+              </div>
+
               <div class="esports-section">
                 <div class="esports-section-icon">⚔️</div>
                 <div class="esports-section-text">
@@ -2025,7 +2039,7 @@
                 <div class="esports-section-icon">👥</div>
                 <div class="esports-section-text">
                   <h3>Ahli Pasukan</h3>
-                  <p>Minimum 3 ahli aktif wajib. Ahli ke-4 dan ke-5 adalah pilihan. Boleh tambah sehingga 2 pemain rizab</p>
+                  <p>Minimum 3 ahli aktif wajib. Ahli ke-4 dan ke-5 adalah pilihan. Boleh tambah sehingga 2 pemain simpanan</p>
                 </div>
               </div>
 
@@ -2058,7 +2072,7 @@
                   </div>
                 </div>
                 <div class="form-group mt-2" style="margin-bottom:0">
-                  <label class="form-label">Rank Semasa</label>
+                  <label class="form-label">Rank Tertinggi</label>
                   <div class="rank-select" id="m2rankSelect">
                     <div class="rank-select-trigger" id="m2rankTrigger">
                       <div class="rank-select-left">
@@ -2119,7 +2133,7 @@
                   </div>
                 </div>
                 <div class="form-group mt-2" style="margin-bottom:0">
-                  <label class="form-label">Rank Semasa</label>
+                  <label class="form-label">Rank Tertinggi</label>
                   <div class="rank-select" id="m3rankSelect">
                     <div class="rank-select-trigger" id="m3rankTrigger">
                       <div class="rank-select-left">
@@ -2181,7 +2195,7 @@
                   </div>
                 </div>
                 <div class="form-group mt-2" style="margin-bottom:0">
-                  <label class="form-label">Rank Semasa <span style="color:var(--txt3);font-weight:400">(Pilihan)</span></label>
+                  <label class="form-label">Rank Tertinggi <span style="color:var(--txt3);font-weight:400">(Pilihan)</span></label>
                   <div class="rank-select" id="m4rankSelect">
                     <div class="rank-select-trigger" id="m4rankTrigger">
                       <div class="rank-select-left">
@@ -2243,7 +2257,7 @@
                   </div>
                 </div>
                 <div class="form-group mt-2" style="margin-bottom:0">
-                  <label class="form-label">Rank Semasa <span style="color:var(--txt3);font-weight:400">(Pilihan)</span></label>
+                  <label class="form-label">Rank Tertinggi <span style="color:var(--txt3);font-weight:400">(Pilihan)</span></label>
                   <div class="rank-select" id="m5rankSelect">
                     <div class="rank-select-trigger" id="m5rankTrigger">
                       <div class="rank-select-left">
@@ -2279,8 +2293,8 @@
               <div class="reserve-section-divider">
                 <div class="reserve-section-icon">🔄</div>
                 <div class="reserve-section-text">
-                  <h4>Pemain Rizab <span style="color:var(--txt3);font-weight:400">(Pilihan — Maks 2)</span></h4>
-                  <p>Pemain rizab boleh menggantikan ahli aktif semasa pertandingan</p>
+                  <h4>Pemain Simpanan <span style="color:var(--txt3);font-weight:400">(Pilihan — Maks 2)</span></h4>
+                  <p>Pemain simpanan boleh menggantikan ahli aktif semasa pertandingan</p>
                 </div>
               </div>
 
@@ -2288,7 +2302,7 @@
               <div class="reserve-block">
                 <div class="reserve-block-header">
                   <div class="reserve-num">
-                    <div class="reserve-num-badge" id="badge_r1">R1</div>Rizab 1
+                    <div class="reserve-num-badge" id="badge_r1">R1</div>Simpanan 1
                   </div>
                   <span class="reserve-tag">Pilihan</span>
                 </div>
@@ -2314,7 +2328,7 @@
                   </div>
                 </div>
                 <div class="form-group mt-2" style="margin-bottom:0">
-                  <label class="form-label">Rank Semasa <span style="color:var(--txt3);font-weight:400">(Pilihan)</span></label>
+                  <label class="form-label">Rank Tertinggi <span style="color:var(--txt3);font-weight:400">(Pilihan)</span></label>
                   <div class="rank-select" id="r1rankSelect">
                     <div class="rank-select-trigger" id="r1rankTrigger">
                       <div class="rank-select-left">
@@ -2349,7 +2363,7 @@
               <div class="reserve-block">
                 <div class="reserve-block-header">
                   <div class="reserve-num">
-                    <div class="reserve-num-badge" id="badge_r2">R2</div>Rizab 2
+                    <div class="reserve-num-badge" id="badge_r2">R2</div>Simpanan 2
                   </div>
                   <span class="reserve-tag">Pilihan</span>
                 </div>
@@ -2375,7 +2389,7 @@
                   </div>
                 </div>
                 <div class="form-group mt-2" style="margin-bottom:0">
-                  <label class="form-label">Rank Semasa <span style="color:var(--txt3);font-weight:400">(Pilihan)</span></label>
+                  <label class="form-label">Rank Tertinggi <span style="color:var(--txt3);font-weight:400">(Pilihan)</span></label>
                   <div class="rank-select" id="r2rankSelect">
                     <div class="rank-select-trigger" id="r2rankTrigger">
                       <div class="rank-select-left">
@@ -2691,6 +2705,7 @@
         setValue("teamTag",     d.teamTag);
         setValue("displayName", d.displayName);
         setValue("mlId",        d.mlId);
+        setValue("whatsapp",    d.whatsapp || "+60");
         setValue("serverRegion", d.serverRegion || "MY/SG");
         if (d.captainRole) {
           selectedRole = d.captainRole;
@@ -2919,6 +2934,39 @@
         updateAll();
       });
 
+      /* ── WhatsApp — lock +60 prefix ─────── */
+      (function () {
+        const el = document.getElementById("whatsapp");
+        if (!el) return;
+        const PREFIX = "+60";
+        el.addEventListener("keydown", e => {
+          const atStart = el.selectionStart <= PREFIX.length && el.selectionEnd <= PREFIX.length;
+          if ((e.key === "Backspace" || e.key === "Delete") && atStart) e.preventDefault();
+          if (e.key === "Home") { e.preventDefault(); el.setSelectionRange(PREFIX.length, PREFIX.length); }
+          // Block '0' as the first digit after +60 (Malaysian numbers never start with 0 after country code)
+          if (e.key === "0" && el.selectionStart === PREFIX.length && el.selectionEnd === PREFIX.length) {
+            e.preventDefault();
+          }
+        });
+        el.addEventListener("input", () => {
+          if (!el.value.startsWith(PREFIX)) {
+            const digits = el.value.replace(/^\+?6?0?/, "").replace(/\D/g, "");
+            el.value = PREFIX + digits;
+          }
+          // Strip leading 0 after prefix in case of paste (e.g. +60012... → +6012...)
+          if (el.value.startsWith(PREFIX + "0")) {
+            el.value = PREFIX + el.value.slice(PREFIX.length + 1);
+          }
+          updateAll();
+        });
+        el.addEventListener("focus", () => {
+          if (el.selectionStart < PREFIX.length) el.setSelectionRange(PREFIX.length, PREFIX.length);
+        });
+        el.addEventListener("click", () => {
+          if (el.selectionStart < PREFIX.length) el.setSelectionRange(PREFIX.length, PREFIX.length);
+        });
+      })();
+
       /* ── Generic live listeners ─────────── */
       ["teamName","displayName","mlId","serverRegion",
        "m2name","m2role","m3name","m3role",
@@ -2954,6 +3002,7 @@
         const teamTag     = document.getElementById("teamTag").value.trim();
         const displayName = document.getElementById("displayName").value.trim();
         const mlId        = document.getElementById("mlId").value.trim();
+        const whatsapp    = document.getElementById("whatsapp").value.trim();
 
         // Full cross-step validation — only enforced at submit
         const isValid = updateValidationSummary(true);
@@ -2999,7 +3048,7 @@
           const isFirstReg = !existingCreatedAt;
           const wasApprovedEdit = loadedTeamData?.registrationStatus === "change_approved";
           const savedData = {
-            teamName, teamTag, displayName, mlId,
+            teamName, teamTag, displayName, mlId, whatsapp,
             captainRole:             selectedRole,
             captainRank:             selectedRank,
             captainRankStars:        selectedRankStars,
@@ -3105,6 +3154,8 @@
         errors[2].push({ label: "Nama Kapten", field: "displayName", err: "errDisplayName" });
       if (!document.getElementById("mlId").value.trim())
         errors[2].push({ label: "ML ID Kapten", field: "mlId", err: "errMlId" });
+      if (document.getElementById("whatsapp").value.trim().replace(/^\+60/, "") === "")
+        errors[2].push({ label: "WhatsApp Kapten", field: "whatsapp", err: "errWhatsapp" });
       if (!selectedRole)
         errors[2].push({ label: "Peranan Kapten", field: null, err: "errRole" });
       if (!selectedRank)
@@ -3253,7 +3304,7 @@
             <div class="prev-member" style="opacity:.85;border-left:2px solid rgba(99,102,241,.35);padding-left:8px;margin-left:4px">
               <div class="prev-member-l">
                 <div class="prev-member-name" style="font-size:12px">${escHtml(name)}</div>
-                <div style="font-size:9px;letter-spacing:1.5px;color:#818cf8;font-family:var(--font-mono);text-transform:uppercase">Rizab</div>
+                <div style="font-size:9px;letter-spacing:1.5px;color:#818cf8;font-family:var(--font-mono);text-transform:uppercase">Simpanan</div>
               </div>
               <div class="prev-role-pill">${icon} ${role || "—"}</div>
             </div>`;
@@ -3262,7 +3313,7 @@
       const reserveEl = document.getElementById("prevReserveRoster");
       if (reserveEl) {
         reserveEl.innerHTML = reserveCount > 0
-          ? `<div style="font-size:9px;letter-spacing:1.5px;color:rgba(99,102,241,.7);font-family:var(--font-mono);text-transform:uppercase;margin:8px 0 4px;padding-top:6px;border-top:1px dashed rgba(99,102,241,.2)">Pemain Rizab</div>${reserveHtml}`
+          ? `<div style="font-size:9px;letter-spacing:1.5px;color:rgba(99,102,241,.7);font-family:var(--font-mono);text-transform:uppercase;margin:8px 0 4px;padding-top:6px;border-top:1px dashed rgba(99,102,241,.2)">Pemain Simpanan</div>${reserveHtml}`
           : "";
       }
     }
@@ -3308,6 +3359,7 @@
         { label: "Team Tag",      ok: !!document.getElementById("teamTag").value.trim() },
         { label: "Nama Kapten",   ok: !!document.getElementById("displayName").value.trim() },
         { label: "ML ID Kapten",  ok: !!document.getElementById("mlId").value.trim() },
+        { label: "WhatsApp Kapten", ok: document.getElementById("whatsapp").value.trim().replace(/^\+60/, "") !== "" },
         { label: "Peranan",       ok: !!selectedRole },
         { label: "Rank Kapten",   ok: !!selectedRank },
         { label: "Ahli 2",        ok: !!document.getElementById("m2name").value.trim() },
@@ -3335,6 +3387,7 @@
       const teamTag     = document.getElementById("teamTag").value.trim();
       const displayName = document.getElementById("displayName").value.trim();
       const mlId        = document.getElementById("mlId").value.trim();
+      const whatsapp    = document.getElementById("whatsapp").value.trim();
       const region      = document.getElementById("serverRegion").value || "MY/SG";
 
       const rows = [
@@ -3342,6 +3395,7 @@
         { lbl:"Team Tag",       val: teamTag      ? `[ ${teamTag} ]` : "(belum diisi)", empty: !teamTag, gold: !!teamTag },
         { lbl:"Nama Kapten",    val: displayName  || "(belum diisi)", empty: !displayName },
         { lbl:"ML ID Kapten",   val: mlId         || "(belum diisi)", empty: !mlId },
+        { lbl:"WhatsApp Kapten", val: whatsapp    || "(belum diisi)", empty: !whatsapp },
         { lbl:"Peranan Kapten", val: selectedRole ? `${ROLE_ICONS[selectedRole]} ${selectedRole}` : "(belum dipilih)", empty: !selectedRole },
         { lbl:"Rank Semasa",    val: selectedRank || "(belum dipilih)", empty: !selectedRank },
         { lbl:"Rank Tertinggi", val: selectedHighestRank || "—", empty: false },
@@ -3482,7 +3536,7 @@
       roster_change:      "Perubahan Roster / Ahli",
       team_name:          "Tukar Nama / Tag Pasukan",
       captain_change:     "Penukaran Kapten",
-      add_remove_reserve: "Tambah / Buang Pemain Rizab",
+      add_remove_reserve: "Tambah / Buang Pemain Simpanan",
       region_change:      "Tukar Server Region",
       new_team:           "Daftar Pasukan Baru",
       registration_error: "Pembetulan Kesilapan Pendaftaran",
@@ -3517,7 +3571,7 @@
       (d.reserves || []).filter(r => r.name).forEach(r => {
         rHtml += `<div class="mgmt-member-chip is-reserve">
           <div class="mgmt-member-name">${escHtml(r.name)}</div>
-          <div class="mgmt-member-sub">Rizab · ${r.rank || "—"}</div>
+          <div class="mgmt-member-sub">Simpanan · ${r.rank || "—"}</div>
         </div>`;
       });
       document.getElementById("mgmtRoster").innerHTML = rHtml;
@@ -3618,9 +3672,9 @@
       for (let i = (d.members||[]).length; i < 4; i++)
         html += playerBlock(`m${i+2}`, `Ahli ${i+2}`, i<2?"Wajib":"Pilihan", {}, false);
       (d.reserves||[]).forEach((r,i) =>
-        html += playerBlock(`r${i+1}`, `Rizab ${i+1}`, "Pilihan", r||{}, false));
+        html += playerBlock(`r${i+1}`, `Simpanan ${i+1}`, "Pilihan", r||{}, false));
       for (let i = (d.reserves||[]).length; i < 2; i++)
-        html += playerBlock(`r${i+1}`, `Rizab ${i+1}`, "Pilihan", {}, false);
+        html += playerBlock(`r${i+1}`, `Simpanan ${i+1}`, "Pilihan", {}, false);
 
       document.getElementById("editPlayersList").innerHTML = html;
     }

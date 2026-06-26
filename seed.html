@@ -41,7 +41,7 @@
 <body>
   <div class="seed-wrap">
     <h1>⚙ Database Seeder</h1>
-    <p class="subtitle">Padam data dummy dan seed HC Grand Demo 2026 dengan 11 pasukan — bracket 16 slot dengan 5 BYE.</p>
+    <p class="subtitle">Padam data dummy dan cipta HC Open Trials 2026 — 16 pasukan memohon (status pendaftaran), menunggu kelulusan admin sebelum bracket dijana.</p>
 
     <div class="warning-box">
       <strong>⚠ Amaran:</strong> Tindakan ini akan <strong>memadam semua data sedia ada</strong> dalam
@@ -55,20 +55,23 @@
 
     <div class="info-card">
       <h3>🏆 Tournament Baharu</h3>
-      <div class="info-row"><span>Nama</span><span>HC Grand Demo 2026</span></div>
-      <div class="info-row"><span>Format</span><span>Double Elimination</span></div>
-      <div class="info-row"><span>Pasukan</span><span>11 pasukan → bracket 16 slot</span></div>
-      <div class="info-row"><span>BYE</span><span>5 slot BYE (auto-selesai)</span></div>
+      <div class="info-row"><span>Nama</span><span>HC Open Trials 2026</span></div>
+      <div class="info-row"><span>Format</span><span>Single Elimination</span></div>
+      <div class="info-row"><span>Status</span><span>Pendaftaran — menunggu kelulusan</span></div>
+      <div class="info-row"><span>Pasukan</span><span>16 permohonan PENDING → admin lulus dahulu</span></div>
+      <div class="info-row"><span>Bracket</span><span>Belum dijana (selepas kelulusan)</span></div>
+      <div class="info-row"><span>Format Perlawanan</span><span>BO1 awal · BO3 QF/SF · BO5 Final</span></div>
       <div class="info-row"><span>Hadiah</span><span>RM 500 / RM 200 / RM 100</span></div>
       <div class="info-row"><span>Status</span><span>Langsung (Live)</span></div>
     </div>
 
     <div class="info-card">
-      <h3>👥 11 Pasukan Baharu</h3>
+      <h3>👥 16 Pasukan Memohon</h3>
       <div class="team-grid" id="teamGrid"></div>
     </div>
 
     <button id="btnSeed" disabled>JALANKAN SEEDER</button>
+    <button id="btnAddTournament" disabled>➕ CIPTA TOURNAMENT TAMBAHAN (16 PASUKAN SAMA MEMOHON · TANPA PADAM)</button>
     <button id="btnSetSeason" disabled>🏆 TETAPKAN MUSIM PERDANA (TANPA PADAM DATA)</button>
 
     <div class="success-banner" id="successBanner"></div>
@@ -79,7 +82,6 @@
     import { initializeApp }  from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-auth.js";
     import { getDatabase, ref, set, remove, push, update } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-database.js";
-    import { seedAndLockBracket } from "./js/utils.js";
 
     const firebaseConfig = {
       apiKey:            "AIzaSyBRcY8jb7Yk4X_cxirqv7PsM5skgsPZXt0",
@@ -240,6 +242,71 @@
           { name: "PhacRoam",   mlId: "121234571", role: "roam",   rank: "Legend", rankStars: 4 },
         ],
       },
+      {
+        id: "seed_crimson_vortex",
+        teamName: "Crimson Vortex", teamTag: "CRMV",
+        displayName: "CrmvCapt",    mlId: "131234567",
+        captainRole: "mid",         captainRank: "Mythic Glory", captainRankStars: 2,
+        serverRegion: "my",
+        members: [
+          { name: "CrmvExp",    mlId: "131234568", role: "exp",    rank: "Mythic", rankStars: 2 },
+          { name: "CrmvGold",   mlId: "131234569", role: "gold",   rank: "Mythic", rankStars: 1 },
+          { name: "CrmvJungle", mlId: "131234570", role: "jungle", rank: "Legend", rankStars: 5 },
+          { name: "CrmvRoam",   mlId: "131234571", role: "roam",   rank: "Legend", rankStars: 4 },
+        ],
+      },
+      {
+        id: "seed_frost_legion",
+        teamName: "Frost Legion",  teamTag: "FRST",
+        displayName: "FrstCapt",   mlId: "141234567",
+        captainRole: "roam",       captainRank: "Mythic", captainRankStars: 4,
+        serverRegion: "sg",
+        members: [
+          { name: "FrstExp",    mlId: "141234568", role: "exp",    rank: "Legend", rankStars: 5 },
+          { name: "FrstMid",    mlId: "141234569", role: "mid",    rank: "Legend", rankStars: 4 },
+          { name: "FrstJungle", mlId: "141234570", role: "jungle", rank: "Legend", rankStars: 3 },
+          { name: "FrstGold",   mlId: "141234571", role: "gold",   rank: "Epic",   rankStars: 5 },
+        ],
+      },
+      {
+        id: "seed_lunar_eclipse",
+        teamName: "Lunar Eclipse", teamTag: "LUNR",
+        displayName: "LunrCapt",   mlId: "151234567",
+        captainRole: "exp",        captainRank: "Mythic Glory", captainRankStars: 1,
+        serverRegion: "my",
+        members: [
+          { name: "LunrMid",    mlId: "151234568", role: "mid",    rank: "Mythic", rankStars: 2 },
+          { name: "LunrGold",   mlId: "151234569", role: "gold",   rank: "Mythic", rankStars: 1 },
+          { name: "LunrJungle", mlId: "151234570", role: "jungle", rank: "Legend", rankStars: 5 },
+          { name: "LunrRoam",   mlId: "151234571", role: "roam",   rank: "Legend", rankStars: 4 },
+        ],
+      },
+      {
+        id: "seed_solar_flare",
+        teamName: "Solar Flare",   teamTag: "SOLR",
+        displayName: "SolrCapt",   mlId: "161234567",
+        captainRole: "jungle",     captainRank: "Mythic", captainRankStars: 5,
+        serverRegion: "sg",
+        members: [
+          { name: "SolrExp",    mlId: "161234568", role: "exp",    rank: "Mythic", rankStars: 1 },
+          { name: "SolrMid",    mlId: "161234569", role: "mid",    rank: "Legend", rankStars: 5 },
+          { name: "SolrGold",   mlId: "161234570", role: "gold",   rank: "Legend", rankStars: 4 },
+          { name: "SolrRoam",   mlId: "161234571", role: "roam",   rank: "Legend", rankStars: 3 },
+        ],
+      },
+      {
+        id: "seed_void_walkers",
+        teamName: "Void Walkers",  teamTag: "VOID",
+        displayName: "VoidCapt",   mlId: "171234567",
+        captainRole: "roam",       captainRank: "Mythic Honor", captainRankStars: 3,
+        serverRegion: "my",
+        members: [
+          { name: "VoidExp",    mlId: "171234568", role: "exp",    rank: "Mythic", rankStars: 2 },
+          { name: "VoidMid",    mlId: "171234569", role: "mid",    rank: "Mythic", rankStars: 1 },
+          { name: "VoidJungle", mlId: "171234570", role: "jungle", rank: "Legend", rankStars: 5 },
+          { name: "VoidGold",   mlId: "171234571", role: "gold",   rank: "Legend", rankStars: 4 },
+        ],
+      },
     ];
 
     // ── Bracket generator (mirrors utils.js logic) ──────────────────────
@@ -322,6 +389,7 @@
 
     // ── Auth state ────────────────────────────────────────────────────────
     const btn       = document.getElementById("btnSeed");
+    const btnAdd    = document.getElementById("btnAddTournament");
     const btnSeason = document.getElementById("btnSetSeason");
     const authWarn  = document.getElementById("authWarn");
     let currentUser = null;
@@ -330,10 +398,12 @@
       currentUser = user;
       if (user) {
         btn.disabled       = false;
+        btnAdd.disabled    = false;
         btnSeason.disabled = false;
         authWarn.style.display = "none";
       } else {
         btn.disabled       = true;
+        btnAdd.disabled    = true;
         btnSeason.disabled = true;
         authWarn.style.display = "block";
       }
@@ -348,6 +418,59 @@
       line.textContent = msg;
       logEl.appendChild(line);
       logEl.scrollTop = logEl.scrollHeight;
+    }
+
+    // ── Shared: create one registration-phase tournament + 16 pending apps ──
+    // Does NOT touch teams/* — assumes the team records already exist (created by
+    // the full seeder). Used by both the full seeder and the "add tournament" button.
+    async function createTrialsTournament(name, descr) {
+      const now          = Date.now();
+      const today        = new Date();
+      const regOpenDate  = new Date(today); regOpenDate.setDate(today.getDate() - 3);
+      const regCloseDate = new Date(today); regCloseDate.setDate(today.getDate() + 7);
+      const startDate    = new Date(today); startDate.setDate(today.getDate() + 10);
+
+      const tRef = push(ref(db, "tournaments"));
+      const tid  = tRef.key;
+      await set(tRef, {
+        name,
+        description: descr,
+        category:    "competitive",
+        format:      "single",
+        status:      "registration",
+        teamCount:   0,
+        maxTeams:    16,
+        bracketGenerated: false,
+        prizePool:   500,
+        entryFee:    0,
+        prizeBreakdown: { first: 500, second: 200, third: 100 },
+        stageFormats: { earlyRounds: "bo1", quarterFinal: "bo3", semiFinal: "bo3", grandFinal: "bo5" },
+        regOpenDate:  regOpenDate.toISOString().slice(0, 10),
+        regCloseDate: regCloseDate.toISOString().slice(0, 10),
+        startDate:    startDate.toISOString().slice(0, 10),
+        rules: `1. Semua pemain mesti menggunakan akaun MY/SG.\n2. Perlawanan bermula mengikut jadual yang ditetapkan.\n3. Sebarang bantahan mesti diserahkan dalam masa 10 minit selepas perlawanan.\n4. Pusingan awal BO1, Quarter & Semi Final BO3, Grand Final BO5.\n5. Penganjur berhak membuat keputusan muktamad.`,
+        whatsappGroupId: "",
+        organizerId: currentUser.uid,
+        createdAt:   now,
+        teams:       {},
+        matches:     {},
+      });
+      log(`✓ Tournament "${name}" dicipta — pendaftaran dibuka: ${tid}`, "log-ok");
+
+      log("── Mencipta permohonan (menunggu kelulusan) ──", "log-head");
+      for (const t of TEAMS) {
+        await set(ref(db, `applications/${tid}/${t.id}`), {
+          status:      "pending_review",
+          teamId:      t.id,
+          teamName:    t.teamName,
+          teamTag:     t.teamTag,
+          captainName: t.displayName,
+          captainRank: t.captainRank,
+          appliedAt:   now,
+        });
+        log(`✓ Permohonan ${t.teamName} dihantar — menunggu semakan`, "log-ok");
+      }
+      return tid;
     }
 
     // ── Run seeder ────────────────────────────────────────────────────────
@@ -367,7 +490,7 @@
         await remove(ref(db, "applications"));  log("✓ applications/ dipadam", "log-ok");
 
         // 2 ── Seed teams
-        log("── Mencipta 11 pasukan ──", "log-head");
+        log("── Mencipta 16 pasukan ──", "log-head");
         const now = Date.now();
         for (const t of TEAMS) {
           const teamData = {
@@ -390,60 +513,12 @@
           log(`✓ ${t.teamName} [${t.teamTag}]`, "log-ok");
         }
 
-        // 3 ── Create tournament
-        log("── Mencipta tournament ──", "log-head");
-        const teamIds  = TEAMS.map(t => t.id);
-        const { matches, bracketSize } = seedAndLockBracket(teamIds, "double", 16);
-        const byeCount = bracketSize - teamIds.length;
-        log(`✓ Bracket saiz ${bracketSize} — ${teamIds.length} pasukan, ${byeCount} BYE`, "log-ok");
-        const teams    = {};
-        teamIds.forEach(id => { teams[id] = true; });
-
-        const tRef = push(ref(db, "tournaments"));
-        const tid  = tRef.key;
-
-        const today         = new Date();
-        const regOpenDate   = new Date(today); regOpenDate.setDate(today.getDate() - 7);
-        const regCloseDate  = new Date(today); regCloseDate.setDate(today.getDate() - 1);
-        const startDate     = today;
-
-        await set(tRef, {
-          name:        "HC Grand Demo 2026",
-          description: "Turnamen demo HC Organization — 11 pasukan dalam bracket 16 slot dengan 5 BYE automatik. Format double elimination.",
-          category:    "competitive",
-          format:      "double",
-          status:      "live",
-          teamCount:   11,
-          maxTeams:    16,
-          bracketSize,
-          seededAt:    now,
-          prizePool:   500,
-          entryFee:    0,
-          prizeBreakdown: { first: 500, second: 200, third: 100 },
-          stageFormats: {},
-          regOpenDate:  regOpenDate.toISOString().slice(0, 10),
-          regCloseDate: regCloseDate.toISOString().slice(0, 10),
-          startDate:    startDate.toISOString().slice(0, 10),
-          rules: `1. Semua pemain mesti menggunakan akaun MY/SG.\n2. Perlawanan bermula mengikut jadual yang ditetapkan.\n3. Sebarang bantahan mesti diserahkan dalam masa 10 minit selepas perlawanan.\n4. Format BO3 untuk semua perlawanan kecuali Grand Final (BO5).\n5. Penganjur berhak membuat keputusan muktamad.`,
-          whatsappGroupId: "",
-          organizerId: currentUser.uid,
-          createdAt:   now,
-          teams,
-          matches,
-        });
-        log(`✓ Tournament dicipta: ${tid}`, "log-ok");
-
-        // 4 ── Seed applications (approved)
-        log("── Mencipta rekod aplikasi ──", "log-head");
-        for (const t of TEAMS) {
-          await set(ref(db, `applications/${tid}/${t.id}`), {
-            status:    "approved",
-            appliedAt: now,
-            teamId:    t.id,
-            teamName:  t.teamName,
-          });
-          log(`✓ Aplikasi ${t.teamName} diluluskan`, "log-ok");
-        }
+        // 3 ── Create tournament + pending applications (registration, no bracket)
+        log("── Mencipta tournament (status pendaftaran) ──", "log-head");
+        const tid = await createTrialsTournament(
+          "HC Open Trials 2026",
+          "Turnamen demo HC Organization — 16 pasukan telah memohon dan sedang menunggu kelulusan admin. Selepas semua pasukan diluluskan, admin menjana bracket (Single Elimination). Pusingan awal BO1, Quarter & Semi Final BO3, Grand Final BO5."
+        );
 
         // 5 ── Seed Musim Perdana
         log("── Mencipta Musim Perdana ──", "log-head");
@@ -463,7 +538,7 @@
 
         const banner = document.getElementById("successBanner");
         banner.style.display = "block";
-        banner.innerHTML = `✅ <strong>Seeder berjaya!</strong> HC Grand Demo 2026 telah dicipta — 11 pasukan, bracket 16 slot, ${byeCount} BYE automatik.<br>
+        banner.innerHTML = `✅ <strong>Seeder berjaya!</strong> HC Open Trials 2026 dicipta — 16 permohonan <strong>PENDING</strong>. Admin perlu luluskan permohonan dahulu, kemudian jana bracket (Semai &amp; Kunci Bracket).<br>
           <a href="index.html">← Kembali ke Laman Utama</a> &nbsp;|&nbsp;
           <a href="tournament-details.html?id=${tid}">Lihat Tournament →</a> &nbsp;|&nbsp;
           <a href="organizer.html">Dashboard Penganjur →</a>`;
@@ -475,6 +550,38 @@
         console.error(err);
         btn.disabled = false;
         btn.textContent = "CUBA LAGI";
+      }
+    });
+
+    // ── Cipta tournament tambahan (TANPA padam data) ──────────────────────
+    // Reuses the SAME 16 teams (existing team records) — creates a second
+    // registration tournament with all 16 applying (pending). Nothing is deleted.
+    btnAdd.addEventListener("click", async () => {
+      if (!currentUser) { alert("Log masuk dahulu."); return; }
+      if (!confirm("Cipta SATU tournament TAMBAHAN dengan 16 pasukan yang sama memohon?\n\nData sedia ada (tournament & pasukan) TIDAK dipadam.")) return;
+      btnAdd.disabled = true;
+      btnAdd.textContent = "MEMPROSES...";
+      try {
+        log("── Cipta tournament tambahan (tanpa padam data) ──", "log-head");
+        const tid = await createTrialsTournament(
+          "HC Open Trials 2026 — Kohort 2",
+          "Tournament tambahan — 16 pasukan yang sama memohon dan menunggu kelulusan admin. Format single elimination. Pusingan awal BO1, Quarter & Semi Final BO3, Grand Final BO5."
+        );
+        log("── SELESAI ──", "log-head");
+
+        const banner = document.getElementById("successBanner");
+        banner.style.display = "block";
+        banner.innerHTML = `✅ <strong>Tournament tambahan dicipta!</strong> HC Open Trials 2026 — Kohort 2 — 16 permohonan <strong>PENDING</strong> (data lama kekal). Luluskan permohonan, kemudian jana bracket.<br>
+          <a href="tournament-details.html?id=${tid}">Lihat Tournament →</a> &nbsp;|&nbsp;
+          <a href="organizer.html">Dashboard Penganjur →</a>`;
+
+        btnAdd.textContent = "✓ TOURNAMENT TAMBAHAN DICIPTA";
+        btnAdd.disabled = false;
+      } catch (err) {
+        log(`✗ RALAT: ${err.message}`, "log-err");
+        console.error(err);
+        btnAdd.disabled = false;
+        btnAdd.textContent = "CUBA LAGI";
       }
     });
 

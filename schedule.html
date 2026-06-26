@@ -438,20 +438,49 @@
     let latestTournaments = {};
     let listening = false;
 
+    function currentPageRedirect() {
+      return encodeURIComponent(location.pathname.split("/").pop() + location.search);
+    }
+
+    function renderAuthRequired() {
+      renderCounts([]);
+      list.innerHTML = `<div class="card"><div class="card-body empty-state">
+        Log masuk dahulu untuk melihat senarai tournament.<br>
+        <a class="btn btn-primary btn-sm" style="margin-top:12px" href="login.html?redirect=${currentPageRedirect()}">Log Masuk</a>
+      </div></div>`;
+    }
+
+    function renderLoadError() {
+      renderCounts([]);
+      list.innerHTML = `<div class="card"><div class="card-body empty-state">
+        Tidak dapat memuatkan tournament. Sila refresh atau log masuk semula.<br>
+        <a class="btn btn-secondary btn-sm" style="margin-top:12px" href="login.html?redirect=${currentPageRedirect()}">Log Masuk Semula</a>
+      </div></div>`;
+    }
+
     onAuthStateChanged(auth, async (user) => {
       const navActions = document.getElementById("navActions");
       const adminNavItems = document.querySelectorAll(".admin-nav");
       const playerNavItems = document.querySelectorAll(".player-nav");
       if (!user) {
+        stopListener();
         adminNavItems.forEach((node) => node.classList.add("hidden"));
         navActions.innerHTML = `
           <a class="btn btn-secondary btn-sm" href="login.html">Login</a>
           <a class="btn btn-primary btn-sm" href="register.html">Sign Up</a>
         `;
         navActions.style.visibility = "visible";
+        renderAuthRequired();
       } else {
-        const roleSnap = await get(ref(db, `users/${user.uid}/role`));
-        const role = roleSnap.exists() ? roleSnap.val() : "player";
+        let role = "player";
+        try {
+          const roleSnap = await get(ref(db, `users/${user.uid}/role`));
+          role = roleSnap.exists() ? roleSnap.val() : "player";
+        } catch (error) {
+          renderLoadError();
+          navActions.style.visibility = "visible";
+          return;
+        }
         adminNavItems.forEach((node) => node.classList.toggle("hidden", role !== "organizer"));
         playerNavItems.forEach((node) => node.classList.toggle("hidden", role === "organizer"));
         if (role === "organizer") initAdminNavBadge(db);
@@ -462,6 +491,7 @@
         document.getElementById("logoutBtn")?.addEventListener("click", async () => {
           await signOut(auth); window.location.href = "login.html";
         });
+        startListener();
       }
     });
 
@@ -521,7 +551,7 @@
           : `<div class="poster-placeholder">${escHtml((t.name||'?')[0])}</div>`;
 
         return `
-        <a class="poster-card fade-in" href="tournament-details.html?id=${t.id}">
+        <a class="poster-card fade-in" href="tournament-details?id=${t.id}">
           <div class="poster-img-wrap">
             ${imgTag}
             <div class="poster-overlay"></div>
@@ -569,7 +599,10 @@
     function startListener() {
       if (listening) return;
       listening = true;
-      onValue(tournamentsRef, tournamentsHandler);
+      onValue(tournamentsRef, tournamentsHandler, () => {
+        listening = false;
+        renderLoadError();
+      });
     }
 
     function stopListener() {
@@ -588,10 +621,9 @@
 
     document.addEventListener("visibilitychange", () => {
       if (document.hidden) stopListener();
-      else startListener();
+      else if (auth.currentUser) startListener();
     });
     window.addEventListener("beforeunload", stopListener);
-    startListener();
   </script>
 
   <!-- ── Laman Utama Dropdown JS ── -->

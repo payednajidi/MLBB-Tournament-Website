@@ -194,7 +194,7 @@
               </div>
 
               <div class="form-group">
-                <label class="form-label" for="maxTeams">Bilangan Slot Pasukan</label>
+                <label class="form-label" for="maxTeams">Had Maksimum Pasukan</label>
                 <select class="form-select" id="maxTeams">
                   <option value="8">8</option>
                   <option value="16">16</option>
@@ -204,6 +204,9 @@
                   <option value="64">64</option>
                 </select>
                 <div class="note" id="slotNote"></div>
+                <div class="note" style="margin-top:4px;color:var(--txt3)">
+                  Ini adalah had pendaftaran sahaja. Saiz bracket sebenar ditentukan semasa admin klik <strong>Semai &amp; Kunci Bracket</strong> berdasarkan bilangan pasukan yang telah diluluskan.
+                </div>
               </div>
 
               <!-- ── Per-Stage Match Format ─────────────── -->
@@ -406,6 +409,7 @@
       // ── Edit mode detection ──────────────────────
       const editId = new URLSearchParams(location.search).get("edit");
       const isEdit = !!editId;
+      let loadedTournament = null;
 
       const form = document.getElementById("createForm");
       const btnCreate = document.getElementById("btnCreate");
@@ -421,14 +425,12 @@
       function num(id) { return Math.max(0, Number(val(id)) || 0); }
       function millis(id) { return val(id) ? new Date(val(id)).getTime() : 0; }
 
-      // ── Populate form from existing tournament data (edit mode) ──
       function toDatetimeLocal(ms) {
         if (!ms) return "";
         const d = new Date(ms);
         const pad = n => String(n).padStart(2, "0");
         return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
       }
-
       function setSelect(id, value) {
         const sel = el(id);
         if (!sel || value === undefined || value === null) return;
@@ -436,45 +438,40 @@
         if (opt) sel.value = opt.value;
       }
 
+      // ── Populate the form from existing data when editing ──
       if (isEdit) {
-        // Update UI for edit mode
         document.querySelector("h1").textContent = "Edit Tournament";
-        document.querySelector(".page-head p").textContent = "Kemaskini maklumat tournament. Bracket & pasukan sedia ada tidak terjejas.";
-        el("alertSuccess").textContent = "Tournament berjaya dikemaskini!";
+        const sub = document.querySelector(".page-head p");
+        if (sub) sub.textContent = "Kemaskini maklumat tournament. Bracket & pasukan sedia ada tidak terjejas.";
+        alertSuccess.textContent = "Tournament berjaya dikemaskini!";
         btnCreate.textContent = "Simpan Perubahan";
-
         try {
           const snap = await get(ref(db, `tournaments/${editId}`));
-          if (!snap.exists() || snap.val().organizerId !== user.uid) {
-            document.querySelector(".create-grid").innerHTML = `<div class="alert alert-error show">Tournament tidak dijumpai atau anda tidak mempunyai akses.</div>`;
+          if (!snap.exists()) {
+            document.querySelector(".create-grid").innerHTML = `<div class="alert alert-error show">Tournament tidak dijumpai.</div>`;
           } else {
             const t = snap.val();
-            // Basic fields
+            loadedTournament = t;
             el("name").value = t.name || "";
             el("description").value = t.description || "";
             setSelect("category", t.category);
             setSelect("format", t.format);
             setSelect("maxTeams", t.maxTeams);
-            // Dates
             el("regOpenDate").value  = toDatetimeLocal(t.regOpenDate);
             el("regCloseDate").value = toDatetimeLocal(t.regCloseDate);
             el("startDate").value    = toDatetimeLocal(t.startDate);
-            // Financials
             el("entryFee").value  = t.entryFee  ?? 0;
             el("prizePool").value = t.prizePool ?? 0;
             el("prize1").value    = t.prizeBreakdown?.first  ?? 0;
             el("prize2").value    = t.prizeBreakdown?.second ?? 0;
             el("prize3").value    = t.prizeBreakdown?.third  ?? 0;
-            // Text
             el("rules").value           = t.rules           || "";
             el("whatsappGroupId").value = t.whatsappGroupId || "";
-            // Poster
             if (t.posterUrl) {
-              el("inputPosterUrl").value        = t.posterUrl;
-              el("posterUrlPreview").src        = t.posterUrl;
+              el("inputPosterUrl").value           = t.posterUrl;
+              el("posterUrlPreview").src           = t.posterUrl;
               el("posterUrlPreview").style.display = "block";
             }
-            // Stage formats
             const sf = t.stageFormats || {};
             if (t.format === "single") {
               setSelect("sf_early", sf.earlyRounds);
@@ -482,10 +479,10 @@
               setSelect("sf_semi",  sf.semiFinal);
               setSelect("sf_gf",    sf.grandFinal);
             } else {
-              setSelect("sf_ub",  sf.upperBracket);
-              setSelect("sf_ubf", sf.upperBracketFinal);
-              setSelect("sf_lb",  sf.lowerBracket);
-              setSelect("sf_lbf", sf.lowerBracketFinal);
+              setSelect("sf_ub",    sf.upperBracket);
+              setSelect("sf_ubf",   sf.upperBracketFinal);
+              setSelect("sf_lb",    sf.lowerBracket);
+              setSelect("sf_lbf",   sf.lowerBracketFinal);
               setSelect("sf_gf_de", sf.grandFinal);
             }
             updateStageFormats();
@@ -602,10 +599,8 @@
 
       form.addEventListener("input", updatePreview);
       form.addEventListener("change", updatePreview);
-      if (!isEdit) {
-        updateStageFormats();
-        updatePreview();
-      }
+      updateStageFormats();
+      updatePreview();
 
       form.addEventListener("submit", async (event) => {
         event.preventDefault();
@@ -629,14 +624,16 @@
         const originalHTML = btnCreate.innerHTML;
         setLoading(btnCreate, true, originalHTML);
 
+        const format = val("format");
+        const maxTeams = num("maxTeams");
         const posterUrl = posterInput.value.trim();
         const stageFormats = buildStageFormatsObj();
         const commonFields = {
           name: val("name"),
           description: val("description"),
           category: val("category"),
-          format: val("format"),
-          maxTeams: num("maxTeams"),
+          format,
+          maxTeams,
           prizePool: num("prizePool"),
           entryFee: num("entryFee"),
           prizeBreakdown: {
@@ -655,23 +652,42 @@
 
         try {
           if (isEdit) {
-            // ── Edit: update only mutable fields, preserve matches/teams/status
-            await update(ref(db, `tournaments/${editId}`), {
-              ...commonFields,
-              updatedAt: Date.now(),
-            });
-            alertSuccess.classList.add("show");
-            setTimeout(() => { window.location.href = `tournament-manage?id=${editId}`; }, 1500);
+            // Edit: update editable fields. If the format or bracket size changed,
+            // regenerate the bracket — and if fewer teams are registered than the
+            // slot count, let the admin choose to keep the size (byes) or shrink it.
+            const updates = { ...commonFields, updatedAt: Date.now() };
+            const prevFormat = loadedTournament?.format;
+            const prevMax    = loadedTournament?.maxTeams || 0;
+            // Also regenerate if the existing bracket structure no longer matches
+            // the format (e.g. a single-elim tournament still holding lb/gf matches).
+            const existingMs = Object.values(loadedTournament?.matches || {});
+            const hasLbGf    = existingMs.some(m => m.bracket === "lb" || m.bracket === "gf");
+            const structureStale = existingMs.length > 0 && (format === "double") !== hasLbGf;
+            if (prevFormat !== format || prevMax !== maxTeams || structureStale) {
+              const teamUids = Object.keys(loadedTournament?.teams || {});
+              let slotCount = maxTeams;
+              if (teamUids.length >= 2 && teamUids.length < maxTeams) {
+                const keepFull = confirm(
+                  `Saiz bracket ditetapkan ${maxTeams} slot, tetapi hanya ${teamUids.length} pasukan berdaftar.\n\n` +
+                  `[OK]\tKekalkan ${maxTeams} slot — slot kosong jadi BYE\n` +
+                  `[Batal]\tJana ikut ${teamUids.length} pasukan — bracket lebih padat`
+                );
+                slotCount = keepFull ? maxTeams : teamUids.length;
+              }
+              if (!confirm("Menukar format atau saiz bracket akan MENJANA SEMULA bracket. Sebarang keputusan match yang sedia ada akan dipadam. Teruskan?")) {
+                setLoading(btnCreate, false, originalHTML);
+                return;
+              }
+              updates.matches = generateBracket(teamUids, format, Math.max(slotCount, 2));
+              updates.teamCount = teamUids.length;
+            }
+            await update(ref(db, `tournaments/${editId}`), updates);
           } else {
-            // ── Create: generate bracket and write full document
-            const format = val("format");
-            const maxTeams = num("maxTeams");
-            const matches = generateBracket([], format, maxTeams);
+            // Create: generate the bracket and write the full document.
             const tournamentRef = push(ref(db, "tournaments"));
+            const matches = generateBracket([], format, maxTeams);
             await set(tournamentRef, {
               ...commonFields,
-              format,
-              maxTeams,
               status: "registration",
               teamCount: 0,
               organizerId: user.uid,
@@ -679,9 +695,10 @@
               teams: {},
               matches,
             });
-            alertSuccess.classList.add("show");
-            setTimeout(() => { window.location.href = "organizer"; }, 1500);
           }
+
+          alertSuccess.classList.add("show");
+          setTimeout(() => { window.location.href = "organizer.html"; }, 1500);
         } catch (error) {
           showAlert(isEdit ? "Ralat mengemaskini tournament. Cuba lagi." : "Ralat mencipta tournament. Cuba lagi.");
           setLoading(btnCreate, false, originalHTML);

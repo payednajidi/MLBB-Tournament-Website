@@ -124,6 +124,46 @@
     }
     .match-card.status-pending { border-color: rgba(244,63,94,.45); }
     .match-card.status-done { opacity: .68; }
+
+    /* ── Full bracket view (shared renderer with the public tournament page) ── */
+    .panel.active > * { min-width: 0; max-width: 100%; }
+    .bracket-outer {
+      background: rgba(7,5,20,.93);
+      border: 1px solid rgba(100,80,200,.28);
+      border-radius: 10px; overflow: hidden; margin-bottom: .5rem;
+    }
+    .bracket-scroll {
+      overflow-x: auto; overflow-y: hidden; padding: 14px 24px 20px;
+      cursor: grab; -webkit-overflow-scrolling: touch; touch-action: pan-y;
+      user-select: none; overscroll-behavior-x: contain;
+    }
+    .bracket-scroll.is-dragging { cursor: grabbing; user-select: none; }
+    .bracket-scroll::-webkit-scrollbar { height: 6px; }
+    .bracket-scroll::-webkit-scrollbar-track { background: transparent; }
+    .bracket-scroll::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+    .bracket-section { margin-bottom: 2.4rem; min-width: max-content; }
+    .bracket-title { color: #a78bfa; font-size: 15px; margin-bottom: .8rem; font-family: var(--font-head); letter-spacing: 2px; text-transform: uppercase; }
+    .bracket-track { display: flex; align-items: flex-start; padding-top: 38px; width: max-content; }
+    .round-col { position: relative; flex-shrink: 0; overflow: visible; }
+    .round-label { position: absolute; top: -28px; left: 0; right: 0; text-align: center; font-size: 11px; font-weight: 700; color: rgba(200,190,255,.55); text-transform: uppercase; letter-spacing: 1.5px; font-family: var(--font-mono); white-space: nowrap; }
+    .bracket-track .match-card { position: absolute; left: 0; border: 1px solid rgba(255,255,255,.1); background: #0e0c22; border-radius: var(--radius); box-sizing: border-box; overflow: visible; display: flex; flex-direction: column; justify-content: center; transition: border-color .15s, box-shadow .15s, background .15s; }
+    .bracket-track .match-card:hover { border-color: rgba(167,139,250,.45); }
+    .bracket-track .match-card.current { background: #14103e; border-color: rgba(167,139,250,.7); box-shadow: 0 0 0 1px rgba(167,139,250,.15), 0 2px 10px rgba(0,0,0,.6); }
+    .bracket-track .match-card.done { background: #090f0a; border-color: rgba(74,222,128,.3); }
+    .bracket-track .match-card.waiting { background: #09081c; border-color: rgba(255,255,255,.05); }
+    .bracket-track .team-row { display: flex; align-items: center; height: 28px; padding: 0 12px 0 14px; gap: 8px; color: rgba(220,215,255,.8); font-size: 13px; line-height: 1; box-sizing: border-box; }
+    .bracket-track .team-row + .team-row { border-top: 1px solid rgba(255,255,255,.06); }
+    .bracket-track .team-row > span:first-child { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .bracket-track .match-card.waiting .team-row { color: rgba(180,170,220,.28); }
+    .bracket-track .team-row.winner { color: #fbbf24; font-weight: 700; }
+    .bracket-track .team-row.loser  { color: rgba(255,255,255,.28); text-decoration: line-through; }
+    .bracket-track .team-score { font-family: var(--font-mono); color: #fbbf24; font-size: 13px; font-weight: 700; width: 28px; text-align: center; flex-shrink: 0; line-height: 1; }
+    .bracket-track .team-row.bye > span:first-child, .bracket-track .team-row.tbd > span:first-child { color: rgba(200,190,255,.3); font-style: normal; }
+    .bracket-conn { position: absolute; background: rgba(139,92,246,.45); pointer-events: none; border-radius: 1px; }
+    .bracket-unified { min-width: max-content; }
+    .bracket-subtitle { font-family: var(--font-head); font-size: 12px; font-weight: 900; color: #a78bfa; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 8px; padding-bottom: 5px; border-bottom: 1px solid rgba(167,139,250,.28); line-height: 1.2; }
+    .bracket-subtitle--gf { color: #fbbf24; border-bottom-color: rgba(251,191,36,.28); }
+    .champion-box { border: 1px solid rgba(251,191,36,.5); border-radius: var(--radius); padding: 1rem 1.25rem; background: rgba(14,12,34,.95); color: #fbbf24; font-family: var(--font-head); letter-spacing: 1px; margin: .6rem 0 0; font-size: 15px; max-width: max-content; }
     .match-head { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 8px; }
     .match-id-lbl { font-family: var(--font-mono); font-size: 11px; letter-spacing: 2px; color: var(--txt3); text-transform: uppercase; }
     .match-teams {
@@ -563,6 +603,7 @@
           <div class="ov-grid" id="ovGrid"></div>
           <div class="row-card" id="ovMatchProgress" style="padding:1rem"></div>
           <div id="ovBracketProgress"></div>
+          <div class="row-card" id="ovFullBracket" style="padding:1rem;margin-top:1rem"></div>
         </section>
 
         <!-- Matches -->
@@ -658,7 +699,8 @@
   <script type="module">
     import { requireOrganizer, logout } from "./js/auth.js";
     import { db } from "./js/firebase-config.js";
-    import { advanceBracket, formatDate, setLoading } from "./js/utils.js";
+    import { advanceBracket, formatDate, setLoading, rearrangeBracket, isBye, nextPowerOf2 } from "./js/utils.js";
+    import { renderFullBracket } from "./js/bracket-view.js";
     import {
       ref, get, update, push, set, onValue
     } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-database.js";
@@ -693,14 +735,58 @@
       const k = st === "done" ? "done" : st === "live" ? "live" : "upcoming";
       return `<span class="badge badge-${k}">${st}</span>`;
     }
-    function matchLabel(m) {
-      return `${({wb:"WB",lb:"LB",gf:"GF"}[m.bracket]||"BR")} R${m.round} M${m.position}`;
+    // Highest round number present in a bracket — drives dynamic stage naming.
+    function stageMaxRound(bracket) {
+      let max = 0;
+      for (const mm of Object.values(state.tournament?.matches || {})) {
+        if (mm.bracket === bracket && mm.round > max) max = mm.round;
+      }
+      return max;
     }
+    // Identify a match's stage dynamically from its round vs the final round, so
+    // Semi-Final / Grand Final etc. are detected by bracket SIZE, not hardcoded.
+    // Returns { key, name }: key maps into tournament.stageFormats.
+    function getMatchStage(m) {
+      const fmt = state.tournament?.format || "single";
+      if (fmt === "double") {
+        if (m.bracket === "gf") return { key: "grandFinal", name: "Grand Final" };
+        if (m.bracket === "lb") {
+          return m.round === stageMaxRound("lb")
+            ? { key: "lowerBracketFinal", name: "Lower Bracket Final" }
+            : { key: "lowerBracket", name: `Lower Bracket R${m.round}` };
+        }
+        return m.round === stageMaxRound("wb")
+          ? { key: "upperBracketFinal", name: "Upper Bracket Final" }
+          : { key: "upperBracket", name: `Upper Bracket R${m.round}` };
+      }
+      // Single elimination: name the closing rounds relative to the final round.
+      const maxR = stageMaxRound("wb");
+      if (m.round === maxR)     return { key: "grandFinal",   name: "Grand Final" };
+      if (m.round === maxR - 1) return { key: "semiFinal",    name: "Semi-Final" };
+      if (m.round === maxR - 2) return { key: "quarterFinal", name: "Quarter-Final" };
+      return { key: "earlyRounds", name: `Round ${m.round}` };
+    }
+    function matchLabel(m) {
+      const { name } = getMatchStage(m);
+      const sameRound = Object.values(state.tournament?.matches || {})
+        .filter(x => x.bracket === m.bracket && x.round === m.round).length;
+      return sameRound > 1 ? `${name} · #${m.position + 1}` : name;
+    }
+    function parseBo(v) {
+      const n = parseInt(String(v ?? "").replace(/\D/g, ""), 10);
+      return n >= 1 ? n : 1;
+    }
+    // BO for a match: explicit per-match override → configured stage format →
+    // legacy single global → default BO1. Works for single AND double elimination.
     function getMatchBo(m) {
-      const t = state.tournament;
-      if (m.bo) return Number(m.bo);
-      if (t.stages?.[m.bracket]?.bo) return Number(t.stages[m.bracket].bo);
-      if (t.bo) return Number(t.bo);
+      if (m.bo) return parseBo(m.bo);
+      const t = state.tournament || {};
+      const sf = t.stageFormats;
+      if (sf) {
+        const { key } = getMatchStage(m);
+        if (sf[key]) return parseBo(sf[key]);
+      }
+      if (t.matchFormat) return parseBo(t.matchFormat);
       return 1;
     }
     function boWins(bo) { return Math.ceil(bo / 2); }
@@ -784,6 +870,7 @@
       bindFilterBar();
       bindActionDelegation();
       bindModalButtons();
+      bindBracketPan();
 
       document.body.addEventListener("click", (e) => {
         if (e.target.closest("[data-close-modal]")) closeModals();
@@ -852,7 +939,7 @@
       document.getElementById("manageHeroActions").innerHTML = `
         ${!isDone && !isLive
           ? `<button class="btn btn-primary btn-sm" data-action="start">▶ Mulakan Tournament</button>` : ""}
-        <a class="btn btn-secondary btn-sm" href="organizer-create.html?edit=${tid}">✏ Edit Tournament</a>
+        <a class="btn btn-secondary btn-sm" href="organizer-create?edit=${tid}">✏ Edit Tournament</a>
         ${!isDone
           ? `<button class="btn btn-danger btn-sm" data-action="end-prompt">⏹ End Tournament</button>` : ""}
         ${isDone ? `<span class="badge badge-done" style="padding:6px 14px;font-size:12px">Tournament Selesai</span>` : ""}`;
@@ -950,12 +1037,34 @@
           </div>
         </div>`;
       }
+
+      // ── Full bracket view (same renderer as the public tournament page) ──
+      const fbEl = document.getElementById("ovFullBracket");
+      if (fbEl) {
+        const tt = state.tournament;
+        const names = {};
+        Object.entries(state.teams || {}).forEach(([uid, tm]) => { names[uid] = tm?.teamName || "TBD"; });
+        const hasBracket   = tt.matches && Object.keys(tt.matches).length > 0;
+        const canRearrange = hasBracket && tt.status !== "done";
+        fbEl.innerHTML = `
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;gap:8px;flex-wrap:wrap">
+            <p class="sub-heading" style="margin:0;border:none;padding:0">Bracket Penuh</p>
+            <div style="display:flex;gap:8px;flex-wrap:wrap">
+              ${canRearrange ? `<button class="btn btn-secondary btn-sm" data-action="rearrange-bracket"
+                title="Susun semula bracket supaya lebih padat berdasarkan bilangan pasukan berdaftar">⟳ Susun Semula Bracket</button>` : ""}
+              <a class="btn btn-secondary btn-sm" href="tournament-details?id=${tid}" target="_blank" rel="noopener">↗ Buka Penuh</a>
+            </div>
+          </div>
+          <div class="bracket-outer"><div class="bracket-scroll">${renderFullBracket(tt.matches, tt.format, tt.winnerId, names)}</div></div>`;
+      }
     }
 
     function renderMatches() {
       const filter = state.matchFilter;
       const allMatches = Object.entries(state.tournament.matches || {})
         .map(([matchId, m]) => ({ matchId, ...m }))
+        // Hide auto-resolved byes and phantom (BYE-fed) slots — nothing to manage there.
+        .filter(m => m.status !== "bye" && m.status !== "skip" && !isBye(m.team1) && !isBye(m.team2))
         .sort((a, b) => {
           const bo = { wb:0, lb:1, gf:2 };
           if ((bo[a.bracket]||0) !== (bo[b.bracket]||0)) return (bo[a.bracket]||0) - (bo[b.bracket]||0);
@@ -1122,6 +1231,27 @@
           </div>`).join("") + `</div>`;
     }
 
+    /* ── Click-and-drag panning for the full bracket (both axes) ── */
+    function bindBracketPan() {
+      let pan = null;
+      document.addEventListener("mousedown", (e) => {
+        if (e.button !== 0) return;
+        const sc = e.target.closest && e.target.closest("#ovFullBracket .bracket-scroll");
+        if (!sc) return;
+        pan = { el: sc, x: e.clientX, y: e.clientY, l: sc.scrollLeft, t: sc.scrollTop };
+        sc.classList.add("is-dragging");
+        e.preventDefault();
+      });
+      document.addEventListener("mousemove", (e) => {
+        if (!pan) return;
+        pan.el.scrollLeft = pan.l - (e.clientX - pan.x);
+        pan.el.scrollTop  = pan.t - (e.clientY - pan.y);
+      });
+      const end = () => { if (pan) { pan.el.classList.remove("is-dragging"); pan = null; } };
+      document.addEventListener("mouseup", end);
+      document.addEventListener("mouseleave", end);
+    }
+
     /* ── Tabs & filters ────────────────────────── */
     function bindTabs() {
       document.getElementById("tabs").addEventListener("click", (e) => {
@@ -1157,6 +1287,47 @@
             await reloadActivity();
             showAlert("Tournament dimulakan.", "success");
           } catch { showAlert("Ralat memulakan tournament."); setLoading(btn, false, orig); }
+          return;
+        }
+
+        if (action === "rearrange-bracket") {
+          const t = state.tournament;
+          const teams = Object.keys(t.teams || {});
+          if (teams.length < 2) { showAlert("Minimum 2 pasukan diperlukan untuk menyusun bracket.", "error"); return; }
+          const format      = t.format || "single";
+          const maxSlots    = t.maxTeams || teams.length;
+          const bracketSize = nextPowerOf2(Math.max(teams.length, 2));
+          const byes        = bracketSize - teams.length;
+          const playIn      = teams.length - bracketSize / 2;
+          const playedCount = Object.values(t.matches || {}).filter(m => m.status === "done" || m.status === "walkover").length;
+          const warn = playedCount > 0
+            ? `\n\n⚠ AMARAN: ${playedCount} keputusan perlawanan akan DIPADAM dan bracket dijana semula dari awal.`
+            : "";
+          const ok = confirm(
+            `Susun Semula Bracket\n\n` +
+            `• ${teams.length} pasukan berdaftar\n` +
+            `• Saiz bracket padat: ${bracketSize} slot\n` +
+            `• ${playIn} perlawanan pusingan 1 + ${byes} BYE (terus ke pusingan 2)\n` +
+            `• Susunan dikocok semula secara rawak` +
+            warn +
+            `\n\nTeruskan?`
+          );
+          if (!ok) return;
+          const orig = btn.innerHTML;
+          setLoading(btn, true, orig);
+          try {
+            const { matches, bracketSize: size } = rearrangeBracket(teams, format, maxSlots);
+            await update(ref(db, `tournaments/${tid}`), {
+              matches, bracketSize: size, seededAt: Date.now(), seededBy: state.user.uid,
+            });
+            await logAction({ action:"REARRANGE_BRACKET", matchId:null, teamCount:teams.length, bracketSize:size, byes, organizerId:state.user.uid });
+            await reloadActivity();
+            showAlert("Bracket disusun semula menjadi lebih padat.", "success");
+          } catch (err) {
+            console.error(err);
+            showAlert("Ralat menyusun semula bracket.");
+            setLoading(btn, false, orig);
+          }
           return;
         }
 

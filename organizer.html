@@ -638,6 +638,7 @@
         <button class="tab-btn" data-tab="squads">👥 Squads</button>
         <button class="tab-btn" data-tab="recovery">Pemulihan Akaun</button>
         <button class="tab-btn" data-tab="season">🏆 Pengurusan Musim</button>
+        <button class="tab-btn" data-tab="reset">🔄 Reset Testing Dummy</button>
       </div>
 
       <section class="panel active" id="panel-tournaments"></section>
@@ -727,6 +728,45 @@
           </div>
         </div>
       </section>
+
+      <!-- ── Reset Testing Dummy ────────────── -->
+      <section class="panel" id="panel-reset">
+        <div class="row-card">
+          <h3 style="margin-bottom:.75rem">🔄 Reset Testing Dummy</h3>
+          <p class="text-muted" style="font-size:13px;margin-bottom:1rem">
+            Padam semua data sedia ada dan cipta 3 tournament dummy baru dengan semua slot dipenuhi oleh permohonan pasukan (pending kelulusan admin).
+          </p>
+          <div style="background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.28);border-radius:8px;padding:14px 16px;margin-bottom:1rem;color:#f87171;font-size:13px;line-height:1.6">
+            <strong style="color:#fca5a5">⚠ Amaran:</strong> Tindakan ini akan <strong>memadam SEMUA</strong> data dalam <code>teams/</code>, <code>tournaments/</code>, dan <code>applications/</code>. Tidak boleh dibatalkan.
+          </div>
+          <div style="background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:14px 16px;margin-bottom:1.25rem;font-size:13px">
+            <div style="font-family:var(--font-head);color:var(--gold);font-size:12px;margin-bottom:10px;letter-spacing:.5px">DATA BAHARU YANG AKAN DICIPTA</div>
+            <div style="display:grid;gap:5px">
+              <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid color-mix(in srgb,var(--border) 50%,transparent)">
+                <span style="color:var(--txt2)">Pasukan Dummy</span>
+                <span style="color:var(--txt);font-family:var(--font-mono);font-size:12px;font-weight:600">32 pasukan</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid color-mix(in srgb,var(--border) 50%,transparent)">
+                <span style="color:var(--txt2)">HC Cup — Open 16</span>
+                <span style="color:var(--txt);font-family:var(--font-mono);font-size:12px;font-weight:600">Single Elim · 16 slot · 16 permohonan</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid color-mix(in srgb,var(--border) 50%,transparent)">
+                <span style="color:var(--txt2)">HC Cup — Masters 24</span>
+                <span style="color:var(--txt);font-family:var(--font-mono);font-size:12px;font-weight:600">Single Elim · 24 slot · 24 permohonan</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;padding:5px 0">
+                <span style="color:var(--txt2)">HC Cup — Champions 32</span>
+                <span style="color:var(--txt);font-family:var(--font-mono);font-size:12px;font-weight:600">Double Elim · 32 slot · 32 permohonan</span>
+              </div>
+            </div>
+          </div>
+          <button class="btn btn-danger" id="btnRunResetDummy" style="font-family:var(--font-head);letter-spacing:1.5px;padding:12px 28px;font-size:14px">
+            🔄 JALANKAN RESET DUMMY
+          </button>
+          <div id="resetDummyLog" style="display:none;background:#0a0715;border:1px solid var(--border);border-radius:8px;padding:14px 16px;font-family:var(--font-mono);font-size:12px;line-height:1.9;max-height:340px;overflow-y:auto;margin-top:16px"></div>
+        </div>
+      </section>
+
     </div>
   </main>
 
@@ -1276,6 +1316,7 @@
       await loadData(state);
       bindTabs();
       bindActions(state);
+      bindResetDummy(state);
       renderAll(state);
     });
 
@@ -1834,6 +1875,190 @@
         document.querySelectorAll(".tab-btn").forEach((node) => node.classList.toggle("active", node === btn));
         document.querySelectorAll(".panel").forEach((node) => node.classList.toggle("active", node.id === `panel-${btn.dataset.tab}`));
         if (btn.dataset.tab === "season") renderSeason();
+      });
+    }
+
+    function bindResetDummy(state) {
+      const btn   = document.getElementById("btnRunResetDummy");
+      const logEl = document.getElementById("resetDummyLog");
+      if (!btn || !logEl) return;
+
+      function log(msg, type = "info") {
+        logEl.style.display = "block";
+        const line = document.createElement("div");
+        line.style.color = type === "ok" ? "#4ade80" : type === "err" ? "#f87171" : type === "head" ? "#f0b429" : "#94a3b8";
+        if (type === "head") line.style.fontWeight = "700";
+        line.textContent = msg;
+        logEl.appendChild(line);
+        logEl.scrollTop = logEl.scrollHeight;
+      }
+
+      btn.addEventListener("click", async () => {
+        if (!state.user) { alert("Log masuk dahulu."); return; }
+        if (!confirm("⚠ Ini akan MEMADAM semua pasukan, tournament, dan permohonan sedia ada, kemudian mencipta 3 tournament dummy baharu.\n\nTeruskan?")) return;
+
+        btn.disabled = true;
+        btn.textContent = "MEMPROSES...";
+        logEl.innerHTML = "";
+
+        const DUMMY_TEAMS = [
+          // ── Fire Group (1–8) ──
+          { id:"dmy_blaze_phoenix",  teamName:"Blaze Phoenix",  teamTag:"BLZP", displayName:"BlzpCapt", mlId:"900001000", captainRole:"jungle", captainRank:"Mythic Glory",  captainRankStars:3, serverRegion:"my" },
+          { id:"dmy_ember_storm",    teamName:"Ember Storm",    teamTag:"EMBR", displayName:"EmbrCapt", mlId:"900002000", captainRole:"exp",    captainRank:"Mythic Honor",  captainRankStars:2, serverRegion:"sg" },
+          { id:"dmy_flame_vanguard", teamName:"Flame Vanguard", teamTag:"FLMV", displayName:"FlmvCapt", mlId:"900003000", captainRole:"mid",    captainRank:"Mythic",        captainRankStars:5, serverRegion:"my" },
+          { id:"dmy_inferno_kings",  teamName:"Inferno Kings",  teamTag:"IFRK", displayName:"IfrkCapt", mlId:"900004000", captainRole:"gold",   captainRank:"Mythic Glory",  captainRankStars:1, serverRegion:"sg" },
+          { id:"dmy_pyro_squad",     teamName:"Pyro Squad",     teamTag:"PYRQ", displayName:"PyrqCapt", mlId:"900005000", captainRole:"exp",    captainRank:"Legend",        captainRankStars:5, serverRegion:"my" },
+          { id:"dmy_lava_tide",      teamName:"Lava Tide",      teamTag:"LAVT", displayName:"LavtCapt", mlId:"900006000", captainRole:"jungle", captainRank:"Mythic",        captainRankStars:4, serverRegion:"sg" },
+          { id:"dmy_torch_runners",  teamName:"Torch Runners",  teamTag:"TRCR", displayName:"TrcrCapt", mlId:"900007000", captainRole:"mid",    captainRank:"Mythic Glory",  captainRankStars:2, serverRegion:"my" },
+          { id:"dmy_ash_crusaders",  teamName:"Ash Crusaders",  teamTag:"ASHC", displayName:"AshcCapt", mlId:"900008000", captainRole:"roam",   captainRank:"Mythic Honor",  captainRankStars:4, serverRegion:"sg" },
+          // ── Ice Group (9–16) ──
+          { id:"dmy_frost_nova",     teamName:"Frost Nova",     teamTag:"FRNV", displayName:"FrnvCapt", mlId:"900009000", captainRole:"gold",   captainRank:"Mythic",        captainRankStars:3, serverRegion:"my" },
+          { id:"dmy_glacier_force",  teamName:"Glacier Force",  teamTag:"GLCR", displayName:"GlcrCapt", mlId:"900010000", captainRole:"roam",   captainRank:"Mythic Honor",  captainRankStars:1, serverRegion:"sg" },
+          { id:"dmy_arctic_rush",    teamName:"Arctic Rush",    teamTag:"ARRC", displayName:"ArrcCapt", mlId:"900011000", captainRole:"jungle", captainRank:"Mythic Glory",  captainRankStars:4, serverRegion:"my" },
+          { id:"dmy_blizzard_boys",  teamName:"Blizzard Boys",  teamTag:"BLZB", displayName:"BlzbCapt", mlId:"900012000", captainRole:"exp",    captainRank:"Mythic",        captainRankStars:2, serverRegion:"sg" },
+          { id:"dmy_ice_breaker",    teamName:"Ice Breaker",    teamTag:"ICBR", displayName:"IcbrCapt", mlId:"900013000", captainRole:"mid",    captainRank:"Mythic Honor",  captainRankStars:2, serverRegion:"my" },
+          { id:"dmy_polar_strike",   teamName:"Polar Strike",   teamTag:"PLRS", displayName:"PlrsCapt", mlId:"900014000", captainRole:"gold",   captainRank:"Mythic Glory",  captainRankStars:5, serverRegion:"sg" },
+          { id:"dmy_snow_wolves",    teamName:"Snow Wolves",    teamTag:"SNWW", displayName:"SnwwCapt", mlId:"900015000", captainRole:"roam",   captainRank:"Mythic",        captainRankStars:4, serverRegion:"my" },
+          { id:"dmy_cryo_phantoms",  teamName:"Cryo Phantoms",  teamTag:"CRYP", displayName:"CrypCapt", mlId:"900016000", captainRole:"jungle", captainRank:"Mythic Honor",  captainRankStars:3, serverRegion:"sg" },
+          // ── Storm Group (17–24) ──
+          { id:"dmy_thunder_hawks",  teamName:"Thunder Hawks",  teamTag:"TDRH", displayName:"TdrhCapt", mlId:"900017000", captainRole:"exp",    captainRank:"Mythic Glory",  captainRankStars:2, serverRegion:"my" },
+          { id:"dmy_storm_surge",    teamName:"Storm Surge",    teamTag:"STMS", displayName:"StmsCapt", mlId:"900018000", captainRole:"mid",    captainRank:"Mythic",        captainRankStars:5, serverRegion:"sg" },
+          { id:"dmy_lightning_edge", teamName:"Lightning Edge", teamTag:"LTGE", displayName:"LtgeCapt", mlId:"900019000", captainRole:"gold",   captainRank:"Mythic Honor",  captainRankStars:1, serverRegion:"my" },
+          { id:"dmy_cyclone_force",  teamName:"Cyclone Force",  teamTag:"CYCF", displayName:"CycfCapt", mlId:"900020000", captainRole:"roam",   captainRank:"Mythic Glory",  captainRankStars:3, serverRegion:"sg" },
+          { id:"dmy_thunder_clap",   teamName:"Thunder Clap",   teamTag:"TDRC", displayName:"TdrcCapt", mlId:"900021000", captainRole:"jungle", captainRank:"Mythic",        captainRankStars:3, serverRegion:"my" },
+          { id:"dmy_gale_warriors",  teamName:"Gale Warriors",  teamTag:"GALW", displayName:"GalwCapt", mlId:"900022000", captainRole:"exp",    captainRank:"Mythic Honor",  captainRankStars:4, serverRegion:"sg" },
+          { id:"dmy_storm_breaker",  teamName:"Storm Breaker",  teamTag:"STBR", displayName:"StbrCapt", mlId:"900023000", captainRole:"mid",    captainRank:"Mythic Glory",  captainRankStars:1, serverRegion:"my" },
+          { id:"dmy_wind_blades",    teamName:"Wind Blades",    teamTag:"WDBL", displayName:"WdblCapt", mlId:"900024000", captainRole:"gold",   captainRank:"Mythic",        captainRankStars:2, serverRegion:"sg" },
+          // ── Shadow Group (25–32) ──
+          { id:"dmy_shadow_wraith",  teamName:"Shadow Wraith",  teamTag:"SHWR", displayName:"ShwrCapt", mlId:"900025000", captainRole:"roam",   captainRank:"Mythic Honor",  captainRankStars:2, serverRegion:"my" },
+          { id:"dmy_dark_pact",      teamName:"Dark Pact",      teamTag:"DKPT", displayName:"DkptCapt", mlId:"900026000", captainRole:"jungle", captainRank:"Mythic Glory",  captainRankStars:4, serverRegion:"sg" },
+          { id:"dmy_void_hunters",   teamName:"Void Hunters",   teamTag:"VDHH", displayName:"VdhhCapt", mlId:"900027000", captainRole:"exp",    captainRank:"Mythic",        captainRankStars:4, serverRegion:"my" },
+          { id:"dmy_night_stalkers", teamName:"Night Stalkers", teamTag:"NGTS", displayName:"NgtsCapt", mlId:"900028000", captainRole:"mid",    captainRank:"Mythic Honor",  captainRankStars:3, serverRegion:"sg" },
+          { id:"dmy_black_mamba",    teamName:"Black Mamba",    teamTag:"BLKM", displayName:"BlkmCapt", mlId:"900029000", captainRole:"gold",   captainRank:"Mythic Glory",  captainRankStars:2, serverRegion:"my" },
+          { id:"dmy_silent_blade",   teamName:"Silent Blade",   teamTag:"SLTB", displayName:"SltbCapt", mlId:"900030000", captainRole:"roam",   captainRank:"Mythic",        captainRankStars:5, serverRegion:"sg" },
+          { id:"dmy_dark_matter",    teamName:"Dark Matter",    teamTag:"DKMT", displayName:"DkmtCapt", mlId:"900031000", captainRole:"jungle", captainRank:"Mythic Honor",  captainRankStars:1, serverRegion:"my" },
+          { id:"dmy_phantom_lords",  teamName:"Phantom Lords",  teamTag:"PHLT", displayName:"PhltCapt", mlId:"900032000", captainRole:"exp",    captainRank:"Mythic Glory",  captainRankStars:3, serverRegion:"sg" },
+        ];
+
+        const TOURNEYS = [
+          {
+            name: "HC Cup — Open 16",
+            desc: "Tournament dummy single elimination 16 pasukan. Semua slot telah dipohon — admin perlu luluskan permohonan sebelum menjana bracket.",
+            format: "single", maxTeams: 16, prize: 300,
+            stageFormats: { earlyRounds: "bo1", quarterFinal: "bo3", semiFinal: "bo3", grandFinal: "bo5" },
+          },
+          {
+            name: "HC Cup — Masters 24",
+            desc: "Tournament dummy single elimination 24 pasukan. Semua 24 slot telah dipohon — admin luluskan dan jana bracket.",
+            format: "single", maxTeams: 24, prize: 500,
+            stageFormats: { earlyRounds: "bo1", quarterFinal: "bo3", semiFinal: "bo3", grandFinal: "bo5" },
+          },
+          {
+            name: "HC Cup — Champions 32",
+            desc: "Tournament dummy double elimination 32 pasukan. Semua 32 slot telah dipohon — admin luluskan dan jana bracket.",
+            format: "double", maxTeams: 32, prize: 1000,
+            stageFormats: { upperBracket: "bo1", upperBracketFinal: "bo3", lowerBracket: "bo1", lowerBracketFinal: "bo3", grandFinal: "bo5" },
+          },
+        ];
+
+        try {
+          const now   = Date.now();
+          const today = new Date();
+          const regOpen  = new Date(today); regOpen.setDate(today.getDate() - 3);
+          const regClose = new Date(today); regClose.setDate(today.getDate() + 7);
+          const startDt  = new Date(today); startDt.setDate(today.getDate() + 14);
+
+          // 1 ── Delete existing data
+          log("── Memadamkan data lama ──", "head");
+          await remove(ref(db, "teams"));
+          await remove(ref(db, "tournaments"));
+          await remove(ref(db, "applications"));
+          log("✓ teams / tournaments / applications dipadam", "ok");
+
+          // 2 ── Create 32 dummy teams
+          log("── Mencipta 32 pasukan dummy ──", "head");
+          const allRoles = ["exp","gold","mid","jungle","roam"];
+          for (const t of DUMMY_TEAMS) {
+            const memberRoles = allRoles.filter(r => r !== t.captainRole);
+            const baseId = parseInt(t.mlId);
+            const members = memberRoles.map((role, i) => ({
+              name: `${t.teamTag}${role.charAt(0).toUpperCase()}${role.slice(1)}`,
+              mlId: String(baseId + i + 1),
+              role,
+              rank: i < 2 ? "Mythic" : "Legend",
+              rankStars: i < 2 ? 2 - i + 1 : 5 - i,
+            }));
+            await set(ref(db, `teams/${t.id}`), {
+              teamName: t.teamName, teamTag: t.teamTag,
+              displayName: t.displayName, mlId: t.mlId,
+              captainRole: t.captainRole, captainRank: t.captainRank,
+              captainRankStars: t.captainRankStars,
+              serverRegion: t.serverRegion,
+              members, reserves: [], uid: t.id,
+              createdAt: now, registrationStatus: "registered",
+              latestModRequest: null,
+            });
+            log(`✓ ${t.teamName} [${t.teamTag}]`, "ok");
+          }
+
+          // 3 ── Create 3 tournaments with full pending applications
+          for (const tourney of TOURNEYS) {
+            log(`── Mencipta "${tourney.name}" (${tourney.format} · ${tourney.maxTeams} slot) ──`, "head");
+            const tRef = push(ref(db, "tournaments"));
+            const tid  = tRef.key;
+            await set(tRef, {
+              name: tourney.name,
+              description: tourney.desc,
+              category: "competitive",
+              format: tourney.format,
+              status: "registration",
+              teamCount: 0,
+              maxTeams: tourney.maxTeams,
+              bracketGenerated: false,
+              prizePool: tourney.prize,
+              entryFee: 0,
+              prizeBreakdown: {
+                first:  tourney.prize,
+                second: Math.round(tourney.prize * 0.4),
+                third:  Math.round(tourney.prize * 0.2),
+              },
+              stageFormats: tourney.stageFormats,
+              regOpenDate:  regOpen.toISOString().slice(0, 10),
+              regCloseDate: regClose.toISOString().slice(0, 10),
+              startDate:    startDt.toISOString().slice(0, 10),
+              rules: "1. Semua pemain mesti menggunakan akaun MY/SG.\n2. Perlawanan bermula mengikut jadual yang ditetapkan.\n3. Sebarang bantahan mesti diserahkan dalam masa 10 minit selepas perlawanan.\n4. Penganjur berhak membuat keputusan muktamad.",
+              whatsappGroupId: "",
+              organizerId: state.user.uid,
+              createdAt: now,
+              teams: {},
+              matches: {},
+            });
+            log(`✓ Tournament "${tourney.name}" dicipta`, "ok");
+
+            for (const t of DUMMY_TEAMS.slice(0, tourney.maxTeams)) {
+              await set(ref(db, `applications/${tid}/${t.id}`), {
+                status:      "pending_review",
+                teamId:      t.id,
+                teamName:    t.teamName,
+                teamTag:     t.teamTag,
+                captainName: t.displayName,
+                captainRank: t.captainRank,
+                appliedAt:   now,
+              });
+            }
+            log(`✓ ${tourney.maxTeams} permohonan pendaftaran dicipta`, "ok");
+          }
+
+          log("── ✅ SELESAI! 32 pasukan + 3 tournament dummy berjaya dicipta. ──", "head");
+          btn.textContent = "✓ RESET SELESAI";
+          await refresh(state);
+
+        } catch (err) {
+          log(`✗ RALAT: ${err.message}`, "err");
+          console.error(err);
+          btn.disabled = false;
+          btn.textContent = "🔄 CUBA LAGI";
+        }
       });
     }
 

@@ -565,7 +565,7 @@
     }
 
     async function getTeamName(uid) {
-      if (!uid) return "TBD";
+      if (!uid || uid === '__BYE__') return 'BYE';
       if (teamNameCache[uid]) return teamNameCache[uid];
       const snap = await get(ref(db, `teams/${uid}/teamName`));
       teamNameCache[uid] = snap.exists() ? snap.val() : "Pasukan Tidak Dikenali";
@@ -600,11 +600,11 @@
 
     // ── Bracket rendering ────────────────────────────────────
     function renderTeamRow(uid, score, match) {
-      const isBye   = match.status === "bye" && !uid;
+      const isBye   = !uid || uid === '__BYE__';
       const label   = isBye ? "BYE" : (teamNameCache[uid] || "TBD");
-      const state   = match.winnerId === uid ? "winner" : match.loserId === uid ? "loser" : "";
-      const muted   = !uid ? (isBye ? "bye" : "tbd") : "";
-      return `<div class="team-row ${state} ${muted}"><span>${escHtml(label)}</span><span class="team-score">${Number(score)||0}</span></div>`;
+      const state   = (!isBye && match.winnerId === uid) ? "winner" : (!isBye && match.loserId === uid) ? "loser" : "";
+      const muted   = isBye ? "bye" : !uid ? "tbd" : "";
+      return `<div class="team-row ${state} ${muted}"><span>${escHtml(label)}</span><span class="team-score">${isBye ? "" : Number(score)||0}</span></div>`;
     }
 
     // ── Bracket rendering ────────────────────────────────────
@@ -616,7 +616,7 @@
 
       const grouped = {};
       Object.values(matches || {})
-        .filter(m => m.bracket === bracket)
+        .filter(m => m.bracket === bracket && m.status !== 'bye' && m.status !== 'skip')
         .sort((a,b) => a.round - b.round || a.position - b.position)
         .forEach(m => { grouped[m.round] ||= []; grouped[m.round].push(m); });
       const rounds = Object.keys(grouped).map(Number).sort((a,b) => a-b);
@@ -872,7 +872,7 @@
       if (!allMatches.length) return '<p class="text-muted" style="padding:1rem 18px">Bracket belum dijana.</p>';
 
       const bOrder = { wb: 0, lb: 1, gf: 2 };
-      const sortedMatches = [...allMatches].sort((a, b) => {
+      const sortedMatches = [...allMatches].filter(m => m.status !== 'bye' && m.status !== 'skip').sort((a, b) => {
         const ba = bOrder[a.bracket] ?? 3, bb = bOrder[b.bracket] ?? 3;
         if (ba !== bb) return ba - bb;
         return a.round - b.round || a.position - b.position;
@@ -899,10 +899,11 @@
       }
 
       function teamRow(uid, score, m, idx) {
-        const isWinner = m.winnerId === uid;
-        const isLoser  = m.loserId  === uid;
-        const label    = uid ? (teamNameCache[uid] || 'TBD') : (m.status==='bye' ? 'BYE' : 'TBD');
-        const cls      = !uid ? 'tbd' : isWinner ? 'winner' : isLoser ? 'loser' : '';
+        const isByeSlot = !uid || uid === '__BYE__';
+        const isWinner = !isByeSlot && m.winnerId === uid;
+        const isLoser  = !isByeSlot && m.loserId  === uid;
+        const label    = isByeSlot ? 'BYE' : (teamNameCache[uid] || 'TBD');
+        const cls      = isByeSlot ? 'tbd' : isWinner ? 'winner' : isLoser ? 'loser' : '';
         const scoreHtml = uid
           ? `<span class="mbr-score${!isWinner&&!isLoser?' neutral':''}">${Number(score)||0}</span>`
           : '';
@@ -981,7 +982,7 @@
         if (m.team2) allUids.add(m.team2);
         if (m.winnerId) allUids.add(m.winnerId);
       });
-      await Promise.all([...allUids].filter(u => !teamNameCache[u]).map(async u => {
+      await Promise.all([...allUids].filter(u => u && u !== '__BYE__' && !teamNameCache[u]).map(async u => {
         teamNameCache[u] = await getTeamName(u);
       }));
 

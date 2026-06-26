@@ -743,6 +743,22 @@
 
       <!-- ── Reset Testing Dummy ────────────── -->
       <section class="panel" id="panel-reset">
+
+        <!-- Clear All Data -->
+        <div class="row-card" style="border-top:3px solid rgba(239,68,68,.6)">
+          <h3 style="margin-bottom:.5rem;color:#f87171">🗑 Padam Semua Data</h3>
+          <p class="text-muted" style="font-size:13px;margin-bottom:1rem;line-height:1.6">
+            Padam semua tournament, pasukan, dan permohonan sedia ada tanpa mencipta data baharu.
+          </p>
+          <div style="background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.28);border-radius:8px;padding:12px 16px;margin-bottom:1.25rem;color:#f87171;font-size:13px;line-height:1.6">
+            <strong style="color:#fca5a5">⚠ Amaran:</strong> Ini akan memadam <strong>teams/</strong>, <strong>tournaments/</strong>, dan <strong>applications/</strong> secara kekal.
+          </div>
+          <button class="btn btn-danger" id="btnClearAllData" style="font-family:var(--font-head);letter-spacing:1.5px;padding:12px 28px;font-size:14px">
+            🗑 PADAM SEMUA DATA
+          </button>
+          <div id="clearAllLog" style="display:none;background:#0a0715;border:1px solid var(--border);border-radius:8px;padding:14px 16px;font-family:var(--font-mono);font-size:12px;line-height:1.9;margin-top:16px"></div>
+        </div>
+
         <div class="row-card">
           <h3 style="margin-bottom:.75rem">🔄 Reset Testing Dummy</h3>
           <p class="text-muted" style="font-size:13px;margin-bottom:1rem">
@@ -2014,6 +2030,43 @@
     }
 
     function bindResetDummy(state) {
+      /* ── Clear All Data button ── */
+      const clearBtn = document.getElementById("btnClearAllData");
+      const clearLog = document.getElementById("clearAllLog");
+      if (clearBtn && clearLog) {
+        clearBtn.addEventListener("click", async () => {
+          if (!confirm("⚠ Ini akan MEMADAM SEMUA pasukan, tournament, dan permohonan secara kekal.\n\nTiada data baharu akan dicipta. Teruskan?")) return;
+          clearBtn.disabled = true;
+          clearBtn.textContent = "MEMPROSES...";
+          clearLog.style.display = "block";
+          clearLog.innerHTML = "";
+          const addLine = (msg, color = "#94a3b8") => {
+            const d = document.createElement("div");
+            d.style.color = color;
+            d.textContent = msg;
+            clearLog.appendChild(d);
+          };
+          try {
+            addLine("── Memadamkan teams/ ──", "#f0b429");
+            await remove(ref(db, "teams"));
+            addLine("✓ teams/ dipadam", "#4ade80");
+            addLine("── Memadamkan tournaments/ ──", "#f0b429");
+            await remove(ref(db, "tournaments"));
+            addLine("✓ tournaments/ dipadam", "#4ade80");
+            addLine("── Memadamkan applications/ ──", "#f0b429");
+            await remove(ref(db, "applications"));
+            addLine("✓ applications/ dipadam", "#4ade80");
+            addLine("── ✅ Semua data berjaya dipadam. ──", "#f0b429");
+            clearBtn.textContent = "✓ SELESAI";
+            await refresh(state);
+          } catch (err) {
+            addLine(`✗ RALAT: ${err.message}`, "#f87171");
+            clearBtn.disabled = false;
+            clearBtn.textContent = "🗑 PADAM SEMUA DATA";
+          }
+        });
+      }
+
       const btn   = document.getElementById("btnRunResetDummy");
       const logEl = document.getElementById("resetDummyLog");
       if (!btn || !logEl) return;

@@ -283,9 +283,116 @@ export function renderFullBracket(matches, format, winnerId, names) {
   _names = names || {};
   const all = Object.values(matches || {});
   if (!all.length) return '<p style="padding:1rem 0;color:var(--txt3);font-size:13px">Bracket belum dijana.</p>';
-  // Render strictly by the tournament's format — identical to the public
-  // tournament-detail page, so the two views never diverge.
   if (format === "double") return renderBracketDouble(matches, winnerId);
   const champion = `<div class="champion-box">🏆 Champion: ${winnerId ? escHtml(_names[winnerId] || "—") : "Belum ditentukan"}</div>`;
   return renderBracketSection("Upper Bracket", matches, "wb") + champion;
+}
+
+export function renderBracketMobile(matches, winnerId, names) {
+  _names = names || {};
+  const allMatches = Object.values(matches || {});
+  if (!allMatches.length) return '<p class="text-muted" style="padding:1rem 18px">Bracket belum dijana.</p>';
+
+  const bOrder = { wb: 0, lb: 1, gf: 2 };
+  const sorted = [...allMatches]
+    .filter(m => m.status !== 'bye' && m.status !== 'skip')
+    .sort((a, b) => {
+      const ba = bOrder[a.bracket] ?? 3, bb = bOrder[b.bracket] ?? 3;
+      if (ba !== bb) return ba - bb;
+      return a.round - b.round || a.position - b.position;
+    });
+
+  const groups = {};
+  sorted.forEach(m => {
+    (groups[m.bracket] ??= {})[m.round] ??= [];
+    groups[m.bracket][m.round].push(m);
+  });
+
+  const brackets = Object.keys(groups).sort((a, b) => (bOrder[a] ?? 3) - (bOrder[b] ?? 3));
+  const bracketMeta = { wb: 'Upper Bracket', lb: 'Lower Bracket', gf: 'Grand Final' };
+
+  function roundLabel(br, round, rounds) {
+    const last = rounds[rounds.length - 1], prev = rounds[rounds.length - 2];
+    if (br === 'gf') return 'Grand Final';
+    if (br === 'wb' && round === last) return 'UB Final';
+    if (br === 'lb' && round === last) return 'LB Final';
+    if (br === 'lb' && round === prev) return 'LB Semi-Final';
+    return `Round ${round}`;
+  }
+
+  function teamRow(uid, score, m, idx) {
+    const isByeSlot = !uid || uid === '__BYE__';
+    const isWinner  = !isByeSlot && m.winnerId === uid;
+    const isLoser   = !isByeSlot && m.loserId  === uid;
+    const label     = isByeSlot ? 'BYE' : (_names[uid] || 'TBD');
+    const cls       = isByeSlot ? 'tbd' : isWinner ? 'winner' : isLoser ? 'loser' : '';
+    const scoreHtml = uid
+      ? `<span class="mbr-score${!isWinner && !isLoser ? ' neutral' : ''}">${Number(score) || 0}</span>`
+      : '';
+    return `<div class="mbr-team ${cls}">
+      <span class="mbr-seed">${idx + 1}</span>
+      <span class="mbr-tname">${escHtml(label)}</span>
+      ${scoreHtml}
+    </div>`;
+  }
+
+  function matchCls(m) {
+    if (m.status === 'done' || m.status === 'walkover') return 'done';
+    if (m.status === 'upcoming' || m.status === 'live' || m.status === 'pending') return 'active';
+    return 'waiting';
+  }
+  function statusTag(m) {
+    if (m.status === 'live') return '<span class="mbr-status-tag live">LIVE</span>';
+    if (m.status === 'done' || m.status === 'walkover') return '<span class="mbr-status-tag done">SELESAI</span>';
+    if (m.status === 'upcoming') return '<span class="mbr-status-tag waiting">AKAN DATANG</span>';
+    return '';
+  }
+
+  let activeBr = null;
+  outer: for (const br of brackets) {
+    for (const round of Object.keys(groups[br]).map(Number).sort((a, b) => a - b)) {
+      if (groups[br][round].some(m => m.status === 'upcoming' || m.status === 'live' || m.status === 'pending')) {
+        activeBr = br; break outer;
+      }
+    }
+  }
+
+  const html = brackets.map(br => {
+    const roundNums = Object.keys(groups[br]).map(Number).sort((a, b) => a - b);
+    const totalM    = roundNums.reduce((n, r) => n + groups[br][r].length, 0);
+    const hasActive = roundNums.some(r => groups[br][r].some(m => m.status === 'upcoming' || m.status === 'live' || m.status === 'pending'));
+    const isOpen    = br === (activeBr ?? brackets[0]);
+
+    const roundsHtml = roundNums.map(round => {
+      const lbl = roundLabel(br, round, roundNums);
+      const matchesHtml = groups[br][round].map(m =>
+        `<div class="mbr-match ${matchCls(m)}">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:6px;margin-bottom:4px">
+            <div style="flex:1">${teamRow(m.team1, m.score1, m, 0)}<div class="mbr-divider"></div>${teamRow(m.team2, m.score2, m, 1)}</div>
+            <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">${statusTag(m)}</div>
+          </div>
+          ${m.status === 'walkover' ? '<div class="mbr-walkover-note">WALKOVER</div>' : ''}
+        </div>`
+      ).join('');
+      return `<div class="mbr-round-group">
+        <div class="mbr-round-lbl">${lbl}</div>
+        ${matchesHtml}
+      </div>`;
+    }).join('');
+
+    return `<div class="mbr-section${isOpen ? ' open' : ''}">
+      <button class="mbr-hdr${hasActive ? ' has-active' : ''}" data-mbr-toggle>
+        <div class="mbr-hdr-left">
+          ${hasActive ? '<span class="mbr-live-dot"></span>' : ''}
+          <span>${escHtml(bracketMeta[br] || br.toUpperCase())}</span>
+          <span class="mbr-count">${totalM} perlawanan</span>
+        </div>
+        <span class="mbr-chevron">▾</span>
+      </button>
+      <div class="mbr-rounds">${roundsHtml}</div>
+    </div>`;
+  }).join('');
+
+  const championHtml = `<div class="champion-box" style="margin:.6rem 0 0">🏆 Champion: ${winnerId ? escHtml(_names[winnerId] || '—') : 'Belum ditentukan'}</div>`;
+  return `<div>${html}</div>${championHtml}`;
 }

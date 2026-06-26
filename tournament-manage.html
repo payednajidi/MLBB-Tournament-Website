@@ -1213,18 +1213,38 @@
     }
 
     function renderTeams() {
-      const t = state.tournament;
+      const t            = state.tournament;
       const approvedUids = Object.keys(t.teams || {});
-      const pendApps = state.applications.filter(a => a.status === "pending_review" || a.status === "payment_submitted");
+      const maxTeams     = t.maxTeams || 0;
+      const slotsLeft    = maxTeams > 0
+        ? Math.max(0, maxTeams - approvedUids.length)
+        : Infinity;
+
+      // Sort by appliedAt ascending so earliest = #1
+      const pendApps = state.applications
+        .filter(a => a.status === "pending_review" || a.status === "payment_submitted")
+        .sort((a, b) => (a.appliedAt || 0) - (b.appliedAt || 0));
+
       let html = "";
 
       if (pendApps.length) {
         html += `<p class="sub-heading">Permohonan Pending (${pendApps.length})</p>`;
-        html += pendApps.map(app => `
-          <div class="app-card">
+
+        const inQuota   = pendApps.slice(0, slotsLeft === Infinity ? pendApps.length : slotsLeft);
+        const overQuota = pendApps.slice(slotsLeft === Infinity ? pendApps.length : slotsLeft);
+
+        const buildAppCard = (app, queuePos, isOver) => `
+          <div class="app-card" style="${isOver ? "border-color:rgba(239,68,68,.3);background:color-mix(in srgb,var(--bg3) 90%,rgba(239,68,68,.08));" : ""}">
             <div class="app-card-inner">
               <div style="flex:1;min-width:0">
-                <div class="app-status-badge">⏳ Menunggu Semakan</div>
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;flex-wrap:wrap">
+                  <div class="app-status-badge" style="${isOver ? "background:rgba(239,68,68,.12);border-color:rgba(239,68,68,.3);color:#f87171;" : ""}">
+                    ${isOver ? "⌛ Melebihi Kuota" : "⏳ Menunggu Semakan"}
+                  </div>
+                  <span style="font-family:var(--font-mono);font-size:10px;letter-spacing:1.5px;color:${isOver ? "#f87171" : "var(--txt3)"}">
+                    GILIRAN #${queuePos}
+                  </span>
+                </div>
                 <div style="font-size:15px;font-weight:700;color:var(--txt);margin-bottom:4px">
                   [${esc(app.teamTag||"")}] ${esc(app.teamName||"")}
                 </div>
@@ -1238,7 +1258,21 @@
                 <button class="btn btn-danger  btn-sm" data-action="reject-app"  data-app-uid="${escA(app.uid)}">❌ Tolak</button>
               </div>
             </div>
-          </div>`).join("");
+          </div>`;
+
+        if (inQuota.length) {
+          html += `<div style="padding:.5rem .85rem;background:rgba(34,197,94,.07);border:1px solid rgba(34,197,94,.22);border-radius:8px;font-family:var(--font-mono);font-size:11px;color:#4ade80;letter-spacing:.5px;margin-bottom:.75rem">
+            ✅ ${inQuota.length} pasukan dalam kuota — ${slotsLeft === Infinity ? "tiada had" : `${slotsLeft} slot tersedia`}
+          </div>`;
+          html += inQuota.map((app, i) => buildAppCard(app, i + 1, false)).join("");
+        }
+
+        if (overQuota.length) {
+          html += `<div style="padding:.5rem .85rem;background:rgba(239,68,68,.07);border:1px solid rgba(239,68,68,.25);border-radius:8px;font-family:var(--font-mono);font-size:11px;color:#f87171;letter-spacing:.5px;margin:1rem 0 .75rem">
+            ⚠ ${overQuota.length} pasukan lewat daftar — melebihi kapasiti ${maxTeams} slot
+          </div>`;
+          html += overQuota.map((app, i) => buildAppCard(app, inQuota.length + i + 1, true)).join("");
+        }
       }
 
       const mt = pendApps.length ? "1.25rem" : "0";

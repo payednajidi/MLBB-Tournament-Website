@@ -609,22 +609,74 @@
         max-height: 92vh; overflow-y: auto;
       }
 
-      /* Player roster: 3-per-row grid */
-      .dp-players { flex-wrap: wrap; gap: 4px; }
-      .dp-pc-col { flex: 0 0 calc(33.33% - 3px); min-width: 0; }
+      /* ── Roster: exit absolute overlay, become a proper card grid ── */
+      .dp-roster-img { max-height: 110px; min-height: 110px; object-fit: cover; object-position: center 20%; }
+      .dp-stage-fade { height: 100%; background: linear-gradient(to top, rgba(5,3,14,1) 0%, rgba(5,3,14,.8) 60%, rgba(5,3,14,.35) 100%); }
+      .dp-identity { top: 10px; left: 12px; }
+      .dp-identity-tag { font-size: 12px; padding: 4px 10px; margin-bottom: 6px; }
+      .dp-identity-name { font-size: 17px; }
+      .dp-rank-pill { top: 10px; right: 44px; font-size: 12px; padding: 4px 10px; }
 
+      .dp-players {
+        /* Pull out of absolute inset overlay — flow below the banner image */
+        position: relative;
+        inset: auto;
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1px;
+        background: rgba(255,255,255,.07);
+      }
+      .dp-pc-col {
+        flex: unset;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        background: rgba(4,2,14,.97);
+        padding: 10px 4px 10px;
+        min-height: 108px;
+      }
+      .dp-pc-col.is-cap {
+        background: rgba(14,8,0,.98);
+        border-top: 2px solid rgba(251,191,36,.65);
+      }
+      /* Nameplate: static flow, centered at top of each card */
+      .dp-pc-nameplate {
+        position: static;
+        top: auto; left: auto;
+        transform: none;
+        width: 100%;
+        text-align: center;
+        pointer-events: none;
+        margin-bottom: 6px;
+      }
+      .dp-pc-name { font-size: 10px; }
+      .dp-pc-col.is-cap .dp-pc-name { font-size: 11px; }
+      /* Panel: static flow, pushed to bottom of card */
+      .dp-pc-panel {
+        position: static;
+        background: transparent;
+        border-top: none;
+        border-left: none !important;
+        backdrop-filter: none;
+        padding: 0;
+        text-align: center;
+        width: 100%;
+        margin-top: auto;
+      }
+      .dp-pc-col.is-cap .dp-pc-panel { background: transparent; border-top: none; }
+      .dp-pc-col + .dp-pc-col .dp-pc-panel { border-left: none; }
+
+      /* ── Stats: 3-column grid (2 rows of 3) instead of 1 row of 6 ── */
       .dp-stats-body { padding: 12px 10px 8px; }
+      .dp-stat-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+      .dp-stat-card { min-width: 0; padding: 8px 6px; flex: unset; }
+      .dp-s-label { font-size: 9px; letter-spacing: 1px; margin-bottom: 5px; }
+      .dp-s-value { font-size: 15px; }
+
       .dp-reserves { padding: 8px 10px; }
       .dp-footer { padding: 10px 12px; }
       .dp-footer-pts strong { font-size: 20px; }
-      .dp-s-value { font-size: 16px; }
-      .dp-stat-card { min-width: 54px; padding: 8px 8px; }
-      .dp-s-label { font-size: 9px; }
-
-      /* Roster section header padding */
-      .dp-pc-nameplate { top: 32%; width: 100%; }
-      .dp-pc-name { font-size: 11px; }
-      .dp-pc-panel { padding: 9px 4px 10px; }
     }
 
     @media (max-width: 360px) {
@@ -742,11 +794,6 @@
   <main class="page-wrap">
     <section class="hero">
       <div class="container">
-        <span id="heroSeasonBadge" style="display:none;
-              font-family:var(--font-mono);font-size:10px;letter-spacing:2.5px;text-transform:uppercase;
-              background:rgba(168,85,247,.15);border:1px solid rgba(168,85,247,.4);
-              color:var(--gold2);border-radius:20px;padding:4px 14px;
-              margin-bottom:.75rem;display:inline-flex;align-items:center;gap:6px"></span>
         <h1>CARTA PERINGKAT</h1>
         <p class="text-muted">Kedudukan dan mata terkumpul semua pasukan yang berdaftar</p>
       </div>
@@ -1187,14 +1234,6 @@
         ? allTournaments.filter(t => t.startDate >= activeSeason.startMs && t.startDate <= activeSeason.endMs)
         : allTournaments;
       updateStats(allStandings, filteredT);
-      // Sync hero badge with selected season
-      const badge = document.getElementById("heroSeasonBadge");
-      if (activeSeason?.label) {
-        badge.innerHTML = `<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2z"/></svg> ${activeSeason.label}`;
-        badge.style.display = "inline-flex";
-      } else {
-        badge.style.display = "none";
-      }
     }
 
     /* ── Load data ────────────────────────────── */
@@ -1247,15 +1286,6 @@
       // Set activeSeason
       const selVal = sel.value;
       activeSeason = selVal === "all" ? null : (allSeasons[selVal] || null);
-
-      // Update hero badge
-      const badge = document.getElementById("heroSeasonBadge");
-      if (activeSeason?.label) {
-        badge.innerHTML = `<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2z"/></svg> ${activeSeason.label}`;
-        badge.style.display = "inline-flex";
-      } else {
-        badge.style.display = "none";
-      }
 
       allStandings = buildStandings(allTeamsRaw, allTournaments, activeSeason);
       renderTable(allStandings);

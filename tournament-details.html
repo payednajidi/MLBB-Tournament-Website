@@ -299,23 +299,30 @@
     @media (max-width: 480px) {
       .home-nav-inner { padding: 6px .75rem; }
       .home-links a   { font-size: 11px; padding: 5px 6px; }
-      .details-wrap   { padding: 0 .75rem 2.5rem; }
 
-      .info-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+      /* Zero horizontal padding — let sections touch screen edges */
+      .details-wrap   { padding: 0 0 2.5rem; }
+      .info-grid      { padding: 0 .75rem; grid-template-columns: repeat(2, 1fr); gap: 10px; }
       .info-card { padding: 16px 14px; }
       .info-lbl  { font-size: 9px; letter-spacing: 1.5px; }
       .info-val  { font-size: 18px; }
+
+      /* Section cards: full bleed, no rounded corners on sides */
+      .section-card {
+        margin-bottom: .5rem;
+        border-radius: 0;
+        border-left: none;
+        border-right: none;
+      }
+      .section-header { padding: 14px 18px; }
+      .section-body   { padding: 16px 18px; overflow-x: auto; -webkit-overflow-scrolling: touch; }
 
       .hero-poster  { min-height: 360px !important; }
       .hero-content { padding: 1.5rem 1.1rem 1.5rem; }
       .hero-title   { font-size: clamp(24px, 7vw, 34px); }
       .hero-badges  { gap: 6px; margin-bottom: 10px; }
 
-      .section-card { margin-bottom: 1rem; }
-      .section-header { padding: 14px 16px; }
-      .section-body   { padding: 18px; overflow-x: auto; -webkit-overflow-scrolling: touch; }
-
-      .apply-card { padding: 16px; }
+      .apply-card { padding: 16px 18px; border-radius: 0; border-left: none; border-right: none; }
 
       /* Bracket scroll — tight on mobile */
       .bracket-section { min-width: 520px; }
@@ -1362,10 +1369,19 @@
       renderApplySection();
       document.title = `${t.name} - MLBB OPS`;
 
-      // Expand participants list
+      // Expand / collapse participants list
       document.getElementById("btnExpandParticipants")?.addEventListener("click", function() {
-        document.querySelectorAll(".participant-chip.pc-hidden").forEach(el => el.classList.remove("pc-hidden"));
-        this.remove();
+        const isExpanded = this.dataset.expanded === "true";
+        if (!isExpanded) {
+          document.querySelectorAll(".participant-chip.pc-hidden").forEach(el => el.classList.remove("pc-hidden"));
+          this.textContent = "Tutup ▴";
+          this.dataset.expanded = "true";
+        } else {
+          const chips = document.querySelectorAll(".participant-chip");
+          chips.forEach((el, i) => { if (i >= 5) el.classList.add("pc-hidden"); });
+          this.textContent = `Lihat Semua ${chips.length} Pasukan ▾`;
+          this.dataset.expanded = "false";
+        }
       });
 
       // ── Bracket: horizontal drag-to-pan only ────────────────

@@ -2965,6 +2965,43 @@
           </div>
         </div>
 
+        <!-- Donation Panel -->
+        <div class="sk-donate-panel">
+          <div class="sk-donate-left">
+            <div class="sk-bank-row">
+              <div class="sk-bank-icon">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/><line x1="12" y1="12" x2="12" y2="16"/><line x1="10" y1="14" x2="14" y2="14"/></svg>
+              </div>
+              <div>
+                <div class="sk-bank-name">Bank Islam</div>
+                <div class="sk-bank-sub">Institusi Perbankan Islam Malaysia</div>
+              </div>
+            </div>
+            <div class="sk-acct-block">
+              <div class="sk-acct-label">No. Akaun</div>
+              <div class="sk-acct-row">
+                <span class="sk-acct-num" id="sk-acct-num">14014028182176</span>
+                <button class="sk-copy-btn" onclick="skCopyAcct(this)" aria-label="Salin nombor akaun">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                  <span class="sk-copy-label">Salin</span>
+                </button>
+              </div>
+            </div>
+            <div class="sk-info-box">
+              <p>Setiap sumbangan akan digunakan bagi membantu pembangunan platform, pengurusan kejohanan, hadiah pertandingan, dan pengembangan komuniti esukan tempatan.</p>
+            </div>
+          </div>
+          <div class="sk-donate-right">
+            <div class="sk-qr-frame">
+              <img src="assets/QR.png" alt="QR Code Sumbangan" loading="lazy" decoding="async">
+            </div>
+            <div class="sk-qr-cta">Imbas Kod QR Untuk Menyumbang</div>
+            <span class="sk-vol-badge">
+              <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+              Sumbangan Sukarela
+            </span>
+          </div>
+        </div>
 
 
       </div>
@@ -3052,6 +3089,20 @@
   </footer>
 
   <script>
+    function skCopyAcct(btn) {
+      var num = document.getElementById('sk-acct-num').textContent.trim();
+      navigator.clipboard.writeText(num).then(function () {
+        btn.classList.add('copied');
+        btn.querySelector('.sk-copy-label').textContent = 'Disalin!';
+        setTimeout(function () {
+          btn.classList.remove('copied');
+          btn.querySelector('.sk-copy-label').textContent = 'Salin';
+        }, 2000);
+      });
+    }
+
+  </script>
+  <script>
     (function () {
       var debounce;
 
@@ -3108,7 +3159,7 @@
 
   <script type="module">
     import { auth, db } from "./js/firebase-config.js";
-    import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-auth.js";
+    import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-auth.js";
     import { ref, get } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-database.js";
     import { initAdminNavBadge } from "./js/admin-nav-badge.js";
 
@@ -3134,12 +3185,30 @@
       document.querySelectorAll(".admin-nav").forEach((node) => node.classList.toggle("hidden", resolvedRole !== "organizer"));
       document.querySelectorAll(".player-nav").forEach((node) => node.classList.toggle("hidden", resolvedRole === "organizer"));
       if (resolvedRole === "organizer") {
-        navActions.innerHTML = '<span class="btn btn-primary btn-sm" style="cursor:default;user-select:none;pointer-events:none;">Admin</span>';
+        navActions.innerHTML = `<span class="btn btn-primary btn-sm" style="cursor:default;user-select:none;pointer-events:none;">Admin</span><button class="btn btn-secondary btn-sm" id="navLogoutBtn">Log Keluar</button>`;
         initAdminNavBadge(db);
       } else {
-        navActions.innerHTML = '<span class="btn btn-primary btn-sm" style="cursor:default;user-select:none;pointer-events:none;">Player</span>';
+        navActions.innerHTML = `<span class="btn btn-primary btn-sm" style="cursor:default;user-select:none;pointer-events:none;">Player</span><button class="btn btn-secondary btn-sm" id="navLogoutBtn">Log Keluar</button>`;
       }
       navActions.style.visibility = "visible";
+      document.getElementById("navLogoutBtn")?.addEventListener("click", async () => {
+        await signOut(auth);
+        window.location.href = "login.html";
+      });
+
+      // Inject logout into mobile drawer
+      const drawerLinks = document.querySelector(".nav-drawer-links");
+      if (drawerLinks && !drawerLinks.querySelector(".drawer-logout-li")) {
+        const li = document.createElement("li");
+        li.className = "drawer-logout-li";
+        li.innerHTML = `<a href="#" id="drawerLogoutBtn" style="color:var(--danger,#ef4444)">🚪 Log Keluar</a>`;
+        drawerLinks.appendChild(li);
+        document.getElementById("drawerLogoutBtn").addEventListener("click", async (e) => {
+          e.preventDefault();
+          await signOut(auth);
+          window.location.href = "login.html";
+        });
+      }
     });
 
     // ── "Start Registration" auth guard ─────────────────────

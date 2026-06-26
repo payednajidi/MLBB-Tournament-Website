@@ -539,6 +539,7 @@
     import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-auth.js";
     import { ref, get, set, update, push } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-database.js";
     import { initAdminNavBadge } from "./js/admin-nav-badge.js";
+    import { renderFullBracket, renderBracketMobile } from "./js/bracket-view.js";
 
     const params = new URLSearchParams(location.search);
     const tournamentId = params.get("id");
@@ -633,17 +634,9 @@
       </table>`;
     }
 
-    // ── Bracket rendering ────────────────────────────────────
-    function renderTeamRow(uid, score, match) {
-      const isBye   = !uid || uid === '__BYE__';
-      const label   = isBye ? "BYE" : (teamNameCache[uid] || "TBD");
-      const state   = (!isBye && match.winnerId === uid) ? "winner" : (!isBye && match.loserId === uid) ? "loser" : "";
-      const muted   = isBye ? "bye" : !uid ? "tbd" : "";
-      return `<div class="team-row ${state} ${muted}"><span>${escHtml(label)}</span><span class="team-score">${isBye ? "" : Number(score)||0}</span></div>`;
-    }
+    // ── Bracket rendering — delegates to shared bracket-view.js ─
 
-    // ── Bracket rendering ────────────────────────────────────
-    function renderBracketSection(title, matches, bracket) {
+    function renderBracketSection_UNUSED(title, matches, bracket) {
       const CARD_H = 72;
       const CARD_W = 300;
       const CONN_W = 64;
@@ -902,7 +895,7 @@
       </div>`;
     }
 
-    function renderBracketMobile(matches) {
+    function renderBracketMobile_UNUSED(matches) {
       const allMatches = Object.values(matches || {});
       if (!allMatches.length) return '<p class="text-muted" style="padding:1rem 18px">Bracket belum dijana.</p>';
 
@@ -1025,17 +1018,9 @@
       const empty = '<p class="text-muted">Bracket belum dijana.</p>';
       if (!allMatches.length) return `<div class="desktop-bracket">${empty}</div><div class="mobile-bracket">${empty}</div>`;
 
-      const championHtml = `<div class="champion-box" style="margin:.6rem 0 0">🏆 Champion: ${winnerId ? escHtml(teamNameCache[winnerId]||"—") : "Belum ditentukan"}</div>`;
-      const mobileHtml = `<div class="mobile-bracket">${renderBracketMobile(matches)}${championHtml}</div>`;
-
-      if (format === "double") {
-        return `<div class="desktop-bracket">${renderBracketDouble(matches, winnerId)}</div>${mobileHtml}`;
-      }
-
-      const desktopHtml = `<div class="desktop-bracket">
-        <div class="bracket-scroll">${renderBracketSection("Upper Bracket", matches, "wb")}</div>
-        ${championHtml}
-      </div>`;
+      const names = { ...teamNameCache };
+      const desktopHtml = `<div class="desktop-bracket"><div class="bracket-scroll">${renderFullBracket(matches, format, winnerId, names)}</div></div>`;
+      const mobileHtml  = `<div class="mobile-bracket">${renderBracketMobile(matches, winnerId, names)}</div>`;
       return desktopHtml + mobileHtml;
     }
 

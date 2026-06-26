@@ -680,8 +680,7 @@
         <button class="tab-btn" data-tab="squads">👥 Squads</button>
         <button class="tab-btn" data-tab="individual">👤 Individual</button>
         <button class="tab-btn" data-tab="recovery">Pemulihan Akaun</button>
-        <button class="tab-btn" data-tab="season">🏆 Pengurusan Musim</button>
-        <button class="tab-btn" data-tab="reset">🔄 Reset Testing Dummy</button>
+<button class="tab-btn" data-tab="reset">🔄 Reset Testing Dummy</button>
       </div>
 
       <section class="panel active" id="panel-tournaments"></section>
@@ -692,37 +691,6 @@
       <section class="panel" id="panel-squads"></section>
       <section class="panel" id="panel-individual"></section>
 
-      <!-- ── Pengurusan Musim ───────────────── -->
-      <section class="panel" id="panel-season">
-
-        <!-- Current season card -->
-        <div class="row-card" id="seasonCurrentCard">
-          <p class="text-muted" style="font-size:13px">Memuatkan maklumat musim...</p>
-        </div>
-
-        <!-- End season / start new -->
-        <div class="row-card" style="border-top:3px solid rgba(239,68,68,.5)">
-          <h3 style="margin:0 0 .5rem;color:#f87171">⚠ Tamat Musim</h3>
-          <p class="text-muted" style="font-size:13px;margin-bottom:1.25rem;line-height:1.6">
-            Menamatkan musim akan menutup tempoh musim semasa. Musim baharu akan bermula dari tarikh ini — semua tournament lama kekal dalam rekod musim lama, dan mata dalam musim baharu bermula dari sifar.
-          </p>
-
-          <div id="seasonActiveTournWarn" style="display:none;background:rgba(251,191,36,.08);border:1px solid rgba(251,191,36,.35);border-radius:8px;padding:10px 14px;margin-bottom:1rem;color:#fbbf24;font-size:13px">
-            ⚠ Terdapat tournament yang sedang aktif. Disyorkan untuk tamatkan semua tournament dahulu sebelum menamatkan musim.
-          </div>
-
-          <label class="form-label" style="margin-bottom:.4rem;display:block">Nama Musim Baharu</label>
-          <input class="form-input" id="newSeasonNameInput" placeholder="cth: Musim Kedua"
-                 style="margin-bottom:1rem;max-width:340px">
-
-          <button class="btn" id="btnEndSeason"
-                  style="background:rgba(239,68,68,.15);border:1px solid rgba(239,68,68,.4);color:#f87171;font-family:var(--font-head);letter-spacing:1px">
-            🔄 Tamat Musim &amp; Mulakan Baharu
-          </button>
-          <div id="seasonEndMsg" style="display:none;margin-top:.75rem;font-size:13px;color:#4ade80"></div>
-        </div>
-
-      </section>
 
       <!-- ── Pemulihan Akaun ────────────────── -->
       <section class="panel" id="panel-recovery">
@@ -2023,7 +1991,7 @@
         if (!btn) return;
         document.querySelectorAll(".tab-btn").forEach((node) => node.classList.toggle("active", node === btn));
         document.querySelectorAll(".panel").forEach((node) => node.classList.toggle("active", node.id === `panel-${btn.dataset.tab}`));
-        if (btn.dataset.tab === "season") renderSeason();
+
       });
     }
 
@@ -2209,112 +2177,6 @@
           btn.textContent = "🔄 CUBA LAGI";
         }
       });
-    }
-
-    /* ── Pengurusan Musim ───────────────────────────── */
-    async function renderSeason() {
-      const card = document.getElementById("seasonCurrentCard");
-      card.innerHTML = `<p class="text-muted" style="font-size:13px">Memuatkan...</p>`;
-
-      const [seasonsSnap, tournamentsSnap] = await Promise.all([
-        get(ref(db, "seasons")),
-        get(ref(db, "tournaments")),
-      ]);
-
-      const seasonsData    = seasonsSnap.exists() ? seasonsSnap.val() : {};
-      const currentId      = seasonsData.current?.id || null;
-      const currentSeason  = currentId ? (seasonsData[currentId] || null) : null;
-      const allTournaments = tournamentsSnap.exists() ? Object.values(tournamentsSnap.val()) : [];
-      const activeTourns   = allTournaments.filter(t => t.status === "open" || t.status === "active" || t.status === "ongoing");
-
-      // Warn if active tournaments
-      document.getElementById("seasonActiveTournWarn").style.display =
-        activeTourns.length ? "block" : "none";
-
-      // Render current season card
-      if (currentSeason) {
-        const fmt = ms => ms ? new Date(ms).toLocaleDateString("ms-MY", { day:"numeric", month:"long", year:"numeric" }) : "—";
-        const seasonTourns = allTournaments.filter(t =>
-          t.startDate >= currentSeason.startMs && t.startDate <= currentSeason.endMs
-        );
-        card.innerHTML = `
-          <h3 style="margin:0 0 1rem;color:var(--gold)">Musim Semasa</h3>
-          <div style="display:grid;gap:.6rem;margin-bottom:1.25rem">
-            <div style="display:flex;justify-content:space-between;font-size:13px;border-bottom:1px solid var(--border);padding-bottom:.5rem">
-              <span class="text-muted">Nama Musim</span>
-              <strong id="seasonNameDisplay">${escHtml(currentSeason.label || currentId)}</strong>
-            </div>
-            <div style="display:flex;justify-content:space-between;font-size:13px;border-bottom:1px solid var(--border);padding-bottom:.5rem">
-              <span class="text-muted">Bermula</span>
-              <span>${fmt(currentSeason.startMs)}</span>
-            </div>
-            <div style="display:flex;justify-content:space-between;font-size:13px;border-bottom:1px solid var(--border);padding-bottom:.5rem">
-              <span class="text-muted">Berakhir</span>
-              <span>${fmt(currentSeason.endMs)}</span>
-            </div>
-            <div style="display:flex;justify-content:space-between;font-size:13px">
-              <span class="text-muted">Tournament dalam musim ini</span>
-              <span>${seasonTourns.length}</span>
-            </div>
-          </div>
-
-          <div style="display:flex;gap:.6rem;align-items:center;flex-wrap:wrap">
-            <input class="form-input" id="editSeasonNameInput" value="${escHtmlAttr(currentSeason.label || "")}"
-                   placeholder="Nama musim" style="max-width:260px;margin:0">
-            <button class="btn btn-primary" id="btnSaveSeasonName" style="white-space:nowrap">💾 Simpan Nama</button>
-            <span id="saveSeasonMsg" style="font-size:12px;color:#4ade80;display:none">✓ Disimpan!</span>
-          </div>`;
-
-        document.getElementById("btnSaveSeasonName").addEventListener("click", async () => {
-          const newLabel = document.getElementById("editSeasonNameInput").value.trim();
-          if (!newLabel) return;
-          await update(ref(db, `seasons/${currentId}`), { label: newLabel });
-          document.getElementById("seasonNameDisplay").textContent = newLabel;
-          const msg = document.getElementById("saveSeasonMsg");
-          msg.style.display = "inline";
-          setTimeout(() => { msg.style.display = "none"; }, 2500);
-        });
-
-      } else {
-        card.innerHTML = `
-          <h3 style="margin:0 0 .5rem">Tiada Musim Aktif</h3>
-          <p class="text-muted" style="font-size:13px">Gunakan butang <strong>Tetapkan Musim Perdana</strong> dalam seed.html untuk memulakan musim pertama.</p>`;
-      }
-
-      // End season button
-      document.getElementById("btnEndSeason").onclick = async () => {
-        const newName = document.getElementById("newSeasonNameInput").value.trim();
-        if (!newName) {
-          alert("Sila masukkan nama musim baharu.");
-          return;
-        }
-        if (!confirm(`Tamatkan "${currentSeason?.label || "musim semasa"}" dan mulakan "${newName}"?\n\nTindakan ini tidak boleh dibatalkan.`)) return;
-
-        const now      = Date.now();
-        const newId    = `s_${now}`;
-        const newStart = now;
-        const newEnd   = now + (2 * 365 * 24 * 60 * 60 * 1000); // 2 years ahead
-
-        // Close current season
-        if (currentId) {
-          await update(ref(db, `seasons/${currentId}`), { endMs: now - 1 });
-        }
-        // Create new season
-        await set(ref(db, `seasons/${newId}`), {
-          label:      newName,
-          startMs:    newStart,
-          endMs:      newEnd,
-          prizeBonus: false,
-          createdAt:  now,
-        });
-        await set(ref(db, "seasons/current"), { id: newId });
-
-        const msg = document.getElementById("seasonEndMsg");
-        msg.textContent = `✓ Musim baharu "${newName}" telah bermula!`;
-        msg.style.display = "block";
-        document.getElementById("newSeasonNameInput").value = "";
-        renderSeason(); // refresh card
-      };
     }
 
     function findTournament(state, tournamentId) {

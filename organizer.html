@@ -413,6 +413,48 @@
     }
     .squad-actions { display: flex; gap: 8px; flex-shrink: 0; align-items: flex-start; }
 
+    /* ── Individual panel ────────────────────── */
+    .individual-search-bar {
+      display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 1rem;
+    }
+    .individual-search-bar .form-input { flex: 1 1 220px; }
+    .individual-count {
+      font-family: var(--font-mono); font-size: 11px;
+      letter-spacing: 1.5px; text-transform: uppercase;
+      color: var(--txt3); margin-bottom: .75rem;
+    }
+    .individual-card {
+      background: var(--bg3); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1rem;
+      display: flex; align-items: flex-start;
+      justify-content: space-between; gap: 14px; flex-wrap: wrap;
+      transition: border-color .2s;
+    }
+    .individual-card:hover { border-color: var(--border2); }
+    .individual-info { flex: 1; min-width: 0; }
+    .individual-pid {
+      font-family: var(--font-mono); font-size: 11px;
+      color: var(--gold); letter-spacing: 2px; margin-bottom: 2px;
+    }
+    .individual-username {
+      font-family: var(--font-head); font-size: 17px;
+      font-weight: 700; letter-spacing: 1px; color: var(--txt);
+    }
+    .individual-meta {
+      font-size: 13px; color: var(--txt2); margin-top: 5px;
+      display: flex; flex-wrap: wrap; gap: 10px; align-items: center;
+    }
+    .individual-team-row {
+      display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; align-items: center;
+    }
+    .individual-team-chip {
+      font-family: var(--font-mono); font-size: 10px;
+      letter-spacing: 1px; background: var(--bg);
+      border: 1px solid color-mix(in srgb, var(--gold) 30%, transparent);
+      border-radius: 4px; padding: 2px 8px; color: var(--gold);
+    }
+    .individual-actions { display: flex; gap: 8px; flex-shrink: 0; align-items: flex-start; }
+
     /* ── Edit Squad Modal ────────────────────── */
     .modal-lg { width: min(680px, 100%); }
     .modal-scroll-body {
@@ -636,6 +678,7 @@
         <button class="tab-btn" data-tab="pending">Pending Results</button>
         <button class="tab-btn" data-tab="activity">Activity Log</button>
         <button class="tab-btn" data-tab="squads">👥 Squads</button>
+        <button class="tab-btn" data-tab="individual">👤 Individual</button>
         <button class="tab-btn" data-tab="recovery">Pemulihan Akaun</button>
         <button class="tab-btn" data-tab="season">🏆 Pengurusan Musim</button>
         <button class="tab-btn" data-tab="reset">🔄 Reset Testing Dummy</button>
@@ -647,6 +690,7 @@
       <section class="panel" id="panel-pending"></section>
       <section class="panel" id="panel-activity"></section>
       <section class="panel" id="panel-squads"></section>
+      <section class="panel" id="panel-individual"></section>
 
       <!-- ── Pengurusan Musim ───────────────── -->
       <section class="panel" id="panel-season">
@@ -850,6 +894,27 @@
         <div class="modal-actions" style="margin-top:1rem">
           <button class="btn btn-secondary" data-close-modal>Batal</button>
           <button class="btn btn-danger" id="btnConfirmRejectModReq">✕ Tolak</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Delete User Modal ───────────────────── -->
+  <div class="modal-backdrop" id="deleteUserModal">
+    <div class="modal">
+      <div class="card-header"><h2 style="color:var(--red)">🗑 Hapus Pengguna</h2></div>
+      <div class="card-body">
+        <p class="text-muted" style="margin-bottom:.75rem">Anda akan menghapus pengguna ini secara kekal:</p>
+        <p style="font-family:var(--font-head);font-size:18px;color:var(--txt);margin-bottom:2px" id="deleteUserName">—</p>
+        <p style="font-family:var(--font-mono);font-size:12px;color:var(--txt3);margin-bottom:1rem" id="deleteUserId">—</p>
+        <div id="deleteUserTeamWarn" style="display:none;background:rgba(251,191,36,.08);border:1px solid rgba(251,191,36,.35);border-radius:8px;padding:10px 14px;margin-bottom:1rem;color:#fbbf24;font-size:13px;line-height:1.6">
+          ⚠ Pasukan yang didaftarkan oleh pengguna ini akan turut dipadam.
+        </div>
+        <p style="font-size:13px;color:var(--red);margin-bottom:.25rem">Tindakan ini tidak boleh dibatalkan.</p>
+        <p style="font-size:12px;color:var(--txt3)">Rekod DB akan dipadam. Akaun Firebase Auth perlu dipadamkan secara berasingan jika perlu.</p>
+        <div class="modal-actions">
+          <button class="btn btn-secondary" data-close-modal>Batal</button>
+          <button class="btn btn-danger" id="btnConfirmDeleteUser">Ya, Hapus Pengguna</button>
         </div>
       </div>
     </div>
@@ -1302,6 +1367,7 @@
         user,
         tournaments: [],
         teams: {},
+        users: {},
         currentAction: null,
       };
 
@@ -1335,12 +1401,14 @@
     }
 
     async function loadData(state) {
-      const [tournamentsSnap, teamsSnap, modReqsSnap] = await Promise.all([
+      const [tournamentsSnap, teamsSnap, modReqsSnap, usersSnap] = await Promise.all([
         get(ref(db, "tournaments")),
         get(ref(db, "teams")),
         get(ref(db, "teamModRequests")),
+        get(ref(db, "users")),
       ]);
       state.teams = teamsSnap.exists() ? teamsSnap.val() : {};
+      state.users = usersSnap.exists() ? usersSnap.val() : {};
       state.modRequests = modReqsSnap.exists()
         ? Object.entries(modReqsSnap.val())
             .map(([id, r]) => ({ id, ...r }))
@@ -1394,6 +1462,7 @@
       renderPending(state);
       renderActivity(state);
       renderSquads(state);
+      renderIndividuals(state);
     }
 
     function renderStats(state) {
@@ -1725,6 +1794,86 @@
       const selEnd   = el ? el.selectionEnd   : 0;
       if (window.__adminState) renderSquads(window.__adminState);
       const newEl = document.getElementById("squadSearch");
+      if (newEl) { newEl.focus(); newEl.setSelectionRange(selStart, selEnd); }
+    };
+
+    /* ── Individual panel ────────────────────────── */
+    function renderIndividuals(state) {
+      const panel = document.getElementById("panel-individual");
+      if (!panel) return;
+
+      const allUsers = Object.entries(state.users || {})
+        .sort((a, b) => (b[1].createdAtMs || 0) - (a[1].createdAtMs || 0));
+
+      const query = (document.getElementById("individualSearch")?.value || "").toLowerCase();
+      const filtered = allUsers.filter(([, u]) =>
+        !query ||
+        (u.username  || "").toLowerCase().includes(query) ||
+        (u.playerId  || "").toLowerCase().includes(query) ||
+        (u.role      || "").toLowerCase().includes(query)
+      );
+
+      if (!allUsers.length) {
+        panel.innerHTML = '<div class="empty-state">Tiada pengguna berdaftar lagi.</div>';
+        return;
+      }
+
+      const cards = filtered.map(([uid, u]) => {
+        const team       = state.teams[uid];
+        const isSelf     = uid === state.user.uid;
+        const isOrg      = u.role === "organizer";
+        const roleStyle  = isOrg
+          ? "background:color-mix(in srgb,var(--gold) 12%,transparent);border-color:color-mix(in srgb,var(--gold) 35%,transparent);color:var(--gold)"
+          : "background:var(--bg);border-color:var(--border);color:var(--txt2)";
+
+        const teamHtml = team
+          ? `<div class="individual-team-row">
+               <span style="font-size:11px;color:var(--txt3);font-family:var(--font-mono);letter-spacing:.5px">PASUKAN:</span>
+               <span class="individual-team-chip">👑 [${escHtml(team.teamTag || "—")}] ${escHtml(team.teamName || "—")}</span>
+             </div>`
+          : `<div style="margin-top:8px;font-size:12px;color:var(--txt3);font-family:var(--font-mono)">Tiada pasukan didaftarkan</div>`;
+
+        return `
+          <div class="individual-card">
+            <div class="individual-info">
+              <div class="individual-pid">${escHtml(u.playerId || "—")}</div>
+              <div class="individual-username">@${escHtml(u.username || "—")}</div>
+              <div class="individual-meta">
+                <span style="padding:2px 8px;border-radius:4px;font-family:var(--font-mono);font-size:10px;letter-spacing:1.2px;border:1px solid;text-transform:uppercase;${roleStyle}">${escHtml(u.role || "player")}</span>
+                ${u.createdAt ? `<span>📅 ${escHtml(u.createdAt)}</span>` : ""}
+              </div>
+              ${teamHtml}
+            </div>
+            <div class="individual-actions">
+              ${!isSelf ? `
+              <button class="btn btn-danger btn-sm"
+                      data-action="delete-user"
+                      data-uid="${uid}"
+                      data-uname="${escHtmlAttr(u.username || "")}"
+                      data-upid="${escHtmlAttr(u.playerId || "")}"
+                      data-uhas-team="${team ? "1" : "0"}"
+                      title="Hapus pengguna${team ? " dan pasukan" : ""}">🗑 Hapus</button>
+              ` : `<span style="font-family:var(--font-mono);font-size:10px;color:var(--txt3);letter-spacing:.5px">Akaun Anda</span>`}
+            </div>
+          </div>`;
+      }).join("");
+
+      panel.innerHTML = `
+        <div class="individual-search-bar">
+          <input class="form-input" id="individualSearch"
+                 placeholder="Cari username, Player ID atau peranan..."
+                 value="${escHtmlAttr(query)}" oninput="renderIndividualsLive()" autocomplete="off">
+        </div>
+        <p class="individual-count">${filtered.length} / ${allUsers.length} Pengguna</p>
+        <div style="display:grid;gap:10px">${cards || '<div class="empty-state">Tiada pengguna sepadan carian.</div>'}</div>`;
+    }
+
+    window.renderIndividualsLive = function() {
+      const el = document.getElementById("individualSearch");
+      const selStart = el ? el.selectionStart : 0;
+      const selEnd   = el ? el.selectionEnd   : 0;
+      if (window.__adminState) renderIndividuals(window.__adminState);
+      const newEl = document.getElementById("individualSearch");
       if (newEl) { newEl.focus(); newEl.setSelectionRange(selStart, selEnd); }
     };
 
@@ -2229,6 +2378,20 @@
           return;
         }
 
+        if (action === "delete-user") {
+          const hasTeam = btn.dataset.uhasTeam === "1";
+          state.currentAction = {
+            ...state.currentAction,
+            deleteUserUid:      btn.dataset.uid,
+            deleteUserPlayerId: btn.dataset.upid,
+          };
+          document.getElementById("deleteUserName").textContent = "@" + (btn.dataset.uname || "—");
+          document.getElementById("deleteUserId").textContent   = btn.dataset.upid || "—";
+          document.getElementById("deleteUserTeamWarn").style.display = hasTeam ? "block" : "none";
+          openModal("deleteUserModal");
+          return;
+        }
+
         if (action === "edit-squad") {
           openEditSquadModal(btn.dataset.uid, state);
           return;
@@ -2395,6 +2558,31 @@
           showAlert("Squad berjaya dipadam.", "success");
         } catch (err) {
           showAlert("Ralat memadam squad. Cuba lagi.");
+        } finally {
+          setLoading(btn, false, originalHTML);
+        }
+      });
+
+      /* ── Delete User (+ their team) ─────── */
+      document.getElementById("btnConfirmDeleteUser").addEventListener("click", async () => {
+        const btn = document.getElementById("btnConfirmDeleteUser");
+        const originalHTML = btn.innerHTML;
+        setLoading(btn, true, originalHTML);
+        try {
+          const uid      = state.currentAction.deleteUserUid;
+          const playerId = state.currentAction.deleteUserPlayerId;
+          const updates  = {};
+          updates[`users/${uid}`] = null;
+          if (state.teams[uid]) updates[`teams/${uid}`] = null;
+          if (playerId)         updates[`playerIndex/${playerId}`] = null;
+          await update(ref(db), updates);
+          delete state.users[uid];
+          delete state.teams[uid];
+          closeModals();
+          renderAll(state);
+          showAlert("Pengguna berjaya dipadam.", "success");
+        } catch (err) {
+          showAlert("Ralat memadam pengguna. Cuba lagi.");
         } finally {
           setLoading(btn, false, originalHTML);
         }

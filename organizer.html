@@ -964,6 +964,12 @@
             <input class="form-input" id="esCaptainMlId" type="text" maxlength="25" autocomplete="off">
           </div>
         </div>
+        <div class="form-group">
+          <label class="form-label" for="esWhatsapp">📱 WhatsApp Kapten <span style="color:var(--txt3);font-weight:400">(Pilihan)</span></label>
+          <input class="form-input" id="esWhatsapp" type="tel" maxlength="20"
+                 placeholder="601XXXXXXXX" autocomplete="off"
+                 style="font-family:var(--font-mono);letter-spacing:1px">
+        </div>
         <div class="edit-grid-2 mb-2">
           <div class="form-group" style="margin-bottom:0">
             <label class="form-label" for="esCaptainRole">Peranan</label>
@@ -1764,6 +1770,9 @@
                 <span>⭐ ${power.avg}</span>
                 <span>👥 ${1 + members.length} aktif${reserves.length ? ` + ${reserves.length} rizab` : ""}</span>
                 ${t.createdAt ? `<span>📅 ${new Date(t.createdAt).toLocaleDateString("ms-MY")}</span>` : ""}
+                ${t.whatsapp ? `<a href="https://wa.me/${t.whatsapp.replace(/\D/g,"")}" target="_blank" rel="noopener"
+                  style="display:inline-flex;align-items:center;gap:4px;color:#25d366;text-decoration:none;font-size:13px">
+                  📱 ${escHtml(t.whatsapp)}</a>` : ""}
               </div>
               <div class="squad-members-row">${activeChips}</div>
               ${reserveChips ? `<div class="squad-members-row" style="margin-top:4px">${reserveChips}</div>` : ""}
@@ -1828,11 +1837,18 @@
           ? "background:color-mix(in srgb,var(--gold) 12%,transparent);border-color:color-mix(in srgb,var(--gold) 35%,transparent);color:var(--gold)"
           : "background:var(--bg);border-color:var(--border);color:var(--txt2)";
 
+        const wa = team?.whatsapp || "";
+        const waLink = wa
+          ? `<a href="https://wa.me/${wa.replace(/\D/g,"")}" target="_blank" rel="noopener"
+               style="display:inline-flex;align-items:center;gap:5px;padding:2px 10px;border-radius:4px;border:1px solid rgba(37,211,102,.35);background:rgba(37,211,102,.08);color:#25d366;font-family:var(--font-mono);font-size:10px;letter-spacing:1px;text-decoration:none;margin-top:6px">
+               📱 ${escHtml(wa)}
+             </a>`
+          : "";
         const teamHtml = team
           ? `<div class="individual-team-row">
                <span style="font-size:11px;color:var(--txt3);font-family:var(--font-mono);letter-spacing:.5px">PASUKAN:</span>
                <span class="individual-team-chip">👑 [${escHtml(team.teamTag || "—")}] ${escHtml(team.teamName || "—")}</span>
-             </div>`
+             </div>${waLink}`
           : `<div style="margin-top:8px;font-size:12px;color:var(--txt3);font-family:var(--font-mono)">Tiada pasukan didaftarkan</div>`;
 
         return `
@@ -1992,6 +2008,7 @@
       setVal("esRegion",            t.serverRegion || "MY/SG");
       setVal("esCaptainName",       t.displayName);
       setVal("esCaptainMlId",       t.mlId);
+      setVal("esWhatsapp",          t.whatsapp || "");
       setVal("esCaptainRole",       t.captainRole);
       setVal("esCaptainRank",       t.captainRank);
       setVal("esCaptainHighestRank",t.captainHighestRank);
@@ -2614,6 +2631,7 @@
           serverRegion:       getVal("esRegion")             || "MY/SG",
           displayName:        getVal("esCaptainName"),
           mlId:               getVal("esCaptainMlId"),
+          whatsapp:           getVal("esWhatsapp").replace(/[\s\-]/g, ""),
           captainRole:        getVal("esCaptainRole"),
           captainRank:        getVal("esCaptainRank"),
           captainHighestRank: getVal("esCaptainHighestRank"),

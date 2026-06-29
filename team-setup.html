@@ -1733,7 +1733,7 @@
                 <option value="roster_change">Perubahan Roster / Ahli</option>
                 <option value="team_name">Tukar Nama / Tag Pasukan</option>
                 <option value="captain_change">Penukaran Kapten</option>
-                <option value="add_remove_reserve">Tambah / Buang Pemain Rizab</option>
+                <option value="add_remove_reserve">Tambah / Buang Pemain Simpanan</option>
                 <option value="region_change">Tukar Server Region</option>
                 <option value="new_team">Daftar Pasukan Baru</option>
                 <option value="registration_error">Pembetulan Kesilapan Pendaftaran</option>
@@ -2287,7 +2287,7 @@
               <div class="reserve-section-divider">
                 <div class="reserve-section-icon">🔄</div>
                 <div class="reserve-section-text">
-                  <h4>Pemain Rizab <span style="color:var(--txt3);font-weight:400">(Pilihan — Maks 2)</span></h4>
+                  <h4>Pemain Simpanan <span style="color:var(--txt3);font-weight:400">(Pilihan — Maks 2)</span></h4>
                   <p>Pemain rizab boleh menggantikan ahli aktif semasa pertandingan</p>
                 </div>
               </div>
@@ -2296,7 +2296,7 @@
               <div class="reserve-block">
                 <div class="reserve-block-header">
                   <div class="reserve-num">
-                    <div class="reserve-num-badge" id="badge_r1">R1</div>Rizab 1
+                    <div class="reserve-num-badge" id="badge_r1">R1</div>Simpanan 1
                   </div>
                   <span class="reserve-tag">Pilihan</span>
                 </div>
@@ -2357,7 +2357,7 @@
               <div class="reserve-block">
                 <div class="reserve-block-header">
                   <div class="reserve-num">
-                    <div class="reserve-num-badge" id="badge_r2">R2</div>Rizab 2
+                    <div class="reserve-num-badge" id="badge_r2">R2</div>Simpanan 2
                   </div>
                   <span class="reserve-tag">Pilihan</span>
                 </div>
@@ -3263,7 +3263,7 @@
             <div class="prev-member" style="opacity:.85;border-left:2px solid rgba(99,102,241,.35);padding-left:8px;margin-left:4px">
               <div class="prev-member-l">
                 <div class="prev-member-name" style="font-size:12px">${escHtml(name)}</div>
-                <div style="font-size:9px;letter-spacing:1.5px;color:#818cf8;font-family:var(--font-mono);text-transform:uppercase">Rizab</div>
+                <div style="font-size:9px;letter-spacing:1.5px;color:#818cf8;font-family:var(--font-mono);text-transform:uppercase">Pemain Simpanan</div>
               </div>
               <div class="prev-role-pill">${icon} ${role || "—"}</div>
             </div>`;
@@ -3272,7 +3272,7 @@
       const reserveEl = document.getElementById("prevReserveRoster");
       if (reserveEl) {
         reserveEl.innerHTML = reserveCount > 0
-          ? `<div style="font-size:9px;letter-spacing:1.5px;color:rgba(99,102,241,.7);font-family:var(--font-mono);text-transform:uppercase;margin:8px 0 4px;padding-top:6px;border-top:1px dashed rgba(99,102,241,.2)">Pemain Rizab</div>${reserveHtml}`
+          ? `<div style="font-size:9px;letter-spacing:1.5px;color:rgba(99,102,241,.7);font-family:var(--font-mono);text-transform:uppercase;margin:8px 0 4px;padding-top:6px;border-top:1px dashed rgba(99,102,241,.2)">Pemain Simpanan</div>${reserveHtml}`
           : "";
       }
     }
@@ -3492,7 +3492,7 @@
       roster_change:      "Perubahan Roster / Ahli",
       team_name:          "Tukar Nama / Tag Pasukan",
       captain_change:     "Penukaran Kapten",
-      add_remove_reserve: "Tambah / Buang Pemain Rizab",
+      add_remove_reserve: "Tambah / Buang Pemain Simpanan",
       region_change:      "Tukar Server Region",
       new_team:           "Daftar Pasukan Baru",
       registration_error: "Pembetulan Kesilapan Pendaftaran",
@@ -3527,7 +3527,7 @@
       (d.reserves || []).filter(r => r.name).forEach(r => {
         rHtml += `<div class="mgmt-member-chip is-reserve">
           <div class="mgmt-member-name">${escHtml(r.name)}</div>
-          <div class="mgmt-member-sub">Rizab · ${r.rank || "—"}</div>
+          <div class="mgmt-member-sub">Pemain Simpanan · ${r.rank || "—"}</div>
         </div>`;
       });
       document.getElementById("mgmtRoster").innerHTML = rHtml;
@@ -3628,9 +3628,9 @@
       for (let i = (d.members||[]).length; i < 4; i++)
         html += playerBlock(`m${i+2}`, `Ahli ${i+2}`, i<2?"Wajib":"Pilihan", {}, false);
       (d.reserves||[]).forEach((r,i) =>
-        html += playerBlock(`r${i+1}`, `Rizab ${i+1}`, "Pilihan", r||{}, false));
+        html += playerBlock(`r${i+1}`, `Simpanan ${i+1}`, "Pilihan", r||{}, false));
       for (let i = (d.reserves||[]).length; i < 2; i++)
-        html += playerBlock(`r${i+1}`, `Rizab ${i+1}`, "Pilihan", {}, false);
+        html += playerBlock(`r${i+1}`, `Simpanan ${i+1}`, "Pilihan", {}, false);
 
       document.getElementById("editPlayersList").innerHTML = html;
     }

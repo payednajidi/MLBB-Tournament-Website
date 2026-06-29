@@ -1390,6 +1390,28 @@
       }
     }
 
+    async function repairTournamentCounts(state) {
+      for (const t of state.tournaments) {
+        const approvedUids = (state.applications || [])
+          .filter(a => a.tournamentId === t.id && a.status === "approved")
+          .map(a => a.uid);
+        const teamsObj = t.teams || {};
+        const missing = approvedUids.filter(uid => !teamsObj[uid]);
+        if (!missing.length) continue;
+        const upd = {};
+        let count = t.teamCount || Object.keys(teamsObj).length;
+        for (const uid of missing) {
+          upd[`tournaments/${t.id}/teams/${uid}`] = true;
+          count++;
+        }
+        upd[`tournaments/${t.id}/teamCount`] = count;
+        await update(ref(db), upd);
+        // Update local state so card renders correct count immediately
+        missing.forEach(uid => { t.teams = { ...(t.teams||{}), [uid]: true }; });
+        t.teamCount = count;
+      }
+    }
+
     async function loadData(state) {
       const [tournamentsSnap, teamsSnap, modReqsSnap, usersSnap] = await Promise.all([
         get(ref(db, "tournaments")),
@@ -1419,6 +1441,9 @@
         }));
       }));
       state.applications = appResults.flat().sort((a, b) => (b.appliedAt||0) - (a.appliedAt||0));
+
+      // Repair any tournaments where approved applications weren't counted due to pre-fix bug
+      await repairTournamentCounts(state);
 
       const logs = await Promise.all(state.tournaments.map(async (tournament) => {
         const snap = await get(ref(db, `activityLog/${tournament.id}`));

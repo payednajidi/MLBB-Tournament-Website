@@ -1552,10 +1552,14 @@
         return;
       }
 
-      const pendingAppsMap = {};
+      const pendingAppsMap  = {};
+      const approvedAppsMap = {};
       (state.applications || []).forEach(app => {
         if (app.status === "pending_review" || app.status === "payment_submitted") {
           pendingAppsMap[app.tournamentId] = (pendingAppsMap[app.tournamentId] || 0) + 1;
+        }
+        if (app.status === "approved") {
+          approvedAppsMap[app.tournamentId] = (approvedAppsMap[app.tournamentId] || 0) + 1;
         }
       });
 
@@ -1563,7 +1567,7 @@
       const history = state.tournaments.filter(t => t.status === "done");
 
       function buildCard(t, isHistory) {
-        const teamCount  = t.teamCount || 0;
+        const teamCount  = Math.max(t.teamCount || 0, approvedAppsMap[t.id] || 0);
         const maxTeams   = t.maxTeams  || 0;
         const slotsLeft  = Math.max(0, maxTeams - teamCount);
         const pct        = maxTeams > 0 ? Math.min(100, Math.round((teamCount / maxTeams) * 100)) : 0;
@@ -1967,26 +1971,27 @@
         .filter(([, m]) => m.bracket === "wb" && m.round === 1)
         .sort(([,a],[,b]) => a.position - b.position);
 
-      let placed = false;
       const updates = {};
 
+      // Always register team + increment count (guard against double-approval)
+      if (!(t.teams && t.teams[teamUid])) {
+        updates[`tournaments/${tournamentId}/teams/${teamUid}`] = true;
+        updates[`tournaments/${tournamentId}/teamCount`] = (t.teamCount || 0) + 1;
+      }
+
+      // Place into R1 WB bracket slot if bracket already exists
       for (const [matchId, match] of r1Matches) {
         if (!match.team1) {
           updates[`tournaments/${tournamentId}/matches/${matchId}/team1`] = teamUid;
           if (match.team2) updates[`tournaments/${tournamentId}/matches/${matchId}/status`] = "upcoming";
-          placed = true; break;
+          break;
         } else if (!match.team2) {
           updates[`tournaments/${tournamentId}/matches/${matchId}/team2`] = teamUid;
           if (match.team1) updates[`tournaments/${tournamentId}/matches/${matchId}/status`] = "upcoming";
-          placed = true; break;
+          break;
         }
       }
 
-      if (!placed) return; // bracket full — admin should handle manually
-
-      // Add to tournament teams object
-      updates[`tournaments/${tournamentId}/teams/${teamUid}`] = true;
-      updates[`tournaments/${tournamentId}/teamCount`] = (t.teamCount || 0) + 1;
       await update(ref(db), updates);
     }
 
@@ -2377,7 +2382,7 @@
             // Place team in bracket
             await placeTeamInBracket(db, appTid, appUid);
             await refresh(state);
-            showAlert("Permohonan diluluskan. Pasukan telah dimasukkan ke dalam bracket.", "success");
+            showAlert("Permohonan diluluskan. Pasukan disenaraikan dalam tournament.", "success");
           } catch (err) {
             showAlert("Ralat meluluskan permohonan.");
             setLoading(btn, false, origHTML);

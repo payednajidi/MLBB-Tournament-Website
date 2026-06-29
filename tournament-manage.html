@@ -1554,13 +1554,16 @@
         .filter(([,m]) => m.bracket==="wb" && m.round===1)
         .sort(([,a],[,b]) => a.position-b.position);
       const upd = {};
+      // Guard against double-approval
+      if (!(t.teams && t.teams[teamUid])) {
+        upd[`tournaments/${tid}/teams/${teamUid}`] = true;
+        upd[`tournaments/${tid}/teamCount`] = (t.teamCount||0)+1;
+      }
       for (const [mid, m] of r1) {
         if (!m.team1) { upd[`tournaments/${tid}/matches/${mid}/team1`]=teamUid; if(m.team2) upd[`tournaments/${tid}/matches/${mid}/status`]="upcoming"; break; }
         if (!m.team2) { upd[`tournaments/${tid}/matches/${mid}/team2`]=teamUid; if(m.team1) upd[`tournaments/${tid}/matches/${mid}/status`]="upcoming"; break; }
       }
-      upd[`tournaments/${tid}/teams/${teamUid}`] = true;
-      upd[`tournaments/${tid}/teamCount`] = (t.teamCount||0)+1;
-      await update(ref(db), upd);
+      if (Object.keys(upd).length) await update(ref(db), upd);
     }
 
     /* ── Modal confirmations ───────────────────── */

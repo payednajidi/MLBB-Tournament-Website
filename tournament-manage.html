@@ -917,6 +917,7 @@
         document.getElementById("liveBadge").style.display     = "inline-flex";
         document.title = `Manage: ${data.name || "Tournament"} – MLBB OPS`;
         renderAll();
+        autoRepairApprovedTeams();
       });
 
       bindTabs();
@@ -929,6 +930,27 @@
         if (e.target.closest("[data-close-modal]")) closeModals();
       });
     });
+
+    /* ── Auto-repair: sync approved applications into teams/teamCount ── */
+    let repairRan = false;
+    async function autoRepairApprovedTeams() {
+      if (repairRan) return;
+      repairRan = true;
+      const t = state.tournament;
+      const teamsObj = t.teams || {};
+      const missing = state.applications
+        .filter(a => a.status === "approved" && !teamsObj[a.uid])
+        .map(a => a.uid);
+      if (!missing.length) return;
+      const upd = {};
+      let count = t.teamCount || Object.keys(teamsObj).length;
+      for (const uid of missing) {
+        upd[`tournaments/${tid}/teams/${uid}`] = true;
+        count++;
+      }
+      upd[`tournaments/${tid}/teamCount`] = count;
+      await update(ref(db), upd);
+    }
 
     /* ── Render ────────────────────────────────── */
     function teamName(uid) { return state.teams[uid]?.teamName || (uid ? "TBD" : "—"); }
@@ -943,7 +965,8 @@
 
     function renderHero() {
       const t = state.tournament;
-      const teamCount = t.teamCount || 0;
+      const approvedInApps = state.applications.filter(a => a.status === "approved").length;
+      const teamCount = Math.max(t.teamCount || 0, Object.keys(t.teams||{}).length, approvedInApps);
       const maxTeams  = t.maxTeams  || 0;
       const pct       = maxTeams > 0 ? Math.min(100, Math.round((teamCount / maxTeams) * 100)) : 0;
       const matches   = Object.values(t.matches || {});
@@ -1017,7 +1040,7 @@
       const matchPct    = matches.length ? Math.round((doneCount / matches.length) * 100) : 0;
 
       document.getElementById("ovGrid").innerHTML = `
-        <div class="ov-card"><strong>${t.teamCount||0}/${t.maxTeams||0}</strong><span>Pasukan Daftar</span></div>
+        <div class="ov-card"><strong>${Math.max(t.teamCount||0, appApproved)}/${t.maxTeams||0}</strong><span>Pasukan Daftar</span></div>
         <div class="ov-card"><strong style="${pendCount>0?"color:var(--red)":""}">${pendCount}</strong><span>Match Pending</span></div>
         <div class="ov-card"><strong>${upCount}</strong><span>Match Upcoming</span></div>
         <div class="ov-card"><strong>${doneCount}</strong><span>Match Selesai</span></div>

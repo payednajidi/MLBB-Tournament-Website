@@ -573,6 +573,7 @@
     let currentUserRole = "guest";
     let currentTeam = null;
     let tournament = null;
+    let effectiveTeamCount = 0;
     const teamNameCache = {};
     const teamDataCache = {};
 
@@ -1069,7 +1070,7 @@
       if (!el || !tournament) return;
 
       const t = tournament;
-      const isFull = (t.teamCount||0) >= (t.maxTeams||1);
+      const isFull = effectiveTeamCount >= (t.maxTeams||1);
       const isOpen = t.status === "registration";
 
       // Guest
@@ -1218,10 +1219,16 @@
       tournament = snap.val();
       const t = tournament;
 
+      // Count approved applications as fallback for teamCount (handles data before fix)
+      const appsForCount = await get(ref(db, `applications/${tournamentId}`));
+      const approvedCount = appsForCount.exists()
+        ? Object.values(appsForCount.val()).filter(a => a.status === "approved").length : 0;
+      effectiveTeamCount = Math.max(t.teamCount || 0, Object.keys(t.teams||{}).length, approvedCount);
+
       // Load application for current user
       await loadApplication();
 
-      const isFull = (t.teamCount||0) >= (t.maxTeams||1);
+      const isFull = effectiveTeamCount >= (t.maxTeams||1);
       const statusMap = {
         live: ['live','🔴 LIVE'],
         registration: ['reg','BUKA PENDAFTARAN'],
@@ -1272,7 +1279,7 @@
         </div>
         <div class="info-card">
           <div class="info-lbl">Slots</div>
-          <div class="info-val ${isFull ? 'red' : 'green'}">${t.teamCount||0} / ${t.maxTeams||0}</div>
+          <div class="info-val ${isFull ? 'red' : 'green'}">${effectiveTeamCount} / ${t.maxTeams||0}</div>
         </div>
         <div class="info-card">
           <div class="info-lbl">Format Bracket</div>

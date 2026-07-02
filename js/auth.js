@@ -96,11 +96,11 @@ export async function registerWithUsername(username, password) {
   if (!validUsername(clean))      throw new Error("invalid-username");
   if (clean === ADMIN_USERNAME)   throw new Error("reserved-username");
 
-  const email    = usernameToEmail(clean);
-  const playerId = await generatePlayerId();
-  const now      = Date.now();
+  const email = usernameToEmail(clean);
+  const now   = Date.now();
 
   const cred = await createUserWithEmailAndPassword(auth, email, password);
+  const playerId = await generatePlayerId();
 
   const userData = {
     username:    clean,
